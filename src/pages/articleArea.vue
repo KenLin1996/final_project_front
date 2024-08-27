@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container style="padding: 32px">
     <!-- 創作指引 -->
     <v-card class="pa-3 mb-4">
       <v-card-title>創作指引</v-card-title>
@@ -58,25 +58,23 @@ const creativeProcessGuidance = ref([
   {
     title: "選題與構思",
     subItems: [
-      { title: "內容1", link: "https://example.com/1" },
-      { title: "內容2", link: "https://example.com/2" },
-      { title: "內容3", link: "https://example.com/3" },
+      {
+        title: "選題，要做什麼準備？",
+        link: "https://www.enago.tw/academy/how-to-select-a-research-topic/",
+      },
+      {
+        title: "如何寫好專題報告？訂題、資料蒐集到確立內文架構",
+        link: "https://www.awec.ntu.edu.tw/%E5%A6%82%E4%BD%95%E5%AF%AB%E5%A5%BD%E5%B0%88%E9%A1%8C%E5%A0%B1%E5%91%8A%EF%BC%9F%E8%A8%82%E9%A1%8C%E3%80%81%E8%B3%87%E6%96%99%E8%92%90%E9%9B%86%E5%88%B0%E7%A2%BA%E7%AB%8B%E5%85%A7%E6%96%87%E6%9E%B6/?lang=en",
+      },
     ],
   },
   {
     title: "故事架構",
     subItems: [
-      { title: "內容1", link: "https://example.com/1" },
-      { title: "內容2", link: "https://example.com/2" },
-      { title: "內容3", link: "https://example.com/3" },
-    ],
-  },
-  {
-    title: "角色塑造",
-    subItems: [
-      { title: "內容1", link: "https://example.com/1" },
-      { title: "內容2", link: "https://example.com/2" },
-      { title: "內容3", link: "https://example.com/3" },
+      {
+        title: "關於故事的結構：V、倒V、N、W型故事結構",
+        link: "https://www.domorenovel.com/story-structure/",
+      },
     ],
   },
 ]);
@@ -85,17 +83,11 @@ const creativeSkills = ref([
   {
     title: "寫作技巧",
     subItems: [
-      { title: "內容1", link: "https://example.com/1" },
-      { title: "內容2", link: "https://example.com/2" },
-      { title: "內容3", link: "https://example.com/3" },
-    ],
-  },
-  {
-    title: "修辭和語言",
-    subItems: [
-      { title: "內容1", link: "https://example.com/1" },
-      { title: "內容2", link: "https://example.com/2" },
-      { title: "內容3", link: "https://example.com/3" },
+      {
+        title:
+          "作文怎麼寫？寫作技巧／作文格式／段落架構／萬用句型 國小到職場都適用的作文技巧！",
+        link: "https://www.parenting.com.tw/article/5092784",
+      },
     ],
   },
 ]);
@@ -104,9 +96,10 @@ const faq = ref([
   {
     title: "創作困境",
     subItems: [
-      { title: "內容1", link: "https://example.com/1" },
-      { title: "內容2", link: "https://example.com/2" },
-      { title: "內容3", link: "https://example.com/3" },
+      {
+        title: "五個突破創作困境的方法",
+        link: "https://vocus.cc/article/610e608afd897800014084c2",
+      },
     ],
   },
 ]);

@@ -56,7 +56,11 @@
       <v-btn class="mr-4" style="background-color: #2883d3; color: white"
         >章節列表</v-btn
       >
-      <v-btn style="background-color: #2883d3; color: white">收藏故事</v-btn>
+      <v-btn
+        style="background-color: #2883d3; color: white"
+        @click="collectionFunc"
+        :text="hasCollection ? `取消收藏` : `收藏故事`"
+      ></v-btn>
     </div>
 
     <v-card class="pa-4" style="margin-top: 32px">
@@ -134,6 +138,7 @@ import { definePage } from "vue-router/auto";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "@/composables/axios";
+import { useSnackbar } from "vuetify-use-dialog";
 
 // const pageTitle = story.title;
 definePage({
@@ -144,8 +149,15 @@ definePage({
   },
 });
 
-const { api } = useApi();
+const props = defineProps({
+  story: Object,
+  hasCollection: Boolean,
+});
+
+const { api, apiAuth } = useApi();
 const route = useRoute();
+const createSnackbar = useSnackbar();
+const hasCollection = ref(props.hasCollection);
 
 const story = ref({
   _id: "",
@@ -175,7 +187,7 @@ const load = async () => {
     story.value.totalWordCount = data.result.totalWordCount;
     story.value.collectionNum = data.result.collectionNum;
     story.value.followNum = data.result.followNum;
-    console.log("mainAuthor 的值：", data.result.mainAuthor);
+    // console.log("mainAuthor 的值：", data.result.mainAuthor);
     // (story.value.content =
     //   Array.isArray(data.result.content) && data.result.content.length > 0
     //     ? data.result.content[0].content
@@ -191,9 +203,38 @@ const load = async () => {
     console.log(data.result);
 
     console.log(error);
+    createSnackbar({
+      text: error?.response?.data?.message || "發生錯誤",
+      snackbarProps: {
+        color: "red",
+      },
+    });
   }
 };
 load();
+
+const collectionFunc = async () => {
+  try {
+    const response = await apiAuth.post("user/addBookmark", {
+      storyId: story.value._id,
+    });
+    hasCollection.value = response.data.hasCollection;
+    createSnackbar({
+      text: response.data.hasCollection ? "收藏故事" : "取消收藏",
+      snackbarProps: {
+        color: "accent",
+      },
+    });
+  } catch (error) {
+    console.error("收藏操作失败", error);
+    createSnackbar({
+      text: "收藏操作失败",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+  }
+};
 </script>
 
 <style scoped></style>

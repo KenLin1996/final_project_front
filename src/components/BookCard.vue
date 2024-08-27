@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pa-3 customMargin" max-width="200">
+  <v-card class="pa-3 customMargin" width="220">
     <router-link :to="'/stories/' + _id">
       <v-img class="cursor-pointer" height="150px" :src="image" cover> </v-img>
     </router-link>
@@ -13,7 +13,7 @@
       <v-chip
         density="compact"
         color="primary"
-        label="true"
+        label
         style="font-size: 12px; padding: 2px 6px"
       >
         {{ category }}

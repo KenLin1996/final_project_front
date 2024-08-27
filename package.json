@@ -12,6 +12,7 @@
     "@mdi/font": "7.4.47",
     "axios": "^1.7.2",
     "core-js": "^3.37.1",
+    "mitt": "^3.0.1",
     "pinia-plugin-persistedstate": "^3.2.1",
     "roboto-fontface": "*",
     "validator": "^13.12.0",

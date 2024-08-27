@@ -5,16 +5,17 @@
     class="position-fixed"
     :elevation="5"
   >
-    <v-container class="d-flex align-center" fluid="true">
+    <v-container class="d-flex align-center" fluid>
       <!-- 網站 logo -->
       <router-link to="/">
         <v-img
           class="mx-3"
-          :width="100"
+          width="50"
           aspect-ratio="1/1"
           cover
-          src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+          src="https://img.icons8.com/?size=100&id=zVbUsD7GnSYl&format=png&color=000000"
         ></v-img>
+        <!-- src="https://cdn.vuetifyjs.com/images/parallax/material.jpg" -->
       </router-link>
 
       <!-- 首頁 -->
@@ -79,9 +80,9 @@
       <!-- 通知 -->
       <template v-else>
         <v-menu open-on-hover transition="slide-y-transition">
-          <template v-slot:activator="{ props }">
+          <!-- <template v-slot:activator="{ props }">
             <v-btn icon="mdi-bell" v-bind="props" class="mr-2"></v-btn>
-          </template>
+          </template> -->
           <v-list>
             <v-list-item
               v-for="(notification, i) in notifications"
@@ -138,7 +139,7 @@ const menus = computed(() => {
       title: "創作資源",
       items: [
         { to: "/articleArea", text: "創作指引" },
-        { to: "/characterSet", text: "人物設定" },
+        // { to: "/characterSet", text: "人物設定" },
       ],
     },
   ];
@@ -150,7 +151,7 @@ const notifications = computed(() => [
 ]);
 
 const settings = computed(() => [
-  { to: "/management", text: "故事/角色管理" },
+  { to: "/management", text: "故事管理" },
   { to: "/setting", text: "設定" },
   { text: "登出", click: logout },
 ]);

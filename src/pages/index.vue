@@ -54,8 +54,10 @@
         <h2>追蹤故事</h2>
       </v-col>
       <v-divider class="mb-3"></v-divider>
-      <v-col cols="12" class="d-flex flex-row justify-space-between">
-        <StoryItem />
+      <v-col cols="12" class="d-flex flex-column justify-space-between">
+        <template v-for="(story, index) in stories" :key="index">
+          <StoryItem v-bind="story" @update="loadStories" />
+        </template>
       </v-col>
     </v-row>
   </v-container>
@@ -82,7 +84,7 @@
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-column justify-space-between">
         <template v-for="(story, index) in stories" :key="index">
-          <StoryItem v-bind="story" />
+          <StoryItem v-bind="story" @update="loadStories" />
         </template>
       </v-col>
     </v-row>
@@ -142,6 +144,7 @@ import { definePage } from "vue-router/auto";
 import { useApi } from "@/composables/axios";
 import BookCard from "../components/BookCard.vue";
 import StoryItem from "@/components/StoryItem.vue";
+import mittt from "@/mitt";
 
 definePage({
   meta: {
@@ -169,13 +172,15 @@ const resources = [
     title: "創作指引",
     color: "#F9A825",
   },
-  {
-    to: "/characterSet",
-    icon: "mdi-account-box-outline",
-    title: "人物設定",
-    color: "#000000",
-  },
+  // {
+  //   to: "/characterSet",
+  //   icon: "mdi-account-box-outline",
+  //   title: "人物設定",
+  //   color: "#000000",
+  // },
 ];
 loadStories();
+
+mittt.on("updateStory", loadStories);
 </script>
 <style scoped></style>

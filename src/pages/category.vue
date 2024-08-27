@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container style="padding: 32px">
     <v-responsive class="my-5">
       <v-text-field
         v-model="searchQuery"
@@ -109,7 +109,7 @@
               <v-card-subtitle>
                 <div>
                   <span class="mr-4" style="font-weight: bolder; color: black"
-                    >初創者：{{ story.mainAuthor }}</span
+                    >初創者：{{ story.mainAuthor.username }}</span
                   >
                   <span style="font-weight: bolder; color: black"
                     >最新延續者：{{ story.latestAuthor }}</span
@@ -123,9 +123,10 @@
               <v-card-text class="text py-1" style="font-weight: 500">
                 {{
                   story.latestContent.length === 0
-                    ? story.content[0]?.content
+                    ? story.content[0]?.content[0]
                     : story.latestContent
                 }}
+                <!-- {{ story.latestContent }} -->
               </v-card-text>
             </v-col>
           </v-row>

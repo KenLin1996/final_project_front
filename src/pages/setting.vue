@@ -18,7 +18,7 @@
                 text="帳號設定"
                 value="option-1"
               ></v-tab>
-              <v-tab
+              <!-- <v-tab
                 class="my-1"
                 prepend-icon="mdi-bell-outline"
                 text="通知設定"
@@ -29,7 +29,7 @@
                 prepend-icon="mdi-theme-light-dark"
                 text="閱讀模式"
                 value="option-3"
-              ></v-tab>
+              ></v-tab> -->
             </v-tabs>
           </v-list-item>
         </v-list>

@@ -7,6 +7,7 @@ export const useUserStore = defineStore(
   () => {
     const { api, apiAuth } = useApi();
 
+    const userId = ref("");
     const token = ref("");
     const username = ref("");
     const bookmarkStory = ref(0);
@@ -23,6 +24,7 @@ export const useUserStore = defineStore(
     const login = async (values) => {
       try {
         const { data } = await api.post("/user/login", values);
+        userId.value = data.result.userId;
         token.value = data.result.token;
         username.value = data.result.username;
         bookmarkStory.value = data.result.bookmarkStory;
@@ -44,6 +46,7 @@ export const useUserStore = defineStore(
 
       try {
         const { data } = await apiAuth.get("/user/profile");
+        userId.value = data.result.userId;
         username.value = data.result.username;
         bookmarkStory.value = data.result.bookmarkStory;
         followStory.value = data.result.followStory;
@@ -81,6 +84,7 @@ export const useUserStore = defineStore(
     };
 
     return {
+      userId,
       token,
       username,
       bookmarkStory,

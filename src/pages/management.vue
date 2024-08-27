@@ -9,34 +9,40 @@
     <div class="d-flex">
       <div class="sidebar" style="margin-right: 12px; background-color: white">
         <v-list class="py-0" dense>
-          <h3 class="mb-1">故事管理</h3>
+          <h3 class="mb-3">故事管理</h3>
           <v-list-item class="d-flex">
             <v-tabs v-model="tab" color="primary" direction="vertical">
               <v-tab
                 class="my-1"
                 prepend-icon="mdi-book"
-                text="我的故事/延續"
+                text="我的故事"
                 value="option-1"
+              ></v-tab>
+              <v-tab
+                class="my-1"
+                prepend-icon="mdi-book"
+                text="我的延續"
+                value="option-2"
               ></v-tab>
               <v-tab
                 class="my-1"
                 prepend-icon="mdi-bookmark"
                 text="收藏的故事"
-                value="option-2"
+                value="option-3"
               ></v-tab>
-              <v-tab
+              <!-- <v-tab
                 class="my-1"
                 prepend-icon="mdi-heart"
                 text="追蹤的故事"
                 value="option-3"
-              ></v-tab>
+              ></v-tab> -->
               <v-tab
                 class="my-1"
                 prepend-icon="mdi-vote"
                 text="已投票的故事"
                 value="option-4"
               ></v-tab>
-              <v-divider class="my-6"></v-divider>
+              <!-- <v-divider class="my-6"></v-divider>
               <h3 class="mb-1">角色管理</h3>
               <v-tab
                 class="my-1"
@@ -49,7 +55,7 @@
                 prepend-icon="mdi-account-multiple"
                 text="收藏的角色"
                 value="option-6"
-              ></v-tab>
+              ></v-tab> -->
             </v-tabs>
           </v-list-item>
         </v-list>
@@ -57,7 +63,7 @@
 
       <div class="content" style="background-color: white">
         <v-tabs-window v-model="tab">
-          <!-- 我的故事/延續 -->
+          <!-- 我的故事 -->
           <v-tabs-window-item value="option-1">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3>我的故事</h3>
@@ -108,18 +114,25 @@
                 </v-data-table>
               </v-card-text>
             </v-card>
-            <div class="d-flex align-center justify-space-between mt-4 mb-4">
+          </v-tabs-window-item>
+
+          <!-- 我的延續 -->
+          <v-tabs-window-item value="option-2">
+            <div class="d-flex align-center justify-space-between mb-4">
               <h3>我的延續</h3>
             </div>
             <v-divider></v-divider>
             <v-card flat>
               <v-card-text>
                 <v-data-table
-                  :headers="continuationHeaders"
-                  :items="continuationStories"
+                  :headers="ExtensionHeaders"
+                  :items="exStoryItems"
                   density="comfortable"
                   item-key="name"
                 >
+                  <template #[`item.state`]="{ item }">
+                    <span>{{ item.state ? "完結" : "連載" }}</span>
+                  </template>
                   <template #[`item.actions`]="{ item }">
                     <v-btn
                       text
@@ -137,7 +150,7 @@
           </v-tabs-window-item>
 
           <!-- 收藏的故事 -->
-          <v-tabs-window-item value="option-2">
+          <v-tabs-window-item value="option-3">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3>收藏的故事</h3>
             </div>
@@ -157,7 +170,7 @@
 
             <v-data-table
               v-model="selected"
-              :headers="headers2"
+              :headers="collectionHeaders"
               :items="collectionStories"
               show-select
               item-value="title"
@@ -165,7 +178,7 @@
           </v-tabs-window-item>
 
           <!-- 追蹤的故事 -->
-          <v-tabs-window-item value="option-3">
+          <!-- <v-tabs-window-item value="option-3">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3>追蹤的故事</h3>
             </div>
@@ -190,7 +203,7 @@
               show-select
               item-value="title"
             ></v-data-table>
-          </v-tabs-window-item>
+          </v-tabs-window-item> -->
 
           <!-- 已投票的故事 -->
           <v-tabs-window-item value="option-4">
@@ -218,8 +231,7 @@
             </v-data-table>
           </v-tabs-window-item>
 
-          <!-- 建立的角色 -->
-          <v-tabs-window-item value="option-5">
+          <!-- <v-tabs-window-item value="option-5">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3>建立的角色</h3>
               <v-btn prepend-icon="mdi-plus" size="small">新增角色</v-btn>
@@ -293,10 +305,9 @@
                 </v-data-table>
               </v-card-text>
             </v-card>
-          </v-tabs-window-item>
+          </v-tabs-window-item> -->
 
-          <!-- 收藏的角色 -->
-          <v-tabs-window-item value="option-6">
+          <!-- <v-tabs-window-item value="option-6">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3>收藏的角色</h3>
             </div>
@@ -360,7 +371,7 @@
                 </v-data-table>
               </v-card-text>
             </v-card>
-          </v-tabs-window-item>
+          </v-tabs-window-item> -->
         </v-tabs-window>
       </div>
     </div>
@@ -453,10 +464,11 @@ import * as yup from "yup";
 import { useForm, useField } from "vee-validate";
 import { useApi } from "@/composables/axios";
 import { useSnackbar } from "vuetify-use-dialog";
+import { useRoute } from "vue-router";
 
 definePage({
   meta: {
-    title: "界筆 ｜ 故事/角色管理",
+    title: "界筆 ｜ 故事管理",
     login: false,
     admin: false,
   },
@@ -464,11 +476,12 @@ definePage({
 
 const items = ref([
   { title: "首頁", disabled: false, href: "/" },
-  { title: "故事/角色管理", disabled: true, href: "/management" },
+  { title: "故事管理", disabled: true, href: "/management" },
 ]);
 
 const { apiAuth } = useApi();
 const createSnackbar = useSnackbar();
+const route = useRoute();
 const tab = ref("option-1");
 
 const tableItemsPerPage = ref(10);
@@ -572,6 +585,7 @@ const myStoryHeaders = [
 ];
 
 const myStoryItems = ref([]);
+const exStoryItems = ref([]);
 
 const tableLoadMyStoryItems = async () => {
   try {
@@ -583,13 +597,13 @@ const tableLoadMyStoryItems = async () => {
         sortOrder: tableSortBy.value[0]?.order || "desc",
       },
     });
-    console.log(data);
+    // console.log(data);
     myStoryItems.value.splice(
       0,
       myStoryItems.value.length,
       ...data.result.data
     );
-    console.log(myStoryItems.value);
+    // console.log(myStoryItems.value);
     tableItemsLength.value = data.result.total;
   } catch (error) {
     console.log(error);
@@ -625,37 +639,54 @@ const deleteItem = async () => {
   }
 };
 
-const continuationHeaders = [
+const props = defineProps({
+  storyId: {
+    type: String,
+    required: true,
+  },
+});
+
+const ExtensionHeaders = [
   { title: "書名", align: "start", width: "130px", key: "title" },
   { title: "狀態", align: "center", key: "state" },
-  { title: "我的延續內容", align: "center", key: "content" },
+  { title: "我的延續內容", align: "center", key: "latestContent" },
   { title: "總票數", align: "center", key: "totalVotes" },
-  { title: "編輯", align: "center", key: "actions", sortable: false },
+  // { title: "編輯", align: "center", key: "actions", sortable: false },
 ];
 
-const continuationStories = [
-  {
-    img: "link_to_image",
-    title:
-      "想要讓人因此試著鍛煉成一個跟學生成員長很像的女生，結果我卻變成了她的僕人",
-    state: "連載中(100%)",
-    show: "公開",
-    content:
-      "鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生鍛煉成一個跟學生",
-    collectionNum: 1000,
-    followNum: 1000,
-    totalVotes: 23000203,
-  },
-];
+const extensionStory = async () => {
+  const storyId = route.params.id;
+  // console.log(storyId);
+  try {
+    const response = await apiAuth.get(`/story/getExtension/${storyId}`);
+
+    console.log(response);
+    exStoryItems.value = response.data;
+  } catch (error) {
+    console.error("Error fetching story extensions:", error);
+  }
+};
+
+// onMounted(extensionStory);
+
+// const extensionStorys = async () => {
+//   try {
+//     const response = await apiAuth.get(`/story/getExtension`);
+//     console.log("extensionStory 的 response ：", response.data);
+
+//     // 将新数据添加到 exStoryItems 中
+//     exStoryItems.value.push(...response.data.extensions); // 假設 story.result.story 對應的是 extensions
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+extensionStory();
 
 const selectItems = ["文學小說", "奇幻"];
-const raceItems = ["人族", "魔族"];
-const genderItems = ["男", "女"];
-const storyItems = ["學員"];
 
 const selected = ref([]);
 
-const headers2 = [
+const collectionHeaders = [
   {
     title: "類別",
     align: "start",
@@ -689,30 +720,30 @@ const collectionStories = ref([
   },
 ]);
 
-const followHeaders = [
-  {
-    title: "類別",
-    align: "start",
-    sortable: false,
-    key: "category",
-  },
-  { title: "書名", key: "title", align: "start", sortable: false },
-  { title: "狀態", key: "state", align: "center", sortable: false },
-  { title: "最新章節", key: "chapterName", align: "center", sortable: false },
-  { title: "最初作者", key: "author", align: "center", sortable: false },
-  { title: "追蹤數", key: "followNum", align: "center" },
-];
+// const followHeaders = [
+//   {
+//     title: "類別",
+//     align: "start",
+//     sortable: false,
+//     key: "category",
+//   },
+//   { title: "書名", key: "title", align: "start", sortable: false },
+//   { title: "狀態", key: "state", align: "center", sortable: false },
+//   { title: "最新章節", key: "chapterName", align: "center", sortable: false },
+//   { title: "最初作者", key: "author", align: "center", sortable: false },
+//   { title: "追蹤數", key: "followNum", align: "center" },
+// ];
 
-const followStories = [
-  {
-    category: "奇幻",
-    title: "想要讓人因此試著鍛煉成一個跟學生",
-    state: "連載中(100%)",
-    chapterName: "後記——善良不需要很聰明",
-    author: "新北工程師",
-    followNum: 1000,
-  },
-];
+// const followStories = [
+//   {
+//     category: "奇幻",
+//     title: "想要讓人因此試著鍛煉成一個跟學生",
+//     state: "連載中(100%)",
+//     chapterName: "後記——善良不需要很聰明",
+//     author: "新北工程師",
+//     followNum: 1000,
+//   },
+// ];
 
 const voteStoryHeaders = [
   { title: "書名", key: "title", align: "start", sortable: false },
@@ -732,55 +763,55 @@ const voteStories = [
   },
 ];
 
-const createCharactersHeaders = [
-  { title: "角色", key: "name", align: "start", sortable: false },
-  { title: "種族", key: "race", align: "center", sortable: false },
-  { title: "性別", key: "gender", align: "center", sortable: false },
-  { title: "角色描述", key: "roleDescription", align: "center" },
-  { title: "出現故事", key: "emergeStory", align: "center", sortable: false },
-  { title: "收藏數", key: "collectionNum", align: "center" },
-  { title: "編輯", key: "actions", align: "center", sortable: false },
-];
+// const createCharactersHeaders = [
+//   { title: "角色", key: "name", align: "start", sortable: false },
+//   { title: "種族", key: "race", align: "center", sortable: false },
+//   { title: "性別", key: "gender", align: "center", sortable: false },
+//   { title: "角色描述", key: "roleDescription", align: "center" },
+//   { title: "出現故事", key: "emergeStory", align: "center", sortable: false },
+//   { title: "收藏數", key: "collectionNum", align: "center" },
+//   { title: "編輯", key: "actions", align: "center", sortable: false },
+// ];
 
-const createCharactersItems = [
-  {
-    name: "煉學生",
-    race: "人族",
-    gender: "男",
-    roleDescription:
-      "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
-    emergeStory: "學員學員",
-    collectionNum: 43,
-  },
-];
+// const createCharactersItems = [
+//   {
+//     name: "煉學生",
+//     race: "人族",
+//     gender: "男",
+//     roleDescription:
+//       "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
+//     emergeStory: "學員學員",
+//     collectionNum: 43,
+//   },
+// ];
 
-const collectionCharactersHeaders = [
-  { title: "角色", key: "name", align: "start", sortable: false },
-  { title: "種族", key: "race", align: "center", sortable: false },
-  { title: "性別", key: "gender", align: "center", sortable: false },
-  { title: "角色描述", key: "roleDescription", align: "center" },
-  { title: "出現故事", key: "emergeStory", align: "center", sortable: false },
-  { title: "收藏數", key: "collectionNum", align: "center" },
-  { title: "編輯", key: "actions", align: "center", sortable: false },
-];
+// const collectionCharactersHeaders = [
+//   { title: "角色", key: "name", align: "start", sortable: false },
+//   { title: "種族", key: "race", align: "center", sortable: false },
+//   { title: "性別", key: "gender", align: "center", sortable: false },
+//   { title: "角色描述", key: "roleDescription", align: "center" },
+//   { title: "出現故事", key: "emergeStory", align: "center", sortable: false },
+//   { title: "收藏數", key: "collectionNum", align: "center" },
+//   { title: "編輯", key: "actions", align: "center", sortable: false },
+// ];
 
-const collectionCharactersItems = [
-  {
-    name: "煉學生",
-    race: "人族",
-    gender: "男",
-    roleDescription:
-      "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
-    emergeStory: "學員學員",
-    collectionNum: 43,
-  },
-];
+// const collectionCharactersItems = [
+//   {
+//     name: "煉學生",
+//     race: "人族",
+//     gender: "男",
+//     roleDescription:
+//       "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
+//     emergeStory: "學員學員",
+//     collectionNum: 43,
+//   },
+// ];
 </script>
 
 <style scoped>
 .sidebar {
   width: 20%;
-  padding: 16px;
+  padding: 20px;
 }
 
 .content {

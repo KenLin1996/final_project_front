@@ -10,7 +10,7 @@
         </div>
         <div class="vote-section">
           <v-icon class="vote-icon" size="20">mdi-vote</v-icon>
-          <span class="vote-count text-body-2">{{ voteCount }}</span>
+          <span class="vote-count text-body-2">{{ voteCount.length }}</span>
           <v-menu location="end">
             <template v-slot:activator="{ props }">
               <v-btn
@@ -37,15 +37,15 @@
     </v-card-text>
     <v-card-actions class="d-flex justify-end">
       <v-btn
-        :disabled="voteButtonDisabled"
+        :disabled="hasVoted || hasVotedInOtherExtension"
         style="background-color: #f24e1e; color: white"
-        @click="vote"
+        @click="changeVoteCount(1)"
         >投票</v-btn
       >
       <v-btn
-        :disabled="cancelButtonDisabled"
+        :disabled="!hasVoted"
         style="background-color: #f4b942; color: black; margin-right: 24px"
-        @click="cancel"
+        @click="changeVoteCount(-1)"
         >取消</v-btn
       >
     </v-card-actions>
@@ -53,31 +53,69 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { defineProps } from "vue";
+import { useApi } from "../composables/axios.js";
+import { useUserStore } from "@/stores/user";
+import mittt from "@/mitt.js";
+// import { useRoute } from "vue-router";
+
+const { apiAuth } = useApi();
+const userStore = useUserStore();
+// const { route } = useRoute();
 
 const items = ref([{ title: "檢舉" }, { title: "刪除" }]);
-const voteCount = ref(0);
-const voteButtonDisabled = ref(false);
-const cancelButtonDisabled = ref(true);
+const hasVoted = ref(false);
+const hasVotedInOtherExtension = ref(false);
 
-const vote = () => {
-  voteCount.value += 1;
-  voteButtonDisabled.value = true;
-  cancelButtonDisabled.value = false;
-};
+const {
+  content,
+  chapterName,
+  author,
 
-const cancel = () => {
-  voteCount.value -= 1;
-  voteButtonDisabled.value = false;
-  cancelButtonDisabled.value = true;
-};
-
-const { content, chapterName, author } = defineProps([
+  voteCount: extensionVoteCount,
+  storyId,
+  extensionId,
+} = defineProps([
   "content",
   "chapterName",
   "author",
+  "voteCount",
+  "storyId",
+  "extensionId",
 ]);
+
+const userId = userStore.userId;
+
+onMounted(() => {
+  if (extensionVoteCount.includes(userId)) {
+    hasVoted.value = true;
+  }
+});
+
+const changeVoteCount = async (voteCountChange) => {
+  try {
+    const response = await apiAuth.patch(`/story/${storyId}/${extensionId}`, {
+      voteCountChange: voteCountChange,
+    });
+    console.log(response.data.message);
+
+    if (!response.data.hasVotedInOtherExtension) {
+      hasVotedInOtherExtension.value = true;
+    } else {
+      if (voteCountChange === 1) {
+        hasVoted.value = true; // 禁用投票按钮
+      } else if (voteCountChange === -1) {
+        hasVoted.value = false; // 取消投票
+      }
+    }
+
+    mittt.emit("updateStory");
+  } catch (error) {
+    console.log(error);
+    console.error("Error updating vote count:", error);
+  }
+};
 </script>
 
 <style scoped>

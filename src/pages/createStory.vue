@@ -2,56 +2,76 @@
   <v-container style="padding: 32px">
     <h2>我的故事</h2>
     <v-divider class="mb-5"></v-divider>
-    <v-form @submit.prevent="submit" :disabled="isSubmitting">
+    <v-form
+      @submit.prevent="submit"
+      :disabled="isSubmitting"
+      style="padding: 10px 20px"
+    >
       <v-row>
-        <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('totalWordCount')"
-            >mdi-asterisk</v-icon
-          >
-          <v-label class="me-4 mb-0">總字數</v-label>
-          <v-text-field
-            class="flex-grow-1"
-            style="background-color: white"
-            v-model="totalWordCount.value.value"
-            :error-messages="totalWordCount.errorMessage.value"
-            required
-          ></v-text-field>
+        <v-col cols="12" class="d-flex align-center w-100">
+          <div class="me-2">
+            <v-icon
+              class="me-2"
+              v-if="requiredFields.includes('totalWordCount')"
+              style="color: red"
+              size="12px"
+              >mdi-asterisk</v-icon
+            >
+            <v-label class="me-4 mb-0">總字數</v-label>
+          </div>
+          <div class="d-flex align-center">
+            <v-text-field
+              max-width="600px"
+              type="number"
+              class="flex-grow-1"
+              v-model="totalWordCount.value.value"
+              :error-messages="totalWordCount.errorMessage.value"
+              required
+            ></v-text-field>
 
-          <v-tooltip location="bottom">
-            <template v-slot:activator="{ props }">
-              <v-icon class="mdi mdi-lightbulb-outline" v-bind="props"></v-icon>
-            </template>
-            <div class="tooltip-content">
-              <p><strong>詩</strong></p>
-              <ul>
-                <li>短詩：50字以内</li>
-                <li>長詩：數百到數千字</li>
-              </ul>
-              <p><strong>小說</strong></p>
-              <ul>
-                <li>短篇小說：1,000到20,000字（通常3,000到7,500字之間）</li>
-                <li>中篇小說：20,000到50,000字</li>
-                <li>長篇小說：超過50,000字（通常80,000到120,000字之間）</li>
-              </ul>
-              <p><strong>短品（散文、隨筆等）</strong></p>
-              <ul>
-                <li>短篇散文：500到2,000字</li>
-                <li>隨筆：1,000到5,000字</li>
-              </ul>
-            </div>
-          </v-tooltip>
+            <v-tooltip location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-icon
+                  class="mdi mdi-lightbulb-outline"
+                  v-bind="props"
+                ></v-icon>
+              </template>
+              <div class="tooltip-content">
+                <p><strong>詩</strong></p>
+                <ul>
+                  <li>短詩：50字以内</li>
+                  <li>長詩：數百到數千字</li>
+                </ul>
+                <p><strong>小說</strong></p>
+                <ul>
+                  <li>短篇小說：1,000到20,000字（通常3,000到7,500字之間）</li>
+                  <li>中篇小說：20,000到50,000字</li>
+                  <li>長篇小說：超過50,000字（通常80,000到120,000字之間）</li>
+                </ul>
+                <p><strong>短品（散文、隨筆等）</strong></p>
+                <ul>
+                  <li>短篇散文：500到2,000字</li>
+                  <li>隨筆：1,000到5,000字</li>
+                </ul>
+              </div>
+            </v-tooltip>
+          </div>
         </v-col>
       </v-row>
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('title')"
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('title')"
+            style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">故事名</v-label>
           <v-text-field
+            max-width="600px"
             class="flex-grow-1"
-            style="background-color: white"
             v-model="title.value.value"
             :error-messages="title.errorMessage.value"
             required
@@ -61,13 +81,16 @@
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('chapterName')"
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('chapterName')"
+            style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">章節名稱</v-label>
           <v-text-field
             class="flex-grow-1"
-            style="background-color: white"
             v-model="chapterName.value.value"
             :error-messages="chapterName.errorMessage.value"
             required
@@ -81,12 +104,13 @@
             v-if="requiredFields.includes('content')"
             class="me-2"
             style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">起始故事</v-label>
           <v-textarea
             class="flex-grow-1"
-            :counter="500"
+            :counter="maxContentLength"
             v-model="content.value.value"
             :error-messages="content.errorMessage.value"
             required
@@ -96,7 +120,11 @@
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('category')"
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('category')"
+            style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">投票時間</v-label>
@@ -113,7 +141,11 @@
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('category')"
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('category')"
+            style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">作品分類</v-label>
@@ -130,7 +162,11 @@
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('chapterLabels')"
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('chapterLabels')"
+            style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">作品標籤</v-label>
@@ -149,7 +185,11 @@
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('state')"
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('state')"
+            style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">故事狀態</v-label>
@@ -170,7 +210,11 @@
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('show')"
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('show')"
+            style="color: red"
+            size="12px"
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">顯示方式</v-label>
@@ -191,9 +235,13 @@
 
       <v-row>
         <v-col cols="12" class="d-flex align-center">
-          <v-icon class="me-2" v-if="requiredFields.includes('fileRecords')"
-            >mdi-asterisk</v-icon
-          >
+          <v-icon
+            class="me-2"
+            v-if="requiredFields.includes('fileRecords')"
+            style="color: red"
+            size="12px"
+            icon="mdi-asterisk"
+          ></v-icon>
           <v-label class="me-4 mb-0">封面圖片</v-label>
           <!-- <v-file-input
             class="flex-grow-1"
