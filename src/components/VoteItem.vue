@@ -37,13 +37,13 @@
     </v-card-text>
     <v-card-actions class="d-flex justify-end">
       <v-btn
-        :disabled="hasVoted || hasVotedInOtherExtension"
+        :disabled="hasVoted || voteStatus.hasVoted"
         style="background-color: #f24e1e; color: white"
         @click="changeVoteCount(1)"
         >投票</v-btn
       >
       <v-btn
-        :disabled="!hasVoted"
+        :disabled="!hasVoted || (voteStatus.hasVoted && !voteStatus.voteThis)"
         style="background-color: #f4b942; color: black; margin-right: 24px"
         @click="changeVoteCount(-1)"
         >取消</v-btn
@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, toRefs } from "vue";
 import { defineProps } from "vue";
 import { useApi } from "../composables/axios.js";
 import { useUserStore } from "@/stores/user";
@@ -65,50 +65,53 @@ const userStore = useUserStore();
 // const { route } = useRoute();
 
 const items = ref([{ title: "檢舉" }, { title: "刪除" }]);
-const hasVoted = ref(false);
 const hasVotedInOtherExtension = ref(false);
-
-const {
-  content,
-  chapterName,
-  author,
-
-  voteCount: extensionVoteCount,
-  storyId,
-  extensionId,
-} = defineProps([
+const props = defineProps([
   "content",
   "chapterName",
   "author",
   "voteCount",
   "storyId",
   "extensionId",
+  "voteStatus",
 ]);
+
+const {
+  content,
+  chapterName,
+  author,
+  voteStatus,
+  voteCount: extensionVoteCount,
+  storyId,
+  extensionId,
+} = toRefs(props);
 
 const userId = userStore.userId;
 
-onMounted(() => {
-  if (extensionVoteCount.includes(userId)) {
-    hasVoted.value = true;
-  }
+const hasVoted = computed(() => {
+  return extensionVoteCount.value.includes(userId);
 });
 
 const changeVoteCount = async (voteCountChange) => {
   try {
-    const response = await apiAuth.patch(`/story/${storyId}/${extensionId}`, {
-      voteCountChange: voteCountChange,
-    });
+    const response = await apiAuth.patch(
+      `/story/${storyId.value}/${extensionId.value}`,
+      {
+        voteCountChange: voteCountChange,
+      }
+    );
     console.log(response.data.message);
 
     if (!response.data.hasVotedInOtherExtension) {
       hasVotedInOtherExtension.value = true;
-    } else {
-      if (voteCountChange === 1) {
-        hasVoted.value = true; // 禁用投票按钮
-      } else if (voteCountChange === -1) {
-        hasVoted.value = false; // 取消投票
-      }
     }
+    // else {
+    //   if (voteCountChange === 1) {
+    //     hasVoted.value = true; // 禁用投票按钮
+    //   } else if (voteCountChange === -1) {
+    //     hasVoted.value = false; // 取消投票
+    //   }
+    // }
 
     mittt.emit("updateStory");
   } catch (error) {

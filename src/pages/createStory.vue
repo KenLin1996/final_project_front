@@ -110,6 +110,7 @@
           <v-label class="me-4 mb-0">起始故事</v-label>
           <v-textarea
             class="flex-grow-1"
+            maxLength=""
             :counter="maxContentLength"
             v-model="content.value.value"
             :error-messages="content.errorMessage.value"
@@ -198,7 +199,7 @@
             row
             hide-details
             v-model="state.value.value"
-            :error-messages="state.errorMessage.value"
+            v-messages="state.errorMessage.value"
           >
             <div class="d-flex align-center">
               <!-- <v-radio label="完結" :value="true" class="me-4"></v-radio> -->
@@ -280,7 +281,7 @@
 
 <script setup>
 import { definePage } from "vue-router/auto";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import * as yup from "yup";
 import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
@@ -311,12 +312,25 @@ const requiredFields = [
   "show",
   "fileRecords",
 ];
+const totalWordCount = useField("totalWordCount");
+
+const maxContentLength = computed(() => {
+  const totalCount = Number(totalWordCount.value.value) || 0; // 如果为 NaN，则使用 0
+  return Math.floor(totalCount / 10);
+});
+console.log(maxContentLength.value);
 
 const schema = yup.object({
   totalWordCount: yup.string().required("文章總字數必填"),
   title: yup.string().required("故事名稱必填"),
   chapterName: yup.string().required("章節名稱必填"),
-  content: yup.string().required("內容必填"),
+  content: yup
+    .string()
+    .required("內容必填")
+    .max(
+      maxContentLength.value || 0,
+      `內容不能超過 ${maxContentLength.value || 0} 字`
+    ),
   category: yup.string().required("作品分類必填"),
   chapterLabels: yup.array().required("作品標籤必填"),
   state: yup.boolean().required("狀態必填"),
@@ -338,7 +352,6 @@ const { handleSubmit, isSubmitting, resetForm } = useForm({
   },
 });
 
-const totalWordCount = useField("totalWordCount");
 const title = useField("title");
 const chapterName = useField("chapterName");
 const content = useField("content");

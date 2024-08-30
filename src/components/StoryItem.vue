@@ -31,12 +31,12 @@
               {{ mainAuthor?.username }}
             </span>
             <br />
-            <!-- <span
+            <span
               v-if="extensions && extensions.length > 0"
               class="my-2 d-inline-block"
               style="color: black; margin-right: 10px"
               >{{ remainingTime }}</span
-            > -->
+            >
             <br />
             <span style="color: black; margin-right: 10px">
               {{
@@ -152,6 +152,7 @@
               :chapterName="extension.chapterName"
               :author="extension.author"
               :voteCount="extension.voteCount"
+              :voteStatus="checkVoteStatus(extension)"
               @update="loadStories"
             />
           </template>
@@ -168,6 +169,10 @@ import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
 import { useSnackbar } from "vuetify-use-dialog";
 import VoteItem from "@/components/VoteItem.vue";
+import { useUserStore } from "@/stores/user";
+
+const userStore = useUserStore();
+const userId = userStore.userId;
 
 const emit = defineEmits(["update"]);
 const { apiAuth } = useApi();
@@ -265,34 +270,37 @@ const contentRules = computed(() => [
     `內容字數需在 ${minWords.value} 至 ${maxWords.value} 字之間`,
 ]);
 
-// const setRemainingTime = () => {
-//   const now = Date.now();
-//   const end = voteEnd.getTime();
-//   console.log(end);
+const setRemainingTime = () => {
+  const now = Date.now();
+  const end = new Date(voteEnd.value).getTime();
 
-//   // const end = new Date(voteEnd.value).getTime();
+  // console.log(end);
 
-//   const timeRemaining = end - now;
+  // const end = new Date(voteEnd.value).getTime();
 
-//   if (timeRemaining <= 0) {
-//     clearInterval(intervalId);
-//     return "投票已結束";
-//   }
+  const timeRemaining = end - now;
+  // console.log(timeRemaining);
 
-//   const totalSeconds = Math.floor(timeRemaining / 1000);
-//   const days = Math.floor(totalSeconds / (24 * 3600));
-//   const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
-//   const minutes = Math.floor((totalSeconds % 3600) / 60);
-//   const seconds = totalSeconds % 60;
+  if (timeRemaining <= 0) {
+    clearInterval(intervalId);
+    remainingTime.value = "投票已結束";
+    return;
+  }
 
-//   const parts = [];
-//   if (days > 0) parts.push(`${days} 天`);
-//   if (hours > 0) parts.push(`${hours} 小時`);
-//   if (minutes > 0) parts.push(`${minutes} 分`);
-//   if (seconds > 0) parts.push(`${seconds} 秒`);
+  const totalSeconds = Math.floor(timeRemaining / 1000);
+  const days = Math.floor(totalSeconds / (24 * 3600));
+  const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
-//   remainingTime.value = parts.join(" ");
-// };
+  const parts = [];
+  if (days > 0) parts.push(`${days} 天`);
+  if (hours > 0) parts.push(`${hours} 小時`);
+  if (minutes > 0) parts.push(`${minutes} 分`);
+  if (seconds > 0) parts.push(`${seconds} 秒`);
+
+  remainingTime.value = parts.join(" ");
+};
 
 const setVoteTime = async () => {
   const now = new Date();
@@ -316,17 +324,17 @@ const setVoteTime = async () => {
   }
 };
 
-// const startCountdown = () => {
-//   intervalId = setInterval(() => {
-//     setRemainingTime();
-//   }, 1000);
-// };
+const startCountdown = () => {
+  intervalId = setInterval(() => {
+    setRemainingTime();
+  }, 1000);
+};
 
-// onMounted(() => {
-//   if (voteEnd) {
-//     startCountdown();
-//   }
-// });
+onMounted(() => {
+  if (voteEnd) {
+    startCountdown();
+  }
+});
 
 const submit = handleSubmit(async (values) => {
   try {
@@ -361,6 +369,33 @@ const submit = handleSubmit(async (values) => {
 onUnmounted(() => {
   clearInterval(intervalId);
 });
+
+/**
+ * 檢查延伸的投票狀態
+ * @param extension 要檢查的的延伸
+ */
+const checkVoteStatus = (extension) => {
+  // 檢查有沒有投過
+  let hasVoted = false;
+  // 是不是投要檢查的延伸
+  let voteThis = false;
+  // 迴圈每個故事延伸
+  for (const e of extensions.value) {
+    // 檢查投票陣列有沒有包含使用者
+    const voteidx = e.voteCount.indexOf(userId);
+    // 如果有包含，代表有投
+    if (voteidx > -1) {
+      // 有投過
+      hasVoted = true;
+      // 如果現在迴圈的 id = 要檢查的 id
+      if (e._id === extension._id) {
+        // 投這個
+        voteThis = true;
+      }
+    }
+  }
+  return { hasVoted, voteThis };
+};
 </script>
 
 <style scoped>
