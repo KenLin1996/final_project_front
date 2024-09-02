@@ -53,16 +53,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, toRefs } from "vue";
+import { ref, toRefs } from "vue";
 import { defineProps } from "vue";
 import { useApi } from "../composables/axios.js";
 import { useUserStore } from "@/stores/user";
 import mittt from "@/mitt.js";
-// import { useRoute } from "vue-router";
 
 const { apiAuth } = useApi();
 const userStore = useUserStore();
-// const { route } = useRoute();
 
 const items = ref([{ title: "檢舉" }, { title: "刪除" }]);
 const hasVotedInOtherExtension = ref(false);
@@ -78,7 +76,6 @@ const props = defineProps([
 
 const {
   content,
-  chapterName,
   author,
   voteStatus,
   voteCount: extensionVoteCount,
@@ -105,13 +102,6 @@ const changeVoteCount = async (voteCountChange) => {
     if (!response.data.hasVotedInOtherExtension) {
       hasVotedInOtherExtension.value = true;
     }
-    // else {
-    //   if (voteCountChange === 1) {
-    //     hasVoted.value = true; // 禁用投票按钮
-    //   } else if (voteCountChange === -1) {
-    //     hasVoted.value = false; // 取消投票
-    //   }
-    // }
 
     mittt.emit("updateStory");
   } catch (error) {
