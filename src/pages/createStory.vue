@@ -419,7 +419,8 @@ const labelOptions = ref([
 ]);
 
 const voteTimeOptions = ref([
-  { title: "5 分鐘", value: 1000 * 5 * 60 },
+  { title: "1 分鐘", value: 1000 * 60 },
+  // { title: "5 分鐘", value: 1000 * 5 * 60 },
   { title: "10 分鐘", value: 1000 * 10 * 60 },
   { title: "30 分鐘", value: 1000 * 30 * 60 },
   { title: "1 小時", value: 1000 * 60 * 60 },
@@ -437,7 +438,6 @@ const clearForm = () => {
 };
 
 const submit = handleSubmit(async (values) => {
-  console.log("123456777888");
   if (fileRecords.value[0]?.error) return;
 
   try {

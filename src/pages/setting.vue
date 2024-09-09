@@ -422,10 +422,7 @@ const schema = yup.object({
   newUsername: yup
     .string()
     .min(1, "使用者暱稱長度不符")
-    .max(20, "使用者暱稱長度不符")
-    .test("isAlphanumeric", "使用者帳號格式錯誤", (value) => {
-      return value ? validator.isAlphanumeric(value) : true;
-    }),
+    .max(20, "使用者暱稱長度不符"),
   newPassword: yup
     .string()
     .min(4, "使用者密碼長度不符")
@@ -574,57 +571,6 @@ const submit = handleSubmit(async () => {
     });
   }
 });
-
-// const submit = handleSubmit(async () => {
-//   try {
-//     const item = users.value[0]; // 用戶的資料
-//     const updatedData = {}; // 用來存儲需要更新的資料
-
-//     if (newUsername.value && newUsername.value !== item.username) {
-//       updatedData.username = newUsername.value;
-//     }
-//     if (newEmail.value && newEmail.value !== item.email) {
-//       updatedData.email = newEmail.value;
-//     }
-//     if (newPassword.value) {
-//       updatedData.password = newPassword.value;
-//     }
-
-//     if (Object.keys(updatedData).length === 0) {
-//       createSnackbar({
-//         text: "沒有任何變更",
-//         snackbarProps: {
-//           color: "accent",
-//         },
-//       });
-//       return;
-//     }
-
-//     const response = await apiAuth.patch("/user/profile", updatedData);
-//     if (response.data.success) {
-//       createSnackbar({
-//         text: "資料修改成功",
-//         snackbarProps: {
-//           color: "green",
-//         },
-//       });
-//     } else {
-//       createSnackbar({
-//         text: response.data.message || "發生錯誤",
-//         snackbarProps: {
-//           color: "red",
-//         },
-//       });
-//     }
-//   } catch (error) {
-//     createSnackbar({
-//       text: error?.response?.data?.message || "發生錯誤",
-//       snackbarProps: {
-//         color: "red",
-//       },
-//     });
-//   }
-// });
 </script>
 
 <style scoped>

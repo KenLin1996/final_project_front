@@ -72,12 +72,16 @@
                 </v-btn>
               </v-col>
               <v-col cols="11" class="pl-0">
-                <p>
-                  {{
+                <p style="word-wrap: break-word">
+                  <!-- {{
                     content[0].latestContent
                       ? content[0].latestContent
-                      : content[0]?.content[0]
-                  }}
+                      : content[0]?.content.join("")
+                  }} -->
+
+                  <!-- 以下為測試用 -->
+                  <!-- {{ content[0].content.join("") }} -->
+                  {{ storyContent.join("") }}
                 </p>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -144,8 +148,7 @@
             v-for="(extension, index) in extensions.slice(0, 5)"
             :key="index"
           >
-            <!-- <VoteItem v-bind="extension" /> -->
-            <VoteItem
+            <!-- <VoteItem
               :storyId="storyId"
               :extensionId="extension._id"
               :content="extension.content"
@@ -154,6 +157,17 @@
               :voteCount="extension.voteCount"
               :voteStatus="checkVoteStatus(extension)"
               @update="loadStories"
+            /> -->
+
+            <!-- 以下 VoteItem 測試用 -->
+            <VoteItem
+              :storyId="storyId"
+              :extensionId="extension._id"
+              :content="extension.content"
+              :chapterName="extension.chapterName"
+              :author="extension.author"
+              :voteCount="extension.voteCount"
+              :voteStatus="checkVoteStatus(extension)"
             />
           </template>
         </v-expansion-panel-text>
@@ -163,19 +177,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, toRefs } from "vue";
+import { ref, computed, onMounted, onUnmounted, toRefs, watch } from "vue";
 import * as yup from "yup";
 import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
 import { useSnackbar } from "vuetify-use-dialog";
 import VoteItem from "@/components/VoteItem.vue";
 import { useUserStore } from "@/stores/user";
+// import mittt from "@/mitt.js";
 
 const userStore = useUserStore();
 const userId = userStore.userId;
 
 const emit = defineEmits(["update"]);
-const { apiAuth } = useApi();
+const { apiAuth, api } = useApi();
 
 const remainingTime = ref("");
 let intervalId = 0;
@@ -207,19 +222,27 @@ const newChapterContent = useField("newChapterContent");
 const isFilled = ref(false);
 const dialog = ref(false);
 
-const props = defineProps([
-  "category",
-  "title",
-  "chapterName",
-  "mainAuthor",
-  "content",
-  "createdAt",
-  "extensions",
-  "_id",
-  "voteTime",
-  "voteStart",
-  "voteEnd",
-]);
+const props = defineProps(
+  [
+    "category",
+    "title",
+    "chapterName",
+    "mainAuthor",
+    "content",
+    "createdAt",
+    "extensions",
+    "_id",
+    "voteTime",
+    "voteStart",
+    "voteEnd",
+  ],
+  {
+    extensions: {
+      type: Array,
+      default: () => [],
+    },
+  }
+);
 
 const {
   category,
@@ -231,18 +254,9 @@ const {
   _id: storyId,
 } = props;
 
-const {
-  // category,
-  // title,
-  // chapterName,
-  // mainAuthor,
-  // content,
-  // _id: storyId,
-  extensions,
-  voteTime,
-  voteStart,
-  voteEnd,
-} = toRefs(props);
+const storyContent = ref(content ? content[0].content : []);
+
+const { extensions, voteEnd } = toRefs(props);
 
 const toggleHeart = () => {
   isFilled.value = !isFilled.value;
@@ -251,14 +265,19 @@ const icon = computed(() =>
   isFilled.value ? "mdi-heart" : "mdi-heart-outline"
 );
 
-const loadStories = async () => {
-  try {
-    const { data } = await api.get("/story");
-    stories.value.splice(0, stories.value.length, ...data.result.data);
-  } catch (error) {
-    console.log(error);
-  }
-};
+// let isLoading = false;
+// const loadStories = async () => {
+//   // if (isLoading) return;
+//   // isLoading = true;
+//   try {
+//     const { data } = await api.get("/story");
+//     stories.value.splice(0, stories.value.length, ...data.result.data);
+//   } catch (error) {
+//     console.log(error);
+//   } finally {
+//     isLoading = false; // 加載完成後重置
+//   }
+// };
 
 const openDialog = () => {
   dialog.value = true;
@@ -270,20 +289,74 @@ const contentRules = computed(() => [
     `內容字數需在 ${minWords.value} 至 ${maxWords.value} 字之間`,
 ]);
 
-const setRemainingTime = () => {
+const hasMerged = ref(false);
+
+const mergeHighestVotedStory = async () => {
+  if (hasMerged.value) {
+    return;
+  }
+  hasMerged.value = true;
+
+  try {
+    const highestVotedExtension = extensions.value.reduce((prev, current) =>
+      current.voteCount.length > prev.voteCount.length ? current : prev
+    );
+
+    await apiAuth.patch(`/story/${storyId}/merge`, {
+      extensionsId: highestVotedExtension._id,
+    });
+
+    createSnackbar({
+      text: "延續故事已成功合併到主故事中",
+      snackbarProps: {
+        color: "green",
+      },
+    });
+
+    console.log("即將觸發 emit update");
+    emit("update");
+    console.log("已觸發 emit update");
+
+  } catch (error) {
+    console.error(
+      "合併故事時發生錯誤",
+      error.response?.data || error.message || error
+    );
+
+    createSnackbar({
+      text: error?.response?.data?.message || "合併故事時發生錯誤",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+
+    hasMerged.value = false;
+  }
+};
+
+//以下 loadStories() 測試用
+// const loadStories = async () => {
+//   try {
+//     const { data } = await api.get("/story");
+//     stories.value = data.result.data; // 確保 stories.value 為最新資料
+//     console.log("Updated stories:", stories.value);
+//   } catch (error) {
+//     console.log("Error loading stories:", error);
+//   }
+// };
+
+const setRemainingTime = async () => {
   const now = Date.now();
   const end = new Date(voteEnd.value).getTime();
 
-  // console.log(end);
-
-  // const end = new Date(voteEnd.value).getTime();
-
   const timeRemaining = end - now;
-  // console.log(timeRemaining);
 
   if (timeRemaining <= 0) {
     clearInterval(intervalId);
     remainingTime.value = "投票已結束";
+
+    await mergeHighestVotedStory();
+
     return;
   }
 
@@ -300,28 +373,6 @@ const setRemainingTime = () => {
   if (seconds > 0) parts.push(`${seconds} 秒`);
 
   remainingTime.value = parts.join(" ");
-};
-
-const setVoteTime = async () => {
-  const now = new Date();
-  const end = new Date(now.getTime() + voteTime);
-  console.log(end);
-
-  try {
-    await apiAuth.patch(`/story/${storyId}/updateVoteTime`, {
-      voteStart: now,
-      voteEnd: end,
-    });
-    voteStart.value = now;
-    voteEnd.value = end;
-
-    startCountdown();
-
-    console.log("Vote Start:", voteStart.value);
-    console.log("Vote End:", voteEnd.value);
-  } catch (error) {
-    console.log("Failed to update vote time:", error);
-  }
 };
 
 const startCountdown = () => {
@@ -343,8 +394,6 @@ const submit = handleSubmit(async (values) => {
       chapterName: values.newChapterName,
       content: values.newChapterContent,
     });
-
-    // await setVoteTime();
 
     createSnackbar({
       text: "延伸內容提交成功",
@@ -369,6 +418,13 @@ const submit = handleSubmit(async (values) => {
 onUnmounted(() => {
   clearInterval(intervalId);
 });
+
+watch(
+  () => props.content,
+  (newContent) => {
+    storyContent.value = newContent[0].content; // 當 props 改變時，更新 storyContent
+  }
+);
 
 /**
  * 檢查延伸的投票狀態

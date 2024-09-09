@@ -55,9 +55,15 @@
       </v-col>
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-column justify-space-between">
-        <template v-for="(story, index) in stories" :key="index">
+        <!-- <template v-for="story in stories" :key="story._id">
           <StoryItem v-bind="story" @update="loadStories" />
-        </template>
+        </template> -->
+        <StoryItem
+          v-for="story in stories"
+          :key="story._id"
+          v-bind="story"
+          @update="loadStories"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -83,9 +89,9 @@
       </v-col>
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-column justify-space-between">
-        <template v-for="(story, index) in stories" :key="index">
-          <StoryItem v-bind="story" @update="loadStories" />
-        </template>
+        <!-- <template v-for="(story, index) in stories" :key="index"> -->
+        <!-- <StoryItem v-bind="story" @update="loadStories" /> -->
+        <!-- </template> -->
       </v-col>
     </v-row>
   </v-container>
@@ -139,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { definePage } from "vue-router/auto";
 import { useApi } from "@/composables/axios";
 import BookCard from "../components/BookCard.vue";
@@ -156,12 +162,33 @@ definePage({
 
 const { api } = useApi();
 const stories = ref([]);
+// const loadStories = async () => {
+//   try {
+//     const { data } = await api.get("/story");
+//     stories.value.splice(0, stories.value.length, ...data.result.data);
+//     console.log("Update event triggered  阿啊啊啊啊啊!");
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+// 以下 loadStories() 測試用
+// const loadStories = async () => {
+//   try {
+//     const { data } = await api.get("/story");
+//     // stories.value = [...data.result.data];
+//     Object.assign(stories.value, data.result.data);
+//     console.log("Updated stories after Object.assign:", stories.value);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 const loadStories = async () => {
   try {
     const { data } = await api.get("/story");
-    stories.value.splice(0, stories.value.length, ...data.result.data);
+    stories.value = data.result.data; // 更新 stories
   } catch (error) {
-    console.log(error);
+    console.log("Error loading stories:", error);
   }
 };
 
@@ -179,8 +206,17 @@ const resources = [
   //   color: "#000000",
   // },
 ];
-loadStories();
 
-mittt.on("updateStory", loadStories);
+// loadStories();
+// mittt.on("updateStory", loadStories);
+
+onMounted(() => {
+  loadStories();
+  mittt.on("updateStory", loadStories);
+});
+
+onUnmounted(() => {
+  mittt.off("updateStory", loadStories);
+});
 </script>
 <style scoped></style>
