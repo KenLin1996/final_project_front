@@ -47,26 +47,27 @@
       </v-card>
     </v-col>
   </v-row>
-
-  <v-container style="padding: 32px">
-    <v-row class="justify-space-between">
-      <v-col cols="12" class="pb-0">
-        <h2>追蹤故事</h2>
-      </v-col>
-      <v-divider class="mb-3"></v-divider>
-      <v-col cols="12" class="d-flex flex-column justify-space-between">
-        <!-- <template v-for="story in stories" :key="story._id">
+  <template v-if="user.isLogin">
+    <v-container style="padding: 32px">
+      <v-row class="justify-space-between">
+        <v-col cols="12" class="pb-0">
+          <h2>追蹤故事</h2>
+        </v-col>
+        <v-divider class="mb-3"></v-divider>
+        <v-col cols="12" class="d-flex flex-column justify-space-between">
+          <!-- <template v-for="story in stories" :key="story._id">
           <StoryItem v-bind="story" @update="loadStories" />
         </template> -->
-        <StoryItem
-          v-for="story in stories"
-          :key="story._id"
-          v-bind="story"
-          @update="loadStories"
-        />
-      </v-col>
-    </v-row>
-  </v-container>
+          <StoryItem
+            v-for="story in stories"
+            :key="story._id"
+            v-bind="story"
+            @update="loadStories"
+          />
+        </v-col>
+      </v-row>
+    </v-container>
+  </template>
 
   <v-container style="padding: 32px">
     <v-row class="justify-space-between">
@@ -92,6 +93,23 @@
         <!-- <template v-for="(story, index) in stories" :key="index"> -->
         <!-- <StoryItem v-bind="story" @update="loadStories" /> -->
         <!-- </template> -->
+      </v-col>
+    </v-row>
+  </v-container>
+
+  <v-container style="padding: 32px">
+    <v-row class="justify-space-between">
+      <v-col cols="12" class="pb-0">
+        <h2>所有故事</h2>
+      </v-col>
+      <v-divider class="mb-3"></v-divider>
+      <v-col cols="12" class="d-flex flex-column justify-space-between">
+        <StoryItem
+          v-for="story in stories"
+          :key="story._id"
+          v-bind="story"
+          @update="loadStories"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -145,12 +163,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { definePage } from "vue-router/auto";
 import { useApi } from "@/composables/axios";
 import BookCard from "../components/BookCard.vue";
 import StoryItem from "@/components/StoryItem.vue";
 import mittt from "@/mitt";
+import { useUserStore } from "@/stores/user";
 
 definePage({
   meta: {
@@ -159,6 +178,7 @@ definePage({
     admin: false,
   },
 });
+const user = useUserStore();
 
 const { api } = useApi();
 const stories = ref([]);

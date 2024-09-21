@@ -124,19 +124,53 @@
             <v-divider></v-divider>
             <v-card flat>
               <v-card-text>
+                <!-- <v-data-table
+                  :headers="ExtensionHeaders"
+                  :items="exStoryItems"
+                  density="comfortable"
+                  item-key="_id"
+                >
+                  <template #item.state="{ item }">
+                    <span>{{ item.state ? "完結" : "連載" }}</span>
+                  </template>
+                  <template #item.actions="{ item }">
+                    <v-btn
+                      text
+                      :active="false"
+                      :ripple="false"
+                      variant="tonal"
+                      @click="deleteItem(item._id)"
+                    >
+                      刪除紀錄
+                    </v-btn>
+                  </template>
+                </v-data-table> -->
                 <v-data-table
                   :headers="ExtensionHeaders"
                   :items="exStoryItems"
                   density="comfortable"
                   item-key="name"
                 >
-                  <template #[`item.state`]="{ item }">
-                    <span>{{ item.state ? "完結" : "連載" }}</span>
+                  <template #item.storyTitle="{ item }">
+                    <span>{{ item.storyTitle }}</span>
+                    <!-- 顯示故事標題 -->
                   </template>
-                  <template #[`item.actions`]="{ item }">
+                  <template #item.storyStatus="{ item }">
+                    <span>{{ item.storyStatus }}</span>
+                    <!-- 顯示故事狀態 -->
+                  </template>
+                  <template #item.extensionContent="{ item }">
+                    <span>{{ item.extensionContent }}</span>
+                    <!-- 顯示延續內容 -->
+                  </template>
+                  <template #item.totalVotes="{ item }">
+                    <span>{{ item.totalVotes }}</span>
+                    <!-- 顯示總票數 -->
+                  </template>
+                  <template #item.actions="{ item }">
                     <v-btn
                       text
-                      to=""
+                      :to="`/story/${item._id}`"
                       :active="false"
                       :ripple="false"
                       variant="tonal"
@@ -647,21 +681,24 @@ const props = defineProps({
 });
 
 const ExtensionHeaders = [
-  { title: "書名", align: "start", width: "130px", key: "title" },
-  { title: "狀態", align: "center", key: "state" },
-  { title: "我的延續內容", align: "center", key: "latestContent" },
-  { title: "總票數", align: "center", key: "totalVotes" },
-  // { title: "編輯", align: "center", key: "actions", sortable: false },
+  { title: "書名", align: "start", width: "130px", key: "storyTitle" },
+  { title: "狀態", align: "center", key: "storyState" },
+  { title: "我的延續內容", align: "center", key: "extensionContent" },
+  // { title: "總票數", align: "center", key: "totalVotes" },
+  { title: "總票數", align: "center", key: "voteCount" },
+  { title: "編輯", align: "center", key: "actions", sortable: false },
 ];
 
 const extensionStory = async () => {
-  const storyId = route.params.id;
+  // const storyId = route.params.id;
   // console.log(storyId);
   try {
-    const response = await apiAuth.get(`/story/getExtension/${storyId}`);
+    // const response = await apiAuth.get(`/story/getExtension/${storyId}`);
+    const response = await apiAuth.get(`/user/getExtension`);
 
-    console.log(response);
+    console.log("API Response:", response);
     exStoryItems.value = response.data;
+    console.log(exStoryItems.value);
   } catch (error) {
     console.error("Error fetching story extensions:", error);
   }

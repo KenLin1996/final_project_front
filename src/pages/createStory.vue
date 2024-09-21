@@ -170,7 +170,7 @@
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">作品標籤</v-label>
-          <v-combobox
+          <!-- <v-combobox
             class="flex-grow-1"
             multiple
             chips
@@ -179,7 +179,17 @@
             :error-messages="chapterLabels.errorMessage.value"
             :items="labelOptions"
             required
-          ></v-combobox>
+          ></v-combobox> -->
+          <v-select
+            class="flex-grow-1"
+            multiple
+            chips
+            hide-details
+            v-model="chapterLabels.value.value"
+            :error-messages="chapterLabels.errorMessage.value"
+            :items="labelOptions"
+            required
+          ></v-select>
         </v-col>
       </v-row>
 
@@ -419,7 +429,8 @@ const labelOptions = ref([
 ]);
 
 const voteTimeOptions = ref([
-  { title: "1 分鐘", value: 1000 * 60 },
+  { title: "50 秒", value: 1000 * 50 },
+  // { title: "3 分鐘", value: 1000 * 3 * 60 },
   // { title: "5 分鐘", value: 1000 * 5 * 60 },
   { title: "10 分鐘", value: 1000 * 10 * 60 },
   { title: "30 分鐘", value: 1000 * 30 * 60 },

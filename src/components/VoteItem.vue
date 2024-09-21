@@ -91,17 +91,27 @@ const hasVoted = computed(() => {
 
 const changeVoteCount = async (voteCountChange) => {
   try {
-    const response = await apiAuth.patch(
+    const storyResponse = await apiAuth.patch(
       `/story/${storyId.value}/${extensionId.value}`,
       {
         voteCountChange: voteCountChange,
       }
     );
-    console.log(response.data.message);
 
-    if (!response.data.hasVotedInOtherExtension) {
+    if (!storyResponse.data.hasVotedInOtherExtension) {
       hasVotedInOtherExtension.value = true;
     }
+
+    // const userResponse = await apiAuth.patch(
+    //   `/user/${userId}/voteHistory`, // 修改為實際的 API 路徑
+    //   {
+    //     storyId: storyId.value,
+    //     extensionId: extensionId.value,
+    //     voteCountChange: voteCountChange,
+    //   }
+    // );
+
+    // console.log(userResponse.data.message);
 
     mittt.emit("updateStory");
   } catch (error) {

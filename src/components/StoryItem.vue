@@ -209,7 +209,7 @@ const schema = yup.object({
     .max(maxWords.value, `故事內容不能超過 ${maxWords.value} 字`),
 });
 
-const { handleSubmit, isSubmitting } = useForm({
+const { handleSubmit, isSubmitting, resetForm } = useForm({
   validationSchema: schema,
   initialValues: {
     newChapterContent: "",
@@ -292,6 +292,10 @@ const contentRules = computed(() => [
 const hasMerged = ref(false);
 
 const mergeHighestVotedStory = async () => {
+  if (extensions.value.length === 0) {
+    console.log("沒有延續故事可供合併");
+    return; // extensions 為空，直接返回，不執行合併
+  }
   if (hasMerged.value) {
     return;
   }
@@ -316,7 +320,6 @@ const mergeHighestVotedStory = async () => {
     console.log("即將觸發 emit update");
     emit("update");
     console.log("已觸發 emit update");
-
   } catch (error) {
     console.error(
       "合併故事時發生錯誤",
@@ -356,6 +359,7 @@ const setRemainingTime = async () => {
     remainingTime.value = "投票已結束";
 
     await mergeHighestVotedStory();
+    // await clearExtensionsStory();
 
     return;
   }
@@ -401,6 +405,8 @@ const submit = handleSubmit(async (values) => {
         color: "green",
       },
     });
+
+    resetForm();
     dialog.value = false;
 
     emit("update");
