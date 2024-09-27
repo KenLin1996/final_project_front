@@ -38,9 +38,6 @@
               <v-chip class="mr-2 grey--text" label
                 >收藏數 {{ story.collectionNum }}</v-chip
               >
-              <v-chip class="grey--text" label
-                >追蹤數 {{ story.followNum }}</v-chip
-              >
             </v-col>
           </v-row>
         </v-col>
@@ -139,6 +136,7 @@ import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "@/composables/axios";
 import { useSnackbar } from "vuetify-use-dialog";
+import { useUserStore } from "@/stores/user";
 
 // const pageTitle = story.title;
 definePage({
@@ -155,6 +153,8 @@ const props = defineProps({
 });
 
 const { api, apiAuth } = useApi();
+const user = useUserStore();
+
 const route = useRoute();
 const createSnackbar = useSnackbar();
 const hasCollection = ref(props.hasCollection);
@@ -214,6 +214,15 @@ const load = async () => {
 load();
 
 const collectionFunc = async () => {
+  if (!user.isLogin) {
+    createSnackbar({
+      text: "請先登入才能收藏",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+    return; // 未登入則不進行後續操作
+  }
   try {
     const response = await apiAuth.post("user/addBookmark", {
       storyId: story.value._id,

@@ -30,32 +30,13 @@
                 text="收藏的故事"
                 value="option-3"
               ></v-tab>
-              <!-- <v-tab
-                class="my-1"
-                prepend-icon="mdi-heart"
-                text="追蹤的故事"
-                value="option-3"
-              ></v-tab> -->
+
               <v-tab
                 class="my-1"
                 prepend-icon="mdi-vote"
                 text="已投票的故事"
                 value="option-4"
               ></v-tab>
-              <!-- <v-divider class="my-6"></v-divider>
-              <h3 class="mb-1">角色管理</h3>
-              <v-tab
-                class="my-1"
-                prepend-icon="mdi-account-plus"
-                text="建立的角色"
-                value="option-5"
-              ></v-tab>
-              <v-tab
-                class="my-1"
-                prepend-icon="mdi-account-multiple"
-                text="收藏的角色"
-                value="option-6"
-              ></v-tab> -->
             </v-tabs>
           </v-list-item>
         </v-list>
@@ -124,27 +105,6 @@
             <v-divider></v-divider>
             <v-card flat>
               <v-card-text>
-                <!-- <v-data-table
-                  :headers="ExtensionHeaders"
-                  :items="exStoryItems"
-                  density="comfortable"
-                  item-key="_id"
-                >
-                  <template #item.state="{ item }">
-                    <span>{{ item.state ? "完結" : "連載" }}</span>
-                  </template>
-                  <template #item.actions="{ item }">
-                    <v-btn
-                      text
-                      :active="false"
-                      :ripple="false"
-                      variant="tonal"
-                      @click="deleteItem(item._id)"
-                    >
-                      刪除紀錄
-                    </v-btn>
-                  </template>
-                </v-data-table> -->
                 <v-data-table
                   :headers="ExtensionHeaders"
                   :items="exStoryItems"
@@ -153,19 +113,18 @@
                 >
                   <template #item.storyTitle="{ item }">
                     <span>{{ item.storyTitle }}</span>
-                    <!-- 顯示故事標題 -->
                   </template>
                   <template #item.storyStatus="{ item }">
                     <span>{{ item.storyStatus }}</span>
-                    <!-- 顯示故事狀態 -->
                   </template>
                   <template #item.extensionContent="{ item }">
                     <span>{{ item.extensionContent }}</span>
-                    <!-- 顯示延續內容 -->
                   </template>
-                  <template #item.totalVotes="{ item }">
+                  <!-- <template #item.totalVotes="{ item }">
                     <span>{{ item.totalVotes }}</span>
-                    <!-- 顯示總票數 -->
+                  </template> -->
+                  <template #item.voteCount="{ item }">
+                    <span>{{ item.voteCount }}</span>
                   </template>
                   <template #item.actions="{ item }">
                     <v-btn
@@ -211,34 +170,6 @@
             ></v-data-table>
           </v-tabs-window-item>
 
-          <!-- 追蹤的故事 -->
-          <!-- <v-tabs-window-item value="option-3">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>追蹤的故事</h3>
-            </div>
-            <v-divider></v-divider>
-            <div class="d-flex align-center justify-space-between py-2">
-              <v-btn size="small">移除</v-btn>
-
-              <v-select
-                dense
-                density="comfortable"
-                label="故事分類"
-                hide-details
-                max-width="150px"
-                :items="selectItems"
-              ></v-select>
-            </div>
-
-            <v-data-table
-              v-model="selected"
-              :headers="followHeaders"
-              :items="followStories"
-              show-select
-              item-value="title"
-            ></v-data-table>
-          </v-tabs-window-item> -->
-
           <!-- 已投票的故事 -->
           <v-tabs-window-item value="option-4">
             <div class="d-flex align-center justify-space-between mb-4">
@@ -264,148 +195,6 @@
               </template>
             </v-data-table>
           </v-tabs-window-item>
-
-          <!-- <v-tabs-window-item value="option-5">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>建立的角色</h3>
-              <v-btn prepend-icon="mdi-plus" size="small">新增角色</v-btn>
-            </div>
-            <v-divider></v-divider>
-            <div class="d-flex align-center justify-space-between py-2">
-              <v-responsive max-width="300">
-                <v-text-field
-                  label="角色搜尋"
-                  density="compact"
-                  hide-details
-                  single-line
-                  variant="outlined"
-                  color="black"
-                ></v-text-field>
-              </v-responsive>
-
-              <v-select
-                dense
-                density="comfortable"
-                label="種族"
-                hide-details
-                max-width="150px"
-                :items="raceItems"
-              ></v-select>
-              <v-select
-                dense
-                density="comfortable"
-                label="性別"
-                hide-details
-                max-width="150px"
-                :items="genderItems"
-              ></v-select>
-              <v-select
-                dense
-                density="comfortable"
-                label="出現故事"
-                hide-details
-                max-width="150px"
-                :items="storyItems"
-              ></v-select>
-            </div>
-            <v-card flat>
-              <v-card-text>
-                <v-data-table
-                  :headers="createCharactersHeaders"
-                  :items="createCharactersItems"
-                  density="comfortable"
-                  item-key="name"
-                >
-                  <template #[`item.actions`]="{ item }">
-                    <v-btn
-                      text
-                      to=""
-                      :active="false"
-                      :ripple="false"
-                      variant="tonal"
-                    >
-                      刪除
-                    </v-btn>
-                    <v-btn
-                      text
-                      to=""
-                      :active="false"
-                      :ripple="false"
-                      variant="tonal"
-                    >
-                      編輯
-                    </v-btn>
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-tabs-window-item> -->
-
-          <!-- <v-tabs-window-item value="option-6">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>收藏的角色</h3>
-            </div>
-            <v-divider></v-divider>
-            <div class="d-flex align-center justify-space-between py-2">
-              <v-responsive max-width="300">
-                <v-text-field
-                  label="角色搜尋"
-                  density="compact"
-                  hide-details
-                  single-line
-                  variant="outlined"
-                  color="black"
-                ></v-text-field>
-              </v-responsive>
-
-              <v-select
-                dense
-                density="comfortable"
-                label="種族"
-                hide-details
-                max-width="150px"
-                :items="raceItems"
-              ></v-select>
-              <v-select
-                dense
-                density="comfortable"
-                label="性別"
-                hide-details
-                max-width="150px"
-                :items="genderItems"
-              ></v-select>
-              <v-select
-                dense
-                density="comfortable"
-                label="出現故事"
-                hide-details
-                max-width="150px"
-                :items="storyItems"
-              ></v-select>
-            </div>
-            <v-card flat>
-              <v-card-text>
-                <v-data-table
-                  :headers="collectionCharactersHeaders"
-                  :items="collectionCharactersItems"
-                  density="comfortable"
-                  item-key="name"
-                >
-                  <template #[`item.actions`]="{ item }">
-                    <v-btn
-                      text
-                      to=""
-                      :active="false"
-                      :ripple="false"
-                      variant="tonal"
-                    >
-                      移除
-                    </v-btn>
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-tabs-window-item> -->
         </v-tabs-window>
       </div>
     </div>
@@ -690,33 +479,15 @@ const ExtensionHeaders = [
 ];
 
 const extensionStory = async () => {
-  // const storyId = route.params.id;
-  // console.log(storyId);
   try {
-    // const response = await apiAuth.get(`/story/getExtension/${storyId}`);
     const response = await apiAuth.get(`/user/getExtension`);
 
-    console.log("API Response:", response);
     exStoryItems.value = response.data;
-    console.log(exStoryItems.value);
   } catch (error) {
     console.error("Error fetching story extensions:", error);
   }
 };
 
-// onMounted(extensionStory);
-
-// const extensionStorys = async () => {
-//   try {
-//     const response = await apiAuth.get(`/story/getExtension`);
-//     console.log("extensionStory 的 response ：", response.data);
-
-//     // 将新数据添加到 exStoryItems 中
-//     exStoryItems.value.push(...response.data.extensions); // 假設 story.result.story 對應的是 extensions
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 extensionStory();
 
 const selectItems = ["文學小說", "奇幻"];
@@ -757,31 +528,6 @@ const collectionStories = ref([
   },
 ]);
 
-// const followHeaders = [
-//   {
-//     title: "類別",
-//     align: "start",
-//     sortable: false,
-//     key: "category",
-//   },
-//   { title: "書名", key: "title", align: "start", sortable: false },
-//   { title: "狀態", key: "state", align: "center", sortable: false },
-//   { title: "最新章節", key: "chapterName", align: "center", sortable: false },
-//   { title: "最初作者", key: "author", align: "center", sortable: false },
-//   { title: "追蹤數", key: "followNum", align: "center" },
-// ];
-
-// const followStories = [
-//   {
-//     category: "奇幻",
-//     title: "想要讓人因此試著鍛煉成一個跟學生",
-//     state: "連載中(100%)",
-//     chapterName: "後記——善良不需要很聰明",
-//     author: "新北工程師",
-//     followNum: 1000,
-//   },
-// ];
-
 const voteStoryHeaders = [
   { title: "書名", key: "title", align: "start", sortable: false },
   { title: "投票記錄內容", key: "content", align: "center", sortable: false },
@@ -799,50 +545,6 @@ const voteStories = [
     followNum: 1000,
   },
 ];
-
-// const createCharactersHeaders = [
-//   { title: "角色", key: "name", align: "start", sortable: false },
-//   { title: "種族", key: "race", align: "center", sortable: false },
-//   { title: "性別", key: "gender", align: "center", sortable: false },
-//   { title: "角色描述", key: "roleDescription", align: "center" },
-//   { title: "出現故事", key: "emergeStory", align: "center", sortable: false },
-//   { title: "收藏數", key: "collectionNum", align: "center" },
-//   { title: "編輯", key: "actions", align: "center", sortable: false },
-// ];
-
-// const createCharactersItems = [
-//   {
-//     name: "煉學生",
-//     race: "人族",
-//     gender: "男",
-//     roleDescription:
-//       "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
-//     emergeStory: "學員學員",
-//     collectionNum: 43,
-//   },
-// ];
-
-// const collectionCharactersHeaders = [
-//   { title: "角色", key: "name", align: "start", sortable: false },
-//   { title: "種族", key: "race", align: "center", sortable: false },
-//   { title: "性別", key: "gender", align: "center", sortable: false },
-//   { title: "角色描述", key: "roleDescription", align: "center" },
-//   { title: "出現故事", key: "emergeStory", align: "center", sortable: false },
-//   { title: "收藏數", key: "collectionNum", align: "center" },
-//   { title: "編輯", key: "actions", align: "center", sortable: false },
-// ];
-
-// const collectionCharactersItems = [
-//   {
-//     name: "煉學生",
-//     race: "人族",
-//     gender: "男",
-//     roleDescription:
-//       "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
-//     emergeStory: "學員學員",
-//     collectionNum: 43,
-//   },
-// ];
 </script>
 
 <style scoped>

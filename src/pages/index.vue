@@ -24,6 +24,7 @@
               class="font-weight-black mr-3 px-4"
               variant="elevated"
               color="#CCB78E"
+              @click="handleCreateStory"
               to="/createStory"
             >
               立即創作
@@ -55,9 +56,6 @@
         </v-col>
         <v-divider class="mb-3"></v-divider>
         <v-col cols="12" class="d-flex flex-column justify-space-between">
-          <!-- <template v-for="story in stories" :key="story._id">
-          <StoryItem v-bind="story" @update="loadStories" />
-        </template> -->
           <StoryItem
             v-for="story in stories"
             :key="story._id"
@@ -75,11 +73,12 @@
         <h2>熱門故事</h2>
       </v-col>
       <v-divider class="mb-3"></v-divider>
-      <!-- <v-col cols="12" class="d-flex flex-row justify-space-between"> -->
       <v-col cols="12" class="d-flex flex-row justify-start">
-        <template v-for="story in stories" :key="story._id">
-          <BookCard v-bind="story" />
-        </template>
+        <BookCard
+          v-for="story in popularStories"
+          :key="story._id"
+          v-bind="story"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -90,29 +89,28 @@
       </v-col>
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-column justify-space-between">
-        <!-- <template v-for="(story, index) in stories" :key="index"> -->
-        <!-- <StoryItem v-bind="story" @update="loadStories" /> -->
-        <!-- </template> -->
+        <!-- <StoryItem
+          v-for="story in newestStories"
+          :key="story._id"
+          v-bind="story"
+          @update="loadStories"
+        /> -->
       </v-col>
     </v-row>
   </v-container>
 
-  <v-container style="padding: 32px">
+  <!-- 不確定要不要這個 -->
+  <!-- <v-container style="padding: 32px">
     <v-row class="justify-space-between">
       <v-col cols="12" class="pb-0">
         <h2>所有故事</h2>
       </v-col>
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-column justify-space-between">
-        <StoryItem
-          v-for="story in stories"
-          :key="story._id"
-          v-bind="story"
-          @update="loadStories"
-        />
+        <BookCard v-for="story in stories" :key="story._id" v-bind="story" />
       </v-col>
     </v-row>
-  </v-container>
+  </v-container> -->
 
   <v-container style="padding: 32px">
     <v-row class="justify-space-between">
@@ -121,8 +119,15 @@
       </v-col>
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-row justify-space-between">
-        <template v-for="story in stories" :key="story._id">
-          <BookCard v-bind="story" />
+        <template v-if="completedStories.length > 0">
+          <BookCard
+            v-for="story in completedStories"
+            :key="story._id"
+            v-bind="story"
+          />
+        </template>
+        <template v-else>
+          <div class="">尚未有已完結故事</div>
         </template>
       </v-col>
     </v-row>
@@ -164,6 +169,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 import { definePage } from "vue-router/auto";
 import { useApi } from "@/composables/axios";
 import BookCard from "../components/BookCard.vue";
@@ -182,6 +188,7 @@ const user = useUserStore();
 
 const { api } = useApi();
 const stories = ref([]);
+const router = useRouter();
 // const loadStories = async () => {
 //   try {
 //     const { data } = await api.get("/story");
@@ -203,12 +210,48 @@ const stories = ref([]);
 //     console.log(error);
 //   }
 // };
+
+// 暫時註解
+// const loadStories = async () => {
+//   try {
+//     const { data } = await api.get("/story");
+//     stories.value = data.result.data; // 更新 stories
+//   } catch (error) {
+//     console.log("Error loading stories:", error);
+//   }
+// };
+
+const handleCreateStory = () => {
+  if (!user.isLogin) {
+    // 如果使用者未登入，跳轉到登入頁面
+    router.push("/login");
+  } else {
+    // 如果已登入，跳轉到創作頁面
+    router.push("/createStory");
+  }
+};
+
+// 不確定能否用的 loadStories()
+const popularStories = ref([]);
+const newestStories = ref([]);
+const completedStories = ref([]);
+
 const loadStories = async () => {
   try {
     const { data } = await api.get("/story");
     stories.value = data.result.data; // 更新 stories
+    // console.log(data);
+
+    const popularRes = await api.get("/story/getPopularStories");
+    popularStories.value = popularRes.data.result.data;
+
+    const newestRes = await api.get("/story/getNewestStories");
+    newestStories.value = newestRes.data.result.data;
+
+    const completedRes = await api.get("/story/getCompletedStories");
+    completedStories.value = completedRes.data.result.data;
   } catch (error) {
-    console.log("Error loading stories:", error);
+    console.error("Failed to load stories:", error);
   }
 };
 
@@ -239,4 +282,3 @@ onUnmounted(() => {
   mittt.off("updateStory", loadStories);
 });
 </script>
-<style scoped></style>

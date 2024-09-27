@@ -80,7 +80,6 @@
                   }} -->
 
                   <!-- 以下為測試用 -->
-                  <!-- {{ content[0].content.join("") }} -->
                   {{ storyContent.join("") }}
                 </p>
                 <v-card-actions>
@@ -148,18 +147,6 @@
             v-for="(extension, index) in extensions.slice(0, 5)"
             :key="index"
           >
-            <!-- <VoteItem
-              :storyId="storyId"
-              :extensionId="extension._id"
-              :content="extension.content"
-              :chapterName="extension.chapterName"
-              :author="extension.author"
-              :voteCount="extension.voteCount"
-              :voteStatus="checkVoteStatus(extension)"
-              @update="loadStories"
-            /> -->
-
-            <!-- 以下 VoteItem 測試用 -->
             <VoteItem
               :storyId="storyId"
               :extensionId="extension._id"
@@ -184,13 +171,16 @@ import { useApi } from "../composables/axios.js";
 import { useSnackbar } from "vuetify-use-dialog";
 import VoteItem from "@/components/VoteItem.vue";
 import { useUserStore } from "@/stores/user";
-// import mittt from "@/mitt.js";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
+const user = useUserStore();
+const router = useRouter();
+
 const userId = userStore.userId;
 
 const emit = defineEmits(["update"]);
-const { apiAuth, api } = useApi();
+const { apiAuth } = useApi();
 
 const remainingTime = ref("");
 let intervalId = 0;
@@ -265,22 +255,12 @@ const icon = computed(() =>
   isFilled.value ? "mdi-heart" : "mdi-heart-outline"
 );
 
-// let isLoading = false;
-// const loadStories = async () => {
-//   // if (isLoading) return;
-//   // isLoading = true;
-//   try {
-//     const { data } = await api.get("/story");
-//     stories.value.splice(0, stories.value.length, ...data.result.data);
-//   } catch (error) {
-//     console.log(error);
-//   } finally {
-//     isLoading = false; // 加載完成後重置
-//   }
-// };
-
 const openDialog = () => {
-  dialog.value = true;
+  if (!user.isLogin) {
+    router.push("/login");
+  } else {
+    dialog.value = true;
+  }
 };
 
 const contentRules = computed(() => [
@@ -292,19 +272,48 @@ const contentRules = computed(() => [
 const hasMerged = ref(false);
 
 const mergeHighestVotedStory = async () => {
-  if (extensions.value.length === 0) {
-    console.log("沒有延續故事可供合併");
-    return; // extensions 為空，直接返回，不執行合併
-  }
-  if (hasMerged.value) {
-    return;
-  }
-  hasMerged.value = true;
-
   try {
+    // if (extensions.value.length === 0) {
+    if (!extensions.value.length) {
+      console.log("沒有延續故事可供合併");
+      emit("update");
+      return; // extensions 為空，直接返回，不執行合併
+    }
+    if (hasMerged.value) {
+      emit("update");
+      return;
+    }
+    hasMerged.value = true;
+
+    // 檢查所有延續故事的票數
+    const validExtensions = extensions.value.filter(
+      (extension) => extension.voteCount.length > 0
+    );
+
+    // if (validExtensions.length === 0) {
+    if (!validExtensions.length) {
+      console.log("所有延續故事的票數為 0，清空延續故事");
+      // 發送請求來清空延續故事
+      await apiAuth.patch(`/story/${storyId}/clearExtensions`);
+      createSnackbar({
+        text: "所有延續故事的票數為 0，已清空延續故事",
+        snackbarProps: {
+          color: "red",
+        },
+      });
+      emit("update");
+      // hasMerged.value = false;
+      return; // 不再執行後續合併邏輯
+    }
+
     const highestVotedExtension = extensions.value.reduce((prev, current) =>
       current.voteCount.length > prev.voteCount.length ? current : prev
     );
+
+    // 9/25 測試
+    if (!highestVotedExtension?._id) {
+      throw new Error("延續故事未找到");
+    }
 
     await apiAuth.patch(`/story/${storyId}/merge`, {
       extensionsId: highestVotedExtension._id,
@@ -333,20 +342,12 @@ const mergeHighestVotedStory = async () => {
       },
     });
 
-    hasMerged.value = false;
+    // hasMerged.value = false;
+    // emit("update");
+  } finally {
+    hasMerged.value = false; // 确保在成功或失败后重置状态
   }
 };
-
-//以下 loadStories() 測試用
-// const loadStories = async () => {
-//   try {
-//     const { data } = await api.get("/story");
-//     stories.value = data.result.data; // 確保 stories.value 為最新資料
-//     console.log("Updated stories:", stories.value);
-//   } catch (error) {
-//     console.log("Error loading stories:", error);
-//   }
-// };
 
 const setRemainingTime = async () => {
   const now = Date.now();
@@ -356,10 +357,14 @@ const setRemainingTime = async () => {
 
   if (timeRemaining <= 0) {
     clearInterval(intervalId);
-    remainingTime.value = "投票已結束";
+    remainingTime.value = "";
 
-    await mergeHighestVotedStory();
-    // await clearExtensionsStory();
+    // await mergeHighestVotedStory();
+
+    // 9/25 先檢查 extensions 是否存在且有內容
+    if (extensions.value.length > 0) {
+      await mergeHighestVotedStory();
+    }
 
     return;
   }
@@ -394,9 +399,16 @@ onMounted(() => {
 const submit = handleSubmit(async (values) => {
   try {
     console.log(storyId);
+
+    // 9/25 測試
+    const isFirstExtension = extensions.value.length === 0;
+
     await apiAuth.post(`/story/${storyId}`, {
       chapterName: values.newChapterName,
       content: values.newChapterContent,
+
+      // 9/25 測試
+      voteStart: isFirstExtension ? new Date() : undefined, // 如果是第一個延續故事，設定 voteStart
     });
 
     createSnackbar({
@@ -431,6 +443,12 @@ watch(
     storyContent.value = newContent[0].content; // 當 props 改變時，更新 storyContent
   }
 );
+
+watch(voteEnd, (newVoteEnd) => {
+  if (newVoteEnd) {
+    startCountdown();
+  }
+});
 
 /**
  * 檢查延伸的投票狀態

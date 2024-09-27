@@ -1,6 +1,6 @@
 <template>
   <v-container style="padding: 32px">
-    <h2>我的故事</h2>
+    <h2>創作新故事</h2>
     <v-divider class="mb-5"></v-divider>
     <v-form
       @submit.prevent="submit"
@@ -429,8 +429,7 @@ const labelOptions = ref([
 ]);
 
 const voteTimeOptions = ref([
-  { title: "50 秒", value: 1000 * 50 },
-  // { title: "3 分鐘", value: 1000 * 3 * 60 },
+  { title: "10 秒", value: 1000 * 10 },
   // { title: "5 分鐘", value: 1000 * 5 * 60 },
   { title: "10 分鐘", value: 1000 * 10 * 60 },
   { title: "30 分鐘", value: 1000 * 30 * 60 },
