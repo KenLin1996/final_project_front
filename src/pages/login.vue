@@ -1,5 +1,5 @@
 <template>
-  <v-container class="d-flex align-center justify-center h-100" fluid>
+  <v-container class="d-flex align-center justify-center h-100 mt-0" fluid>
     <v-container
       class="text-center pa-8 rounded-lg elevation-4"
       style="
@@ -19,7 +19,6 @@
               src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
             ></v-img>
           </router-link>
-          <!--  -->
           <v-btn
             outlined
             border
@@ -107,6 +106,7 @@ definePage({
     title: `界筆 ｜ 登入`,
     login: false,
     admin: false,
+    hideFooter: true,
   },
 });
 

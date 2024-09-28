@@ -1,32 +1,26 @@
 <template>
-  <v-container class="d-flex align-center justify-center h-100" fluid>
-    <v-container
-      class="text-center pa-8 rounded-lg elevation-4"
-      style="
-        width: 500px;
-        background-color: white;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      "
-    >
-      <v-row class="d-flex flex-column justify-center">
-        <v-col class="d-flex flex-column justify-center align-center my-2">
+  <div class="register-page">
+    <v-card class="register-card" style="margin-top: 46px">
+      <v-card-text class="card-content px-8 py-4">
+        <div class="text-center mb-4">
           <router-link to="/">
             <v-img
-              class="my-2"
-              :width="100"
+              class="mx-auto"
+              :width="80"
               aspect-ratio="1/1"
               cover
               src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
             ></v-img>
           </router-link>
-          <!--  -->
+        </div>
+        <div class="d-flex flex-column align-center">
           <v-btn
             outlined
             border
             style="background-color: #ffffff"
             color="#000000"
             prepend-icon="mdi-google"
-            class="my-2 elevation-1 w-66 h-25"
+            class="mb-2 elevation-1 w-66"
             variant="plain"
             to="/login"
           >
@@ -39,81 +33,75 @@
             color="#000000"
             size="default"
             prepend-icon="mdi-facebook"
-            class="my-2 elevation-1 w-66 h-25"
+            class="mb-4 elevation-1 w-66"
             variant="plain"
             to="/login"
           >
             使用 Facebook 註冊
           </v-btn>
-        </v-col>
-        <v-divider class="my-2"></v-divider>
-        <v-col cols="12">
-          <v-form @submit.prevent="submit" :disabled="isSubmitting">
-            <v-text-field
-              label="信箱"
-              type="email"
-              v-model="email.value.value"
-              :error-messages="email.errorMessage.value"
-            ></v-text-field>
-
-            <v-text-field
-              label="暱稱"
-              minlength="3"
-              maxlength="20"
-              counter
-              v-model="username.value.value"
-              :error-messages="username.errorMessage.value"
-            ></v-text-field>
-
-            <v-text-field
-              label="密碼"
-              :type="showPassword ? 'text' : 'password'"
-              minlength="4"
-              maxlength="20"
-              counter
-              v-model="password.value.value"
-              :error-messages="password.errorMessage.value"
-              :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append-inner="togglePasswordVisibility"
-            ></v-text-field>
-            <v-text-field
-              label="確認密碼"
-              :type="showPasswordConfirm ? 'text' : 'password'"
-              minlength="4"
-              maxlength="20"
-              counter
-              v-model="passwordConfirm.value.value"
-              :error-messages="passwordConfirm.errorMessage.value"
-              :append-inner-icon="
-                showPasswordConfirm ? 'mdi-eye' : 'mdi-eye-off'
-              "
-              @click:append-inner="togglePasswordConfirmVisibility"
-            ></v-text-field>
-
+        </div>
+        <v-divider class="mb-4"></v-divider>
+        <v-form @submit.prevent="submit" :disabled="isSubmitting">
+          <v-text-field
+            label="信箱"
+            type="email"
+            v-model="email.value.value"
+            :error-messages="email.errorMessage.value"
+            class="mb-2"
+          ></v-text-field>
+          <v-text-field
+            label="暱稱"
+            minlength="3"
+            maxlength="20"
+            counter
+            v-model="username.value.value"
+            :error-messages="username.errorMessage.value"
+            class="mb-2"
+          ></v-text-field>
+          <v-text-field
+            label="密碼"
+            :type="showPassword ? 'text' : 'password'"
+            minlength="4"
+            maxlength="20"
+            counter
+            v-model="password.value.value"
+            :error-messages="password.errorMessage.value"
+            :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="togglePasswordVisibility"
+            class="mb-2"
+          ></v-text-field>
+          <v-text-field
+            label="確認密碼"
+            :type="showPasswordConfirm ? 'text' : 'password'"
+            minlength="4"
+            maxlength="20"
+            counter
+            v-model="passwordConfirm.value.value"
+            :error-messages="passwordConfirm.errorMessage.value"
+            :append-inner-icon="showPasswordConfirm ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="togglePasswordConfirmVisibility"
+            class="mb-4"
+          ></v-text-field>
+          <div class="text-center">
             <v-btn
               type="submit"
               outlined
               border
-              style="
-                background-color: #f4b942;
-                font-weight: bold;
-                font-size: 16px;
-              "
               color="#000000"
-              class="my-4 elevation-1 w-33"
+              class="register-btn mb-3 w-33"
               variant="solo"
               :loading="isSubmitting"
             >
               註冊
             </v-btn>
-          </v-form>
-          <v-btn class="" :ripple="false" variant="plain" to="/login">
-            登入
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-container>
+          </div>
+        </v-form>
+        <div class="text-center">
+          <v-btn :ripple="false" variant="plain" to="/login"> 登入 </v-btn>
+        </div>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script setup>
@@ -131,6 +119,7 @@ definePage({
     title: `界筆 ｜ 註冊`,
     login: false,
     admin: false,
+    hideFooter: true,
   },
 });
 
@@ -150,14 +139,9 @@ const schema = yup.object({
     .required("使用者暱稱必填")
     .min(1, "使用者暱稱長度不符")
     .max(20, "使用者暱稱長度不符")
-    .test(
-      // .test(自訂驗證名稱, 錯誤訊息, 驗證 function)
-      "isAlphanumeric",
-      "使用者帳號格式錯誤",
-      (value) => {
-        return validator.isAlphanumeric(value);
-      }
-    ),
+    .test("isAlphanumeric", "使用者帳號格式錯誤", (value) => {
+      return validator.isAlphanumeric(value);
+    }),
   password: yup
     .string()
     .required("使用者密碼必填")
@@ -211,3 +195,47 @@ const submit = handleSubmit(async (values) => {
   }
 });
 </script>
+
+<style scoped>
+.v-main {
+  padding: 0;
+}
+.register-page {
+  background-color: #e7dfc6;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: white;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.register-btn {
+  background-color: #f4b942;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+@media (max-width: 600px) {
+  .card-content {
+    padding: 20px;
+  }
+}
+
+@media (max-height: 700px) {
+  .register-card {
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+}
+</style>

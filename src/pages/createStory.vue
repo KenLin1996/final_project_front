@@ -170,16 +170,6 @@
             >mdi-asterisk</v-icon
           >
           <v-label class="me-4 mb-0">作品標籤</v-label>
-          <!-- <v-combobox
-            class="flex-grow-1"
-            multiple
-            chips
-            hide-details
-            v-model="chapterLabels.value.value"
-            :error-messages="chapterLabels.errorMessage.value"
-            :items="labelOptions"
-            required
-          ></v-combobox> -->
           <v-select
             class="flex-grow-1"
             multiple
@@ -285,11 +275,30 @@
 
 <script setup>
 import { definePage } from "vue-router/auto";
-import { ref, computed } from "vue";
+import { ref, onMounted } from "vue";
 import * as yup from "yup";
 import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
 import { useSnackbar } from "vuetify-use-dialog";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
+
+const router = useRouter();
+const user = useUserStore();
+
+const toCreateStoryPage = () => {
+  if (!user.isLogin) {
+    // 如果使用者未登入，跳轉到登入頁面
+    router.push("/login");
+  } else {
+    // 如果已登入，跳轉到創作頁面
+    router.push("/createStory");
+  }
+};
+
+onMounted(() => {
+  toCreateStoryPage();
+});
 
 definePage({
   meta: {

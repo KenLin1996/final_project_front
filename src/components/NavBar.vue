@@ -47,22 +47,8 @@
 
       <v-spacer></v-spacer>
 
-      <!-- 搜尋匡 -->
-      <!-- <v-responsive max-width="300">
-        <v-text-field
-          label="搜尋"
-          prepend-inner-icon="mdi-magnify"
-          density="compact"
-          hide-details
-          single-line
-          variant="solo"
-          clearable
-          color="black"
-        ></v-text-field>
-      </v-responsive> -->
-
       <!-- 註冊/登入按鈕 -->
-      <template v-if="!user.isLogin">
+      <template v-if="!user.isLogin && !isAuthPage">
         <v-btn
           outlined
           border
@@ -96,23 +82,24 @@
         </v-menu>
 
         <!-- 會員頭像 -->
-
-        <v-menu open-on-hover transition="slide-y-transition">
-          <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-account" v-bind="props"></v-btn>
-          </template>
-          <v-list>
-            <v-list-item
-              v-for="(setting, i) in settings"
-              :key="i"
-              :to="setting.to"
-              link
-              @click="handleClick(setting)"
-            >
-              <v-list-item-title>{{ setting.text }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <template v-if="user.isLogin">
+          <v-menu open-on-hover transition="slide-y-transition">
+            <template v-slot:activator="{ props }">
+              <v-btn icon="mdi-account" v-bind="props"></v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="(setting, i) in settings"
+                :key="i"
+                :to="setting.to"
+                link
+                @click="handleClick(setting)"
+              >
+                <v-list-item-title>{{ setting.text }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
       </template>
     </v-container>
   </v-app-bar>
@@ -120,11 +107,17 @@
 
 <script setup>
 import { computed } from "vue";
-import { useUserStore } from "@/stores/user"; // 確保這個路徑是正確的
+import { useUserStore } from "@/stores/user";
 import { useSnackbar } from "vuetify-use-dialog";
+import { useRoute } from "vue-router";
 
 const user = useUserStore();
 const createSnackbar = useSnackbar();
+const route = useRoute();
+
+const isAuthPage = computed(() => {
+  return route.path === "/login" || route.path === "/register";
+});
 
 const menus = computed(() => {
   return [
