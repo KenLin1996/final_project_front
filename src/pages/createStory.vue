@@ -110,9 +110,11 @@
           <v-label class="me-4 mb-0">起始故事</v-label>
           <v-textarea
             class="flex-grow-1"
-            :counter="30"
+            :counter="startingContentLimit"
             v-model="content.value.value"
             :error-messages="content.errorMessage.value"
+            :maxlength="startingContentLimit"
+            @input="validateContentLength"
             required
           ></v-textarea>
         </v-col>
@@ -201,7 +203,6 @@
             :error-messages="state.errorMessage.value"
           >
             <div class="d-flex align-center">
-              <!-- <v-radio label="完結" :value="true" class="me-4"></v-radio> -->
               <v-radio label="連載中" :value="false"></v-radio>
             </div>
           </v-radio-group>
@@ -272,10 +273,9 @@
     </v-form>
   </v-container>
 </template>
-
 <script setup>
 import { definePage } from "vue-router/auto";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import * as yup from "yup";
 import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
@@ -332,24 +332,41 @@ const schema = yup.object({
     .required("文章總字數必填")
     .typeError("文章總字數必須是數字")
     .positive("文章總字數必須是正數")
-    .integer("文章總字數必須是整數"),
+    .integer("文章總字數必須是整數")
+    .min(1, "文章總字數不能為0"),
   title: yup.string().required("故事名稱必填"),
   chapterName: yup.string().required("章節名稱必填"),
-  content: yup.string().required("內容必填"),
+  content: yup
+    .string()
+    .required("內容必填")
+    .test(
+      "max-length",
+      function () {
+        return `不能超過 ${startingContentLimit.value} 個字`;
+      },
+      function (value) {
+        return value.length <= startingContentLimit.value;
+      }
+    ),
+
   category: yup.string().required("作品分類必填"),
-  chapterLabels: yup.array().required("作品標籤必填"),
+  chapterLabels: yup
+    .array()
+    .min(1, "至少需要選擇一個標籤")
+    .required("作品標籤必填"),
   state: yup.boolean().required("狀態必填"),
   show: yup.boolean().required("顯示方式必填"),
+  voteTime: yup.number().required("投票時間必填").min(10),
 });
 
 const { handleSubmit, isSubmitting, resetForm } = useForm({
   validationSchema: schema,
   initialValues: {
-    totalWordCount: 1,
+    totalWordCount: 0,
     title: "",
     chapterName: "",
     content: "",
-    voteTime: 0,
+    voteTime: 1000 * 5 * 60,
     category: "",
     chapterLabels: [],
     state: false,
@@ -357,15 +374,29 @@ const { handleSubmit, isSubmitting, resetForm } = useForm({
   },
 });
 
-const totalWordCount = useField("totalWordCount");
 const title = useField("title");
 const chapterName = useField("chapterName");
-const content = useField("content");
 const voteTime = useField("voteTime");
 const category = useField("category");
 const chapterLabels = useField("chapterLabels");
 const state = useField("state");
 const show = useField("show");
+const totalWordCount = useField("totalWordCount");
+const content = useField("content");
+
+const startingContentLimit = computed(() => {
+  const totalWords = Number(totalWordCount.value.value);
+  return Math.max(1, Math.floor(totalWords / 10));
+});
+
+const validateContentLength = () => {
+  if (content.value.value.length > startingContentLimit.value) {
+    content.value.value = content.value.value.slice(
+      0,
+      startingContentLimit.value
+    );
+  }
+};
 
 const categoryOptions = ref([
   "文藝評論",
@@ -439,7 +470,7 @@ const labelOptions = ref([
 
 const voteTimeOptions = ref([
   { title: "10 秒", value: 1000 * 10 },
-  // { title: "5 分鐘", value: 1000 * 5 * 60 },
+  { title: "5 分鐘", value: 1000 * 5 * 60 },
   { title: "10 分鐘", value: 1000 * 10 * 60 },
   { title: "30 分鐘", value: 1000 * 30 * 60 },
   { title: "1 小時", value: 1000 * 60 * 60 },
@@ -457,7 +488,21 @@ const clearForm = () => {
 };
 
 const submit = handleSubmit(async (values) => {
-  if (fileRecords.value[0]?.error) return;
+  console.log("提交函數被調用");
+  console.log("提交的值（原始）：", values);
+
+  console.log("驗證通過");
+
+  values.totalWordCount = Number(values.totalWordCount);
+
+  console.log("提交的值（處理後）：", values);
+
+  if (fileRecords.value[0]?.error) {
+    console.log("文件錯誤：", fileRecords.value[0].error);
+    return;
+  }
+
+  console.log("文件檢查通過");
 
   try {
     const fd = new FormData();
@@ -476,7 +521,13 @@ const submit = handleSubmit(async (values) => {
       fd.append("image", fileRecords.value[0].file);
     }
 
-    await apiAuth.post("/story", fd);
+    console.log("FormData 已創建");
+
+    console.log("FormData 內容：", Object.fromEntries(fd));
+
+    const response = await apiAuth.post("/story", fd);
+    console.log("API 響應：", response.data);
+
     createSnackbar({
       text: "新增成功",
       snackbarProps: {
@@ -485,7 +536,7 @@ const submit = handleSubmit(async (values) => {
     });
     clearForm();
   } catch (error) {
-    console.log(error);
+    console.error("提交表單時發生錯誤:", error);
     createSnackbar({
       text: error?.response?.data?.message || "發生錯誤",
       snackbarProps: {
