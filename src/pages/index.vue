@@ -189,37 +189,6 @@ const user = useUserStore();
 const { api } = useApi();
 const stories = ref([]);
 const router = useRouter();
-// const loadStories = async () => {
-//   try {
-//     const { data } = await api.get("/story");
-//     stories.value.splice(0, stories.value.length, ...data.result.data);
-//     console.log("Update event triggered  阿啊啊啊啊啊!");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// 以下 loadStories() 測試用
-// const loadStories = async () => {
-//   try {
-//     const { data } = await api.get("/story");
-//     // stories.value = [...data.result.data];
-//     Object.assign(stories.value, data.result.data);
-//     console.log("Updated stories after Object.assign:", stories.value);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// 暫時註解
-// const loadStories = async () => {
-//   try {
-//     const { data } = await api.get("/story");
-//     stories.value = data.result.data; // 更新 stories
-//   } catch (error) {
-//     console.log("Error loading stories:", error);
-//   }
-// };
 
 const handleCreateStory = () => {
   if (!user.isLogin) {
@@ -231,7 +200,6 @@ const handleCreateStory = () => {
   }
 };
 
-// 不確定能否用的 loadStories()
 const popularStories = ref([]);
 const newestStories = ref([]);
 const completedStories = ref([]);
@@ -240,7 +208,6 @@ const loadStories = async () => {
   try {
     const { data } = await api.get("/story");
     stories.value = data.result.data; // 更新 stories
-    // console.log(data);
 
     const popularRes = await api.get("/story/getPopularStories");
     popularStories.value = popularRes.data.result.data;
@@ -262,16 +229,7 @@ const resources = [
     title: "創作指引",
     color: "#F9A825",
   },
-  // {
-  //   to: "/characterSet",
-  //   icon: "mdi-account-box-outline",
-  //   title: "人物設定",
-  //   color: "#000000",
-  // },
 ];
-
-// loadStories();
-// mittt.on("updateStory", loadStories);
 
 onMounted(() => {
   loadStories();

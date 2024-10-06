@@ -24,7 +24,7 @@
               >投票倒數計時：</span
             >
             <br />
-            <span>{{ chapterName }}</span>
+            <span>{{ latestChapterName }}</span>
           </v-col>
           <v-col cols="3" class="text-right" style="color: #4e9194">
             <span style="color: #4e9194; margin-right: 10px; font-size: 14px">
@@ -54,7 +54,8 @@
         <v-row style="padding: 12px">
           <v-col cols="12" class="mt-1 pa-0" style="font-size: 8px"
             ><h1>
-              {{ content[0].latestContent ? "最新內容" : "開始故事" }}
+              {{ content[0].latestContent ? "最新內容" : "開始故事" }}(
+              剩餘字數：{{ remainingWords }} )
             </h1></v-col
           >
           <v-col cols="12">
@@ -79,7 +80,6 @@
                       : content[0]?.content.join("")
                   }} -->
 
-                  <!-- 以下為測試用 -->
                   {{ storyContent.join("") }}
                 </p>
                 <v-card-actions>
@@ -103,6 +103,7 @@
                       >
                       <v-card-text class="py-4 pb-0">
                         <v-text-field
+                          v-if="canInputNewChapterName"
                           v-model="newChapterName.value.value"
                           class="mb-4"
                           label="輸入章節名稱"
@@ -110,12 +111,20 @@
                           :minlength="1"
                           :maxlength="60"
                         ></v-text-field>
+                        <v-text-field
+                          v-else
+                          v-model="latestChapterName"
+                          class="mb-4"
+                          label="當前章節名稱"
+                          hide-details
+                          disabled
+                        ></v-text-field>
                         <v-textarea
                           v-model="newChapterContent.value.value"
-                          :label="`故事內容（字數：${minWords} - ${maxWords} 字`"
+                          :label="`故事內容（字數：${minWords} - ${maxWords} 字）`"
                           rows="10"
-                          :minlength="`${minWords}`"
-                          :maxlength="`${maxWords}`"
+                          :minlength="minWords"
+                          :maxlength="maxWords"
                           counter
                           :rules="contentRules"
                           style="margin-bottom: 8px"
@@ -187,22 +196,104 @@ let intervalId = 0;
 
 const createSnackbar = useSnackbar();
 
-const minWords = ref(10);
-const maxWords = ref(50);
+const props = defineProps({
+  category: String,
+  title: String,
+  mainAuthor: [String, Object],
+  content: { type: Array, default: () => [] },
+  createdAt: String,
+  extensions: {
+    type: Array,
+    default: () => [],
+  },
+  _id: String,
+  voteTime: [String, Number],
+  voteStart: [String, Date],
+  voteEnd: [String, Date],
 
-const schema = yup.object({
-  newChapterName: yup.string().required("章節名稱必填").min(1).max(60),
-  newChapterContent: yup
-    .string()
-    .required("故事內容必填")
-    .min(minWords.value, `故事內容不能少於 ${minWords.value} 字`)
-    .max(maxWords.value, `故事內容不能超過 ${maxWords.value} 字`),
+  totalWordCount: {
+    type: Number,
+    required: true,
+  },
+  extendWordLimit: {
+    type: Number,
+    default: 50,
+  },
+  chapters: {
+    type: Number,
+    default: 1,
+  },
+  wordsPerChapter: {
+    type: Number,
+    default: 100,
+  },
+  currentChapterWordCount: {
+    type: Number,
+    default: 0,
+  },
+  chapterWordCount: {
+    type: Number,
+    default: 0,
+  },
+});
+
+const { category, title, mainAuthor, content, createdAt, _id: storyId } = props;
+
+const latestChapterName = computed(() => {
+  if (content && content.length > 0) {
+    return content[content.length - 1].chapterName || "暫無章節名";
+  }
+  return "暫無章節名";
+});
+const minWords = 1;
+
+const maxWords = computed(() => {
+  const remainingWordsInChapter =
+    props.wordsPerChapter - props.currentChapterWordCount;
+  if (remainingWordsInChapter === 0) {
+    return props.extendWordLimit;
+  }
+  if (remainingWordsInChapter < props.extendWordLimit) {
+    return remainingWordsInChapter;
+  }
+  return props.extendWordLimit || 50; // 如果 props 中沒有 extendWordLimit，則默認為 50
+});
+
+const contentRules = computed(() => [
+  (v) =>
+    (v.length >= minWords && v.length <= maxWords.value) ||
+    `內容字數需在 ${minWords} 至 ${maxWords.value} 字之間`,
+]);
+
+const canInputNewChapterName = computed(() => {
+  return props.currentChapterWordCount >= props.wordsPerChapter;
+});
+
+const schema = computed(() => {
+  const baseSchema = {
+    newChapterContent: yup
+      .string()
+      .required("故事內容必填")
+      .min(minWords, `故事內容不能少於 ${minWords} 字`)
+      .max(maxWords.value, `故事內容不能超過 ${maxWords.value} 字`),
+  };
+
+  if (canInputNewChapterName.value) {
+    baseSchema.newChapterName = yup
+      .string()
+      .required("章節名稱必填")
+      .min(1)
+      .max(60);
+  }
+
+  return yup.object(baseSchema);
 });
 
 const { handleSubmit, isSubmitting, resetForm } = useForm({
   validationSchema: schema,
   initialValues: {
     newChapterContent: "",
+    newChapterName: "",
   },
 });
 
@@ -212,39 +303,21 @@ const newChapterContent = useField("newChapterContent");
 const isFilled = ref(false);
 const dialog = ref(false);
 
-const props = defineProps(
-  [
-    "category",
-    "title",
-    "chapterName",
-    "mainAuthor",
-    "content",
-    "createdAt",
-    "extensions",
-    "_id",
-    "voteTime",
-    "voteStart",
-    "voteEnd",
-  ],
-  {
-    extensions: {
-      type: Array,
-      default: () => [],
-    },
-  }
+const storyContent = ref(
+  props.content && props.content[0]?.content ? props.content[0].content : []
 );
 
-const {
-  category,
-  title,
-  chapterName,
-  mainAuthor,
-  content,
-  createdAt,
-  _id: storyId,
-} = props;
+const currentWordCount = computed(() => {
+  if (!storyContent.value || !Array.isArray(storyContent.value)) return 0;
+  return storyContent.value.reduce(
+    (total, str) => total + (str?.length || 0),
+    0
+  );
+});
 
-const storyContent = ref(content ? content[0].content : []);
+const remainingWords = computed(() => {
+  return Math.max(0, props.totalWordCount - currentWordCount.value);
+});
 
 const { extensions, voteEnd } = toRefs(props);
 
@@ -263,17 +336,10 @@ const openDialog = () => {
   }
 };
 
-const contentRules = computed(() => [
-  (v) =>
-    (v.length >= minWords.value && v.length <= maxWords.value) ||
-    `內容字數需在 ${minWords.value} 至 ${maxWords.value} 字之間`,
-]);
-
 const hasMerged = ref(false);
 
 const mergeHighestVotedStory = async () => {
   try {
-    // if (extensions.value.length === 0) {
     if (!extensions.value.length) {
       console.log("沒有延續故事可供合併");
       emit("update");
@@ -290,7 +356,6 @@ const mergeHighestVotedStory = async () => {
       (extension) => extension.voteCount.length > 0
     );
 
-    // if (validExtensions.length === 0) {
     if (!validExtensions.length) {
       console.log("所有延續故事的票數為 0，清空延續故事");
       // 發送請求來清空延續故事
@@ -302,7 +367,6 @@ const mergeHighestVotedStory = async () => {
         },
       });
       emit("update");
-      // hasMerged.value = false;
       return; // 不再執行後續合併邏輯
     }
 
@@ -310,7 +374,6 @@ const mergeHighestVotedStory = async () => {
       current.voteCount.length > prev.voteCount.length ? current : prev
     );
 
-    // 9/25 測試
     if (!highestVotedExtension?._id) {
       throw new Error("延續故事未找到");
     }
@@ -341,11 +404,8 @@ const mergeHighestVotedStory = async () => {
         color: "red",
       },
     });
-
-    // hasMerged.value = false;
-    // emit("update");
   } finally {
-    hasMerged.value = false; // 确保在成功或失败后重置状态
+    hasMerged.value = false; // 確保無論成功或失敗後都會重置狀態
   }
 };
 
@@ -359,9 +419,7 @@ const setRemainingTime = async () => {
     clearInterval(intervalId);
     remainingTime.value = "";
 
-    // await mergeHighestVotedStory();
-
-    // 9/25 先檢查 extensions 是否存在且有內容
+    // 先檢查 extensions 是否存在且有內容
     if (extensions.value.length > 0) {
       await mergeHighestVotedStory();
     }
@@ -398,16 +456,12 @@ onMounted(() => {
 
 const submit = handleSubmit(async (values) => {
   try {
-    console.log(storyId);
-
-    // 9/25 測試
     const isFirstExtension = extensions.value.length === 0;
 
     await apiAuth.post(`/story/${storyId}`, {
       chapterName: values.newChapterName,
       content: values.newChapterContent,
 
-      // 9/25 測試
       voteStart: isFirstExtension ? new Date() : undefined, // 如果是第一個延續故事，設定 voteStart
     });
 

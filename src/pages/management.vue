@@ -69,7 +69,6 @@
                   item-key="name"
                 >
                   <template #[`item.image`]="{ value }">
-                    <!-- <v-img :src="item.image"></v-img> -->
                     <v-img :src="value" max-height="100px" class="py-1"></v-img>
                   </template>
                   <template #[`item.state`]="{ item }">
@@ -120,9 +119,6 @@
                   <template #item.extensionContent="{ item }">
                     <span>{{ item.extensionContent }}</span>
                   </template>
-                  <!-- <template #item.totalVotes="{ item }">
-                    <span>{{ item.totalVotes }}</span>
-                  </template> -->
                   <template #item.voteCount="{ item }">
                     <span>{{ item.voteCount }}</span>
                   </template>
@@ -287,7 +283,6 @@ import * as yup from "yup";
 import { useForm, useField } from "vee-validate";
 import { useApi } from "@/composables/axios";
 import { useSnackbar } from "vuetify-use-dialog";
-import { useRoute } from "vue-router";
 
 definePage({
   meta: {
@@ -304,7 +299,7 @@ const items = ref([
 
 const { apiAuth } = useApi();
 const createSnackbar = useSnackbar();
-const route = useRoute();
+
 const tab = ref("option-1");
 
 const tableItemsPerPage = ref(10);
@@ -402,7 +397,6 @@ const myStoryHeaders = [
   { title: "狀態", align: "center", key: "state" },
   { title: "顯示", align: "center", key: "show", sortable: false },
   { title: "收藏數", align: "center", key: "collectionNum" },
-  { title: "追蹤數", align: "center", key: "followNum" },
   { title: "總票數", align: "center", key: "totalVotes" },
   { title: "編輯", align: "center", key: "actions", sortable: false },
 ];
@@ -420,13 +414,13 @@ const tableLoadMyStoryItems = async () => {
         sortOrder: tableSortBy.value[0]?.order || "desc",
       },
     });
-    // console.log(data);
+
     myStoryItems.value.splice(
       0,
       myStoryItems.value.length,
       ...data.result.data
     );
-    // console.log(myStoryItems.value);
+
     tableItemsLength.value = data.result.total;
   } catch (error) {
     console.log(error);
@@ -473,7 +467,6 @@ const ExtensionHeaders = [
   { title: "書名", align: "start", width: "130px", key: "storyTitle" },
   { title: "狀態", align: "center", key: "storyState" },
   { title: "我的延續內容", align: "center", key: "extensionContent" },
-  // { title: "總票數", align: "center", key: "totalVotes" },
   { title: "總票數", align: "center", key: "voteCount" },
   { title: "編輯", align: "center", key: "actions", sortable: false },
 ];
@@ -542,7 +535,6 @@ const voteStories = [
     content: "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
     supportAuthor: "阿北工程師",
     totalVotes: 20,
-    followNum: 1000,
   },
 ];
 </script>

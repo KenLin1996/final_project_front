@@ -26,6 +26,7 @@
               class="flex-grow-1"
               v-model="totalWordCount.value.value"
               :error-messages="totalWordCount.errorMessage.value"
+              :maxlength="5000000"
               required
             ></v-text-field>
 
@@ -333,7 +334,8 @@ const schema = yup.object({
     .typeError("文章總字數必須是數字")
     .positive("文章總字數必須是正數")
     .integer("文章總字數必須是整數")
-    .min(1, "文章總字數不能為0"),
+    .min(1, "文章總字數不能為 0")
+    .max(5000000, "總字數不能超過 500 萬字"),
   title: yup.string().required("故事名稱必填"),
   chapterName: yup.string().required("章節名稱必填"),
   content: yup
@@ -470,6 +472,7 @@ const labelOptions = ref([
 
 const voteTimeOptions = ref([
   { title: "10 秒", value: 1000 * 10 },
+  { title: "20 秒", value: 1000 * 20 },
   { title: "5 分鐘", value: 1000 * 5 * 60 },
   { title: "10 分鐘", value: 1000 * 10 * 60 },
   { title: "30 分鐘", value: 1000 * 30 * 60 },
@@ -487,22 +490,61 @@ const clearForm = () => {
   fileAgent.value.deleteFileRecord();
 };
 
+const calculateStoryProperties = (totalWords) => {
+  let chapters, wordsPerChapter, extendWordLimit;
+
+  if (totalWords <= 1000) {
+    chapters = Math.ceil(totalWords / 200);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 50;
+  } else if (totalWords <= 40000) {
+    chapters = Math.ceil(totalWords / 3000);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 300;
+  } else if (totalWords <= 100000) {
+    chapters = Math.ceil(totalWords / 5000);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 500;
+  } else if (totalWords <= 300000) {
+    chapters = Math.ceil(totalWords / 7000);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 1000;
+  } else if (totalWords <= 600000) {
+    chapters = Math.ceil(totalWords / 10000);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 2000;
+  } else if (totalWords <= 1000000) {
+    chapters = Math.ceil(totalWords / 15000);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 3000;
+  } else if (totalWords <= 2000000) {
+    chapters = Math.ceil(totalWords / 20000);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 4000;
+  } else if (totalWords <= 5000000) {
+    chapters = Math.ceil(totalWords / 30000);
+    wordsPerChapter = Math.ceil(totalWords / chapters);
+    extendWordLimit = 5000;
+  } else {
+    throw new Error("總字數超出範圍 (最多 5,000,000 字)。");
+  }
+
+  return { chapters, wordsPerChapter, extendWordLimit };
+};
+
+const calculateInitialWordCount = (content) => {
+  return content.length;
+};
+
 const submit = handleSubmit(async (values) => {
-  console.log("提交函數被調用");
-  console.log("提交的值（原始）：", values);
-
-  console.log("驗證通過");
-
   values.totalWordCount = Number(values.totalWordCount);
-
-  console.log("提交的值（處理後）：", values);
+  const storyProperties = calculateStoryProperties(values.totalWordCount);
+  const initialWordCount = calculateInitialWordCount(values.content);
 
   if (fileRecords.value[0]?.error) {
     console.log("文件錯誤：", fileRecords.value[0].error);
     return;
   }
-
-  console.log("文件檢查通過");
 
   try {
     const fd = new FormData();
@@ -521,7 +563,10 @@ const submit = handleSubmit(async (values) => {
       fd.append("image", fileRecords.value[0].file);
     }
 
-    console.log("FormData 已創建");
+    fd.append("chapters", storyProperties.chapters);
+    fd.append("wordsPerChapter", storyProperties.wordsPerChapter);
+    fd.append("extendWordLimit", storyProperties.extendWordLimit);
+    fd.append("currentChapterWordCount", initialWordCount);
 
     console.log("FormData 內容：", Object.fromEntries(fd));
 
