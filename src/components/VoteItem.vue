@@ -102,17 +102,6 @@ const changeVoteCount = async (voteCountChange) => {
       hasVotedInOtherExtension.value = true;
     }
 
-    // const userResponse = await apiAuth.patch(
-    //   `/user/${userId}/voteHistory`, // 修改為實際的 API 路徑
-    //   {
-    //     storyId: storyId.value,
-    //     extensionId: extensionId.value,
-    //     voteCountChange: voteCountChange,
-    //   }
-    // );
-
-    // console.log(userResponse.data.message);
-
     mittt.emit("updateStory");
   } catch (error) {
     console.log(error);

@@ -1,11 +1,5 @@
 <template>
   <v-container>
-    <v-breadcrumbs :items="items">
-      <template v-slot:divider>
-        <v-icon icon="mdi-chevron-right"></v-icon>
-      </template>
-    </v-breadcrumbs>
-
     <div class="d-flex">
       <div class="sidebar" style="margin-right: 12px; background-color: white">
         <v-list class="py-0" dense>
@@ -464,8 +458,6 @@ const loadUser = async () => {
     users.value[0].newEmail = users.value[0].email;
     users.value[0].newPassword = ""; // 用於存儲新密碼
     users.value[0].passwordConfirm = "";
-    console.log(users.value);
-    console.log(data);
   } catch (error) {
     console.log(error);
   }

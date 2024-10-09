@@ -116,6 +116,7 @@
             :error-messages="content.errorMessage.value"
             :maxlength="startingContentLimit"
             @input="validateContentLength"
+            auto-grow
             required
           ></v-textarea>
         </v-col>

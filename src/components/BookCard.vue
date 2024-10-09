@@ -3,9 +3,9 @@
     <router-link :to="'/stories/' + _id">
       <v-img class="cursor-pointer" height="150px" :src="image" cover> </v-img>
     </router-link>
-    <div class="d-flex justify-space-between align-center">
+    <div class="d-flex justify-space-between align-center my-1">
       <v-card-title
-        class="px-0 py-1 text-subtitle-1 cursor-pointer"
+        class="pa-0 text-subtitle-1 cursor-pointer"
         @click="navigateTo('/123')"
       >
         {{ title }}
@@ -19,8 +19,13 @@
         {{ category }}
       </v-chip>
     </div>
+
+    <v-card-subtitle class="pa-0">{{
+      content[content.length - 1].chapterName
+    }}</v-card-subtitle>
+
     <v-card-text
-      class="pa-0 cursor-pointer"
+      class="pa-0 mb-1 cursor-pointer"
       style="font-size: 12px; color: #4e9194"
       @click="navigateTo('/1234')"
     >
@@ -45,6 +50,7 @@ const { _id, image, title, category, mainAuthor, content } = defineProps([
   "category",
   "mainAuthor",
   "content",
+  "chapterName",
 ]);
 
 const navigateTo = (path) => {

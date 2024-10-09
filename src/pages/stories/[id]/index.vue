@@ -45,6 +45,7 @@
     </v-card>
     <div class="my-2">
       <v-btn
+        v-if="story.content[0]?._id"
         class="mr-4"
         style="background-color: #2883d3; color: white"
         :to="'/stories/' + story._id + '/articles/' + story.content[0]?._id"
@@ -65,7 +66,7 @@
       <v-divider class="my-2"></v-divider>
       <p class="py-4">{{ story.content[0]?.content?.[0] }}</p>
       <template v-for="chapterLabel in story.chapterLabels">
-        <v-chip density="compact" color="primary" label="true" class="mr-2">
+        <v-chip density="compact" color="primary" :label="true" class="mr-2">
           {{ chapterLabel }}
         </v-chip>
       </template>
@@ -105,6 +106,7 @@
                 width="600"
                 maxlength="20"
                 counter
+                auto-grow
               >
                 <template v-slot:prepend>
                   <v-avatar color="primary " class="me-1" size="large">
@@ -132,13 +134,12 @@
 </template>
 <script setup>
 import { definePage } from "vue-router/auto";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "@/composables/axios";
 import { useSnackbar } from "vuetify-use-dialog";
 import { useUserStore } from "@/stores/user";
 
-// const pageTitle = story.title;
 definePage({
   meta: {
     title: `界筆 | 故事`,
@@ -187,15 +188,10 @@ const load = async () => {
     story.value.totalWordCount = data.result.totalWordCount;
     story.value.collectionNum = data.result.collectionNum;
     story.value.followNum = data.result.followNum;
-    // console.log("mainAuthor 的值：", data.result.mainAuthor);
-    // (story.value.content =
-    //   Array.isArray(data.result.content) && data.result.content.length > 0
-    //     ? data.result.content[0].content
-    //     : "內容不存在"),
     if (Array.isArray(data.result.content) && data.result.content.length > 0) {
       story.value.content = data.result.content;
     } else {
-      story.value.content = "內容不存在"; // 處理空數據的情況ㄉ
+      story.value.content = []; // 處理空數據的情況
     }
 
     document.title = "界筆 | " + story.value.title;
@@ -211,7 +207,6 @@ const load = async () => {
     });
   }
 };
-load();
 
 const collectionFunc = async () => {
   if (!user.isLogin) {
@@ -244,6 +239,25 @@ const collectionFunc = async () => {
     });
   }
 };
+
+// 檢查收藏狀態
+const checkBookmarkStatus = async () => {
+  if (!user.isLogin) return;
+  try {
+    // const response = await apiAuth.get(`user/checkBookmark/${story.value._id}`);
+    const response = await apiAuth.get("user/checkBookmark/" + route.params.id);
+    hasCollection.value = response.data.hasCollection;
+  } catch (error) {
+    console.error("檢查收藏狀態失敗", error);
+  }
+};
+
+onMounted(async () => {
+  await load();
+  if (user.isLogin) {
+    checkBookmarkStatus();
+  }
+});
 </script>
 
 <style scoped></style>

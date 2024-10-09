@@ -74,10 +74,7 @@
 
     <template v-for="story in filteredStories" :key="story.id">
       <router-link :to="'/stories/' + story._id" style="text-decoration: none">
-        <v-card
-          style="border: 1px solid black; margin: 15px"
-          @click="navigateToDetail"
-        >
+        <v-card style="border: 1px solid black; margin: 15px">
           <v-row no-gutters>
             <v-col cols="2" class="pt-4 pb-4 pl-4">
               <v-img
@@ -126,7 +123,6 @@
                     ? story.content[0]?.content[0]
                     : story.latestContent
                 }}
-                <!-- {{ story.latestContent }} -->
               </v-card-text>
             </v-col>
           </v-row>

@@ -4,11 +4,8 @@
     class="d-flex flex-column justify-space-between"
   >
     <div>
-      <!-- <h2>{{第一章節}}</h2> -->
       <h2>{{ story.chapterName }}</h2>
-      <!-- <p class="my-4" style="white-space: pre-line; word-wrap: break-word">
-        fbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusdfbdgnjsdfngjksdkljvkuhifjsdkjvfsdklfvkshiljdkucghlidjfvhlkjjlvusd
-      </p> -->
+
       <p class="my-4" style="white-space: pre-line; word-wrap: break-word">
         {{ story.content[0]?.content }}
       </p>
@@ -31,7 +28,6 @@ import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "@/composables/axios";
 
-// const pageTitle = story.title;
 definePage({
   meta: {
     title: `界筆 | 故事`,

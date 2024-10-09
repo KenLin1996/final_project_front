@@ -15,7 +15,6 @@
           cover
           src="https://img.icons8.com/?size=100&id=zVbUsD7GnSYl&format=png&color=000000"
         ></v-img>
-        <!-- src="https://cdn.vuetifyjs.com/images/parallax/material.jpg" -->
       </router-link>
 
       <!-- 首頁 -->
@@ -32,8 +31,9 @@
               <v-icon right>mdi-menu-down</v-icon>
             </v-btn>
           </template>
-          <v-list>
+          <v-list class="pa-2 text-center" density="compact" :lines="false" nav>
             <v-list-item
+              class="px-5 py-0 my-0 custom-menu-item"
               v-for="(item, i) in menu.items"
               :key="i"
               :to="item.to"
@@ -69,8 +69,9 @@
           <!-- <template v-slot:activator="{ props }">
             <v-btn icon="mdi-bell" v-bind="props" class="mr-2"></v-btn>
           </template> -->
-          <v-list>
+          <v-list class="pa-2 text-center" density="compact" :lines="false" nav>
             <v-list-item
+              class="px-5 py-0 my-0 custom-menu-item"
               v-for="(notification, i) in notifications"
               :key="i"
               :to="notification.to"
@@ -87,8 +88,14 @@
             <template v-slot:activator="{ props }">
               <v-btn icon="mdi-account" v-bind="props"></v-btn>
             </template>
-            <v-list>
+            <v-list
+              class="pa-2 text-center"
+              density="compact"
+              :lines="false"
+              nav
+            >
               <v-list-item
+                class="px-5 py-0 my-0 custom-menu-item"
                 v-for="(setting, i) in settings"
                 :key="i"
                 :to="setting.to"
@@ -130,10 +137,7 @@ const menus = computed(() => {
     },
     {
       title: "創作資源",
-      items: [
-        { to: "/articleArea", text: "創作指引" },
-        // { to: "/characterSet", text: "人物設定" },
-      ],
+      items: [{ to: "/articleArea", text: "創作指引" }],
     },
   ];
 });
@@ -165,3 +169,9 @@ const handleClick = (setting) => {
   }
 };
 </script>
+
+<style scoped>
+.custom-menu-item :deep(.v-list-item-title) {
+  font-size: 14px;
+}
+</style>

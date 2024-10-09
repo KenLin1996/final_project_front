@@ -16,6 +16,12 @@
               style="font-size: 16px; margin-right: 4px"
               >{{ title }}</span
             >
+            <span
+              v-if="isStoryCompleted"
+              style="color: #4e9194; font-size: 14px"
+            >
+              （已完結）
+            </span>
             <br />
             <span
               v-if="extensions && extensions.length > 0"
@@ -54,8 +60,9 @@
         <v-row style="padding: 12px">
           <v-col cols="12" class="mt-1 pa-0" style="font-size: 8px"
             ><h1>
-              {{ content[0].latestContent ? "最新內容" : "開始故事" }}(
-              剩餘字數：{{ remainingWords }} )
+              {{ content.length > 0 ? "最新內容" : "開始故事" }} ({{
+                remainingWords === 0 ? "已結束" : `剩餘字數：${remainingWords}`
+              }})
             </h1></v-col
           >
           <v-col cols="12">
@@ -66,20 +73,14 @@
                   :ripple="false"
                   variant="text"
                   class="heart-button pa-0"
-                  @click="toggleHeart"
+                  @click="collectionFunc"
                   :class="{ filled: isFilled }"
                 >
-                  <v-icon>{{ icon }}</v-icon>
+                  <v-icon>{{ collectionIcon }}</v-icon>
                 </v-btn>
               </v-col>
               <v-col cols="11" class="pl-0">
                 <p style="word-wrap: break-word">
-                  <!-- {{
-                    content[0].latestContent
-                      ? content[0].latestContent
-                      : content[0]?.content.join("")
-                  }} -->
-
                   {{ storyContent.join("") }}
                 </p>
                 <v-card-actions>
@@ -89,8 +90,9 @@
                     color="secondary"
                     variant="outlined"
                     @click="openDialog"
+                    :disabled="isStoryCompleted"
                   >
-                    延續故事
+                    {{ isStoryCompleted ? "故事已完结" : "延續故事" }}
                   </v-btn>
                 </v-card-actions>
                 <v-dialog v-model="dialog" max-width="500">
@@ -126,6 +128,7 @@
                           :minlength="minWords"
                           :maxlength="maxWords"
                           counter
+                          auto-grow
                           :rules="contentRules"
                           style="margin-bottom: 8px"
                         ></v-textarea>
@@ -181,6 +184,7 @@ import { useSnackbar } from "vuetify-use-dialog";
 import VoteItem from "@/components/VoteItem.vue";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
+import debounce from "lodash/debounce";
 
 const userStore = useUserStore();
 const user = useUserStore();
@@ -235,16 +239,24 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  state: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const { category, title, mainAuthor, content, createdAt, _id: storyId } = props;
+// const { category, title, mainAuthor, content, createdAt, _id: storyId } = props;
+const { category, title, mainAuthor, createdAt, _id: storyId } = props;
+const { content } = toRefs(props);
+const isStoryCompleted = computed(() => props.state);
 
 const latestChapterName = computed(() => {
-  if (content && content.length > 0) {
-    return content[content.length - 1].chapterName || "暫無章節名";
+  if (content.value && content.value.length > 0) {
+    return content.value[content.value.length - 1].chapterName || "暫無章節名";
   }
   return "暫無章節名";
 });
+
 const minWords = 1;
 
 const maxWords = computed(() => {
@@ -300,31 +312,84 @@ const { handleSubmit, isSubmitting, resetForm } = useForm({
 const newChapterName = useField("newChapterName");
 const newChapterContent = useField("newChapterContent");
 
-const isFilled = ref(false);
 const dialog = ref(false);
 
-const storyContent = ref(
-  props.content && props.content[0]?.content ? props.content[0].content : []
-);
-
-const currentWordCount = computed(() => {
-  if (!storyContent.value || !Array.isArray(storyContent.value)) return 0;
-  return storyContent.value.reduce(
-    (total, str) => total + (str?.length || 0),
-    0
-  );
+const storyContent = computed(() => {
+  if (props.content && props.content.length > 0) {
+    const latestContent = props.content[props.content.length - 1];
+    return latestContent.content || [];
+  }
+  return [];
 });
 
-const remainingWords = computed(() => {
-  return Math.max(0, props.totalWordCount - currentWordCount.value);
-});
+const calculateRemainingWords = () => {
+  // 計算已完成章節的總字數
+  const completedChaptersWordCount =
+    (props.content.length - 1) * props.wordsPerChapter;
+
+  // 計算當前章節的字數
+  const currentChapterWordCount = props.currentChapterWordCount;
+
+  // 計算已寫的總字數
+  const totalWrittenWords =
+    completedChaptersWordCount + currentChapterWordCount;
+
+  // 計算剩餘字數
+  return Math.max(0, props.totalWordCount - totalWrittenWords);
+};
+
+const remainingWords = computed(() => calculateRemainingWords());
 
 const { extensions, voteEnd } = toRefs(props);
 
-const toggleHeart = () => {
-  isFilled.value = !isFilled.value;
+const hasCollection = ref(false);
+const isFilled = ref(false);
+
+// 檢查收藏狀態
+const checkBookmarkStatus = async () => {
+  if (!user.isLogin) return;
+  try {
+    const response = await apiAuth.get(`user/checkBookmark/${storyId}`);
+    hasCollection.value = response.data.hasCollection;
+    isFilled.value = response.data.hasCollection;
+  } catch (error) {
+    console.error("檢查收藏狀態失敗", error);
+  }
 };
-const icon = computed(() =>
+
+const collectionFunc = async () => {
+  if (!user.isLogin) {
+    createSnackbar({
+      text: "請先登入才能收藏",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+    return; // 未登入則不進行後續操作
+  }
+  try {
+    const response = await apiAuth.post("user/addBookmark", {
+      storyId: storyId,
+    });
+    hasCollection.value = response.data.hasCollection;
+    isFilled.value = response.data.hasCollection; // 更新 isFilled 狀態
+    createSnackbar({
+      text: response.data.hasCollection ? "收藏故事" : "取消收藏",
+      snackbarProps: {
+        color: "accent",
+      },
+    });
+  } catch (error) {
+    console.error("收藏操作失败", error);
+    createSnackbar({
+      text: "收藏操作失败",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+  }
+};
+const collectionIcon = computed(() =>
   isFilled.value ? "mdi-heart" : "mdi-heart-outline"
 );
 
@@ -339,6 +404,8 @@ const openDialog = () => {
 const hasMerged = ref(false);
 
 const mergeHighestVotedStory = async () => {
+  console.log("mergeHighestVotedStory 開始執行");
+
   try {
     if (!extensions.value.length) {
       console.log("沒有延續故事可供合併");
@@ -378,20 +445,51 @@ const mergeHighestVotedStory = async () => {
       throw new Error("延續故事未找到");
     }
 
-    await apiAuth.patch(`/story/${storyId}/merge`, {
-      extensionsId: highestVotedExtension._id,
-    });
+    // 檢查 currentChapterWordCount 是否達到 wordsPerChapter
+    if (props.currentChapterWordCount === props.wordsPerChapter) {
+      console.log("當前章節已達到字數上限，準備創建新章節");
 
-    createSnackbar({
-      text: "延續故事已成功合併到主故事中",
-      snackbarProps: {
-        color: "green",
-      },
-    });
+      await apiAuth.post(`/story/${storyId}/newChapter`, {
+        newContent: highestVotedExtension.content[0]?.latestContent, // 合併最高票數的內容
+        newChapterName: highestVotedExtension.chapterName,
+      });
+      console.log("觸發 newChapter");
+      createSnackbar({
+        text: "已成功創建新章節並合併最高票數的延續故事",
+        snackbarProps: {
+          color: "green",
+        },
+      });
+      emit("update");
+    } else {
+      // 如果字數還未達到上限，執行合併邏輯
+      const response = await apiAuth.patch(`/story/${storyId}/merge`, {
+        extensionsId: highestVotedExtension._id,
+      });
+
+      if (response.data.isCompleted) {
+        // 更新故事状态
+        props.state = true;
+        createSnackbar({
+          text: "故事已完结！",
+          snackbarProps: {
+            color: "success",
+          },
+        });
+      } else {
+        createSnackbar({
+          text: "延续故事已成功合并到主故事中",
+          snackbarProps: {
+            color: "green",
+          },
+        });
+      }
+    }
 
     console.log("即將觸發 emit update");
     emit("update");
     console.log("已觸發 emit update");
+    console.log("合併操作完成");
   } catch (error) {
     console.error(
       "合併故事時發生錯誤",
@@ -405,9 +503,13 @@ const mergeHighestVotedStory = async () => {
       },
     });
   } finally {
+    console.log("重置 hasMerged ");
     hasMerged.value = false; // 確保無論成功或失敗後都會重置狀態
+    emit("update");
   }
 };
+
+let isMergingCalled = false;
 
 const setRemainingTime = async () => {
   const now = Date.now();
@@ -420,8 +522,10 @@ const setRemainingTime = async () => {
     remainingTime.value = "";
 
     // 先檢查 extensions 是否存在且有內容
-    if (extensions.value.length > 0) {
+    if (extensions.value.length > 0 && !hasMerged.value && !isMergingCalled) {
+      isMergingCalled = true;
       await mergeHighestVotedStory();
+      isMergingCalled = false;
     }
 
     return;
@@ -443,12 +547,18 @@ const setRemainingTime = async () => {
 };
 
 const startCountdown = () => {
-  intervalId = setInterval(() => {
-    setRemainingTime();
-  }, 1000);
+  if (intervalId) clearInterval(intervalId);
+  setRemainingTime();
+  intervalId = setInterval(setRemainingTime, 1000);
 };
 
 onMounted(() => {
+  // 檢查收藏狀態
+  if (user.isLogin) {
+    checkBookmarkStatus();
+  }
+
+  // 如果投票已結束，啟動倒計時
   if (voteEnd) {
     startCountdown();
   }
@@ -488,7 +598,7 @@ const submit = handleSubmit(async (values) => {
 });
 
 onUnmounted(() => {
-  clearInterval(intervalId);
+  if (intervalId) clearInterval(intervalId);
 });
 
 watch(

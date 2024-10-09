@@ -7,35 +7,65 @@
 
       <!-- 創作流程指導 -->
       <v-card-subtitle class="mt-4">創作流程指導</v-card-subtitle>
+
       <v-list dense>
-        <ListGroup
+        <v-list-group
           v-for="item in creativeProcessGuidance"
           :key="item.title"
-          :title="item.title"
-          :subItems="item.subItems"
-        />
+          :value="item.title"
+        >
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" :title="item.title"></v-list-item>
+          </template>
+
+          <v-list-item
+            v-for="subItem in item.subItems"
+            :key="subItem.title"
+            :title="subItem.title"
+            :href="subItem.link"
+            target="_blank"
+          ></v-list-item>
+        </v-list-group>
       </v-list>
 
       <!-- 創作技巧 -->
       <v-card-subtitle class="mt-4">創作技巧</v-card-subtitle>
       <v-list dense>
-        <ListGroup
+        <v-list-group
           v-for="item in creativeSkills"
           :key="item.title"
-          :title="item.title"
-          :subItems="item.subItems"
-        />
+          :value="item.title"
+        >
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" :title="item.title"></v-list-item>
+          </template>
+
+          <v-list-item
+            v-for="subItem in item.subItems"
+            :key="subItem.title"
+            :title="subItem.title"
+            :href="subItem.link"
+            target="_blank"
+          ></v-list-item>
+        </v-list-group>
       </v-list>
 
       <!-- 常見問題與解答 -->
       <v-card-subtitle class="mt-4">常見問題與解答</v-card-subtitle>
       <v-list dense>
-        <ListGroup
-          v-for="item in faq"
-          :key="item.title"
-          :title="item.title"
-          :subItems="item.subItems"
-        />
+        <v-list-group v-for="item in faq" :key="item.title" :value="item.title">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" :title="item.title"></v-list-item>
+          </template>
+
+          <v-list-item
+            v-for="subItem in item.subItems"
+            :key="subItem.title"
+            :title="subItem.title"
+            :href="subItem.link"
+            target="_blank"
+          ></v-list-item>
+        </v-list-group>
       </v-list>
     </v-card>
   </v-container>
@@ -44,7 +74,6 @@
 <script setup>
 import { definePage } from "vue-router/auto";
 import { ref } from "vue";
-import ListGroup from "../components/ListGroup.vue";
 
 definePage({
   meta: {
@@ -106,8 +135,7 @@ const faq = ref([
 </script>
 
 <style scoped>
-.v-list-group__header {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+.v-list-item {
+  margin: 0px 12px;
 }
 </style>
