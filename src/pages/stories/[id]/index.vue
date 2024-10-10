@@ -177,7 +177,6 @@ const story = ref({
 const load = async () => {
   try {
     const { data } = await api.get("/story/" + route.params.id);
-
     story.value._id = data.result._id;
     story.value.image = data.result.image;
     story.value.title = data.result.title;
@@ -223,6 +222,14 @@ const collectionFunc = async () => {
       storyId: story.value._id,
     });
     hasCollection.value = response.data.hasCollection;
+
+    // 更新收藏數
+    if (response.data.hasCollection) {
+      story.value.collectionNum++;
+    } else {
+      story.value.collectionNum = Math.max(0, story.value.collectionNum - 1);
+    }
+
     createSnackbar({
       text: response.data.hasCollection ? "收藏故事" : "取消收藏",
       snackbarProps: {
@@ -244,7 +251,6 @@ const collectionFunc = async () => {
 const checkBookmarkStatus = async () => {
   if (!user.isLogin) return;
   try {
-    // const response = await apiAuth.get(`user/checkBookmark/${story.value._id}`);
     const response = await apiAuth.get("user/checkBookmark/" + route.params.id);
     hasCollection.value = response.data.hasCollection;
   } catch (error) {

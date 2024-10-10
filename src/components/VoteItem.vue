@@ -24,7 +24,13 @@
               </v-btn>
             </template>
             <v-list class="pa-0">
-              <v-list-item v-for="(item, i) in items" :key="i" class="">
+              <v-list-item
+                class="px-4 py-1 my-0"
+                v-for="(item, i) in items"
+                :key="i"
+                @click="item.action ? item.action() : null"
+                link
+              >
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
               </v-list-item>
             </v-list>
@@ -50,19 +56,55 @@
       >
     </v-card-actions>
   </v-card>
+
+  <v-dialog v-model="reportDialog" max-width="500px">
+    <v-form @submit.prevent="submit" :disabled="isSubmitting">
+      <v-card>
+        <v-card-title>
+          <span class="headline">檢舉故事</span>
+        </v-card-title>
+        <v-card-text>
+          <v-textarea
+            v-model="report.value.value"
+            :error-messages="report.errorMessage.value"
+            label="請描述檢舉原因"
+            rows="3"
+            auto-grow
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="reportDialog = false"
+            >取消</v-btn
+          >
+          <v-btn
+            color="blue darken-1"
+            text
+            type="submit"
+            :loading="isSubmitting"
+            >提交</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-form>
+  </v-dialog>
 </template>
 
 <script setup>
-import { ref, toRefs } from "vue";
+import { ref, toRefs, watch } from "vue";
 import { defineProps } from "vue";
+import * as yup from "yup";
+import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
 import { useUserStore } from "@/stores/user";
+import { useSnackbar } from "vuetify-use-dialog";
 import mittt from "@/mitt.js";
 
 const { apiAuth } = useApi();
 const userStore = useUserStore();
+const user = useUserStore();
+const createSnackbar = useSnackbar();
 
-const items = ref([{ title: "檢舉" }, { title: "刪除" }]);
 const hasVotedInOtherExtension = ref(false);
 const props = defineProps([
   "content",
@@ -72,6 +114,7 @@ const props = defineProps([
   "storyId",
   "extensionId",
   "voteStatus",
+  "authorId",
 ]);
 
 const {
@@ -90,6 +133,16 @@ const hasVoted = computed(() => {
 });
 
 const changeVoteCount = async (voteCountChange) => {
+  if (!user.isLogin) {
+    createSnackbar({
+      text: "請先登入才能投票",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+    return;
+  }
+
   try {
     const storyResponse = await apiAuth.patch(
       `/story/${storyId.value}/${extensionId.value}`,
@@ -108,6 +161,83 @@ const changeVoteCount = async (voteCountChange) => {
     console.error("Error updating vote count:", error);
   }
 };
+
+const schema = yup.object({
+  report: yup.string().required("請描述檢舉原因").min(50, "檢舉不能低於 50 字"),
+});
+
+const { handleSubmit, isSubmitting, resetForm } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    report: "",
+  },
+});
+
+const report = useField("report");
+
+const reportDialog = ref(false);
+const handleReport = () => {
+  reportDialog.value = true;
+};
+
+const items = computed(() => {
+  const baseItems = [{ title: "檢舉", action: handleReport }];
+  if (userId === props.authorId) {
+    baseItems.push({ title: "刪除", action: deleteExtensionStory });
+  }
+  return baseItems;
+});
+
+const submit = handleSubmit(async (values) => {
+  if (!user.isLogin) {
+    createSnackbar({
+      text: "請先登入才能檢舉",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+    return;
+  }
+  try {
+    // await apiAuth.post(`/story/${storyId.value}/${extensionId.value}`, {
+    //   report: values.report,
+    // });
+    console.log("檢舉已提交");
+
+    reportDialog.value = false;
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+const deleteExtensionStory = async () => {
+  try {
+    await apiAuth.delete(
+      `/story/${storyId.value}/${extensionId.value}/deleteExtensionStory`
+    );
+    createSnackbar({
+      text: "刪除成功",
+      snackbarProps: {
+        color: "green",
+      },
+    });
+    mittt.emit("updateStory");
+  } catch (error) {
+    console.log(error);
+    createSnackbar({
+      text: error?.response?.data?.message || "發生錯誤",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+  }
+};
+
+watch(reportDialog, (newValue) => {
+  if (!newValue) {
+    resetForm();
+  }
+});
 </script>
 
 <style scoped>

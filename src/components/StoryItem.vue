@@ -161,6 +161,7 @@
           >
             <VoteItem
               :storyId="storyId"
+              :authorId="extension.author._id"
               :extensionId="extension._id"
               :content="extension.content"
               :chapterName="extension.chapterName"
@@ -184,7 +185,6 @@ import { useSnackbar } from "vuetify-use-dialog";
 import VoteItem from "@/components/VoteItem.vue";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
-import debounce from "lodash/debounce";
 
 const userStore = useUserStore();
 const user = useUserStore();
