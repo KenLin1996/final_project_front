@@ -52,12 +52,12 @@
     <v-container style="padding: 32px">
       <v-row class="justify-space-between">
         <v-col cols="12" class="pb-0">
-          <h2>追蹤故事</h2>
+          <h2>收藏故事</h2>
         </v-col>
         <v-divider class="mb-3"></v-divider>
         <v-col cols="12" class="d-flex flex-column justify-space-between">
           <StoryItem
-            v-for="story in stories"
+            v-for="story in bookmarkStories"
             :key="story._id"
             v-bind="story"
             @update="loadStories"
@@ -89,6 +89,13 @@
       </v-col>
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-column justify-space-between">
+        <!--  10/12 00:30 測試 使用加載所有故事來測試同一個故事在同一個頁面是否會重複合併 -->
+        <StoryItem
+          v-for="story in stories"
+          :key="story._id"
+          v-bind="story"
+          @update="loadStories"
+        />
         <!-- <StoryItem
           v-for="story in newestStories"
           :key="story._id"
@@ -186,8 +193,7 @@ definePage({
 });
 const user = useUserStore();
 
-const { api } = useApi();
-const stories = ref([]);
+const { api, apiAuth } = useApi();
 const router = useRouter();
 
 const handleCreateStory = () => {
@@ -200,6 +206,8 @@ const handleCreateStory = () => {
   }
 };
 
+const stories = ref([]);
+const bookmarkStories = ref([]);
 const popularStories = ref([]);
 const newestStories = ref([]);
 const completedStories = ref([]);
@@ -217,6 +225,10 @@ const loadStories = async () => {
 
     const completedRes = await api.get("/story/getCompletedStories");
     completedStories.value = completedRes.data.result.data;
+
+    const bookmarkRes = await apiAuth.get("/story/getBookmarkStories");
+    bookmarkStories.value = bookmarkRes.data.result.data;
+    console.log("bookmarkStories 的值：", bookmarkStories);
   } catch (error) {
     console.error("Failed to load stories:", error);
   }

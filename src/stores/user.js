@@ -11,7 +11,6 @@ export const useUserStore = defineStore(
     const token = ref("");
     const username = ref("");
     const bookmarkStory = ref(0);
-    const followStory = ref(0);
     const voteStory = ref(0);
     const createCharacters = ref(0);
     const notifies = ref(0);
@@ -28,7 +27,6 @@ export const useUserStore = defineStore(
         token.value = data.result.token;
         username.value = data.result.username;
         bookmarkStory.value = data.result.bookmarkStory;
-        followStory.value = data.result.followStory;
         voteStory.value = data.result.voteStory;
         createCharacters.value = data.result.createCharacters;
         notifies.value = data.result.notifies;
@@ -49,7 +47,6 @@ export const useUserStore = defineStore(
         userId.value = data.result.userId;
         username.value = data.result.username;
         bookmarkStory.value = data.result.bookmarkStory;
-        followStory.value = data.result.followStory;
         voteStory.value = data.result.voteStory;
         createCharacters.value = data.result.createCharacters;
         notifies.value = data.result.notifies;
@@ -59,7 +56,6 @@ export const useUserStore = defineStore(
         token.value = "";
         username.value = "";
         bookmarkStory.value = 0;
-        followStory.value = 0;
         voteStory.value = 0;
         createCharacters.value = 0;
         notifies.value = 0;
@@ -76,7 +72,6 @@ export const useUserStore = defineStore(
       token.value = "";
       username.value = "";
       bookmarkStory.value = 0;
-      followStory.value = 0;
       voteStory.value = 0;
       createCharacters.value = 0;
       notifies.value = 0;
@@ -88,7 +83,6 @@ export const useUserStore = defineStore(
       token,
       username,
       bookmarkStory,
-      followStory,
       voteStory,
       createCharacters,
       notifies,
