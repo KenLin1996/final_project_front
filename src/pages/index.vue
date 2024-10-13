@@ -60,6 +60,8 @@
             v-for="story in bookmarkStories"
             :key="story._id"
             v-bind="story"
+            :isExpanded="expandedStoryId === story._id"
+            @toggle="toggleStory(story._id)"
             @update="loadStories"
           />
         </v-col>
@@ -90,18 +92,18 @@
       <v-divider class="mb-3"></v-divider>
       <v-col cols="12" class="d-flex flex-column justify-space-between">
         <!--  10/12 00:30 測試 使用加載所有故事來測試同一個故事在同一個頁面是否會重複合併 -->
-        <StoryItem
+        <!-- <StoryItem
           v-for="story in stories"
           :key="story._id"
           v-bind="story"
           @update="loadStories"
-        />
-        <!-- <StoryItem
+        /> -->
+        <StoryItem
           v-for="story in newestStories"
           :key="story._id"
           v-bind="story"
           @update="loadStories"
-        /> -->
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -212,6 +214,13 @@ const popularStories = ref([]);
 const newestStories = ref([]);
 const completedStories = ref([]);
 
+const expandedStoryId = ref(null); // 用來追蹤當前展開的故事 ID
+
+const toggleStory = (storyId) => {
+  // 如果點擊的故事已經展開，則關閉它；否則展開新的故事
+  expandedStoryId.value = expandedStoryId.value === storyId ? null : storyId;
+};
+
 const loadStories = async () => {
   try {
     const { data } = await api.get("/story");
@@ -228,7 +237,6 @@ const loadStories = async () => {
 
     const bookmarkRes = await apiAuth.get("/story/getBookmarkStories");
     bookmarkStories.value = bookmarkRes.data.result.data;
-    console.log("bookmarkStories 的值：", bookmarkStories);
   } catch (error) {
     console.error("Failed to load stories:", error);
   }

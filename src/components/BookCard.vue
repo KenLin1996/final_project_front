@@ -1,12 +1,18 @@
 <template>
   <router-link :to="'/stories/' + _id" style="text-decoration: none">
     <v-card class="pa-3 customMargin h-100 me-2" width="220">
+      <v-card-text
+        class="pa-0 mb-1 cursor-pointer"
+        style="font-size: 12px; color: #4e9194"
+      >
+        {{ mainAuthor?.username }}
+      </v-card-text>
       <v-img class="cursor-pointer" height="150px" :src="image" cover> </v-img>
 
       <div class="d-flex justify-space-between align-center my-1">
         <v-card-title
           class="pa-0 text-subtitle-1 cursor-pointer"
-          style="width: 135px"
+          style="width: 130px"
         >
           {{ title }}
         </v-card-title>
@@ -24,14 +30,7 @@
         content[content.length - 1].chapterName
       }}</v-card-subtitle>
 
-      <v-card-text
-        class="pa-0 mb-1 cursor-pointer"
-        style="font-size: 12px; color: #4e9194"
-      >
-        {{ mainAuthor?.username }}
-      </v-card-text>
-
-      <v-card-text class="pa-0">
+      <v-card-text class="pa-0 ellipsis-3-lines">
         {{ content[0].content[0] }}
       </v-card-text>
     </v-card>
@@ -52,5 +51,13 @@ const { _id, image, title, category, mainAuthor, content } = defineProps([
 <style scoped>
 .customMargin:not(:last-child) {
   margin-right: 10px;
+}
+
+.ellipsis-3-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.2rem;
 }
 </style>

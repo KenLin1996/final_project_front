@@ -46,6 +46,22 @@
       </v-col>
     </v-row>
 
+    <h2>作品狀態</h2>
+    <v-divider class="custom-mb-5"></v-divider>
+    <v-row class="custom-mb-5" no-gutters>
+      <v-col v-for="storyState in storyStates" :key="storyState" cols="auto">
+        <v-btn
+          class="mr-1"
+          :class="{
+            'custom-btn': true,
+            selected: selectedStoryState === storyState,
+          }"
+          @click="selectStoryState(storyState)"
+          >{{ storyState }}</v-btn
+        >
+      </v-col>
+    </v-row>
+
     <div class="d-flex align-center justify-space-between mb-2">
       <h2>標籤選擇</h2>
       <v-btn dense @click="resetLabels" class="custom-reset-btn"
@@ -115,14 +131,13 @@
                 <p class="mb-2" style="font-weight: bolder; color: black">
                   作品字數：{{ story.totalWordCount }}
                 </p>
+                <p class="mb-2" style="font-weight: bolder; color: black">
+                  作品狀態：{{ story.state ? "完結" : "連載" }}
+                </p>
                 <p style="font-weight: bolder; color: black">最新內容：</p>
               </v-card-subtitle>
               <v-card-text class="text py-1" style="font-weight: 500">
-                {{
-                  story.latestContent.length === 0
-                    ? story.content[0]?.content[0]
-                    : story.latestContent
-                }}
+                {{ story.content[story.content.length - 1]?.content.join("") }}
               </v-card-text>
             </v-col>
           </v-row>
@@ -158,40 +173,33 @@ const selectedLabels = ref([]);
 const searchQuery = ref("");
 const selectedCategory = ref("");
 const selectedWordCount = ref("");
+const selectedStoryState = ref("");
 
 const { api } = useApi();
 const stories = ref([]);
 
 const categories = [
-  "文藝評論",
-  "商業理財",
-  "藝術設計",
-  "人文科普",
-  "心靈養生",
+  "愛情",
+  "奇幻玄幻",
+  "科幻未來",
+  "驚悚推理",
+  "靈異恐怖",
+  "武俠仙俠",
+  "都市",
+  "LGBTQ+",
+  "勵志成長",
+  "幽默諷喻",
+  "影視",
+  "同人",
+  "網遊",
+  "歷史傳記",
+  "軍事戰爭",
   "生活風格",
   "親子共享",
-  "傳記/文學史",
-  "羅曼史",
-  "校園愛情",
-  "武俠仙俠",
-  "歷史",
-  "驚悚推理",
-  "奇幻",
-  "恐怖靈異",
-  "影視",
-  "軍事戰爭/災難冒險",
-  "溫馨勵志/成長療癒",
-  "幽默/諷喻",
-  "同志",
-  "漫畫",
-  "同人",
-  "都市",
-  "玄幻",
-  "科幻",
-  "網遊",
-  "都會愛情",
-  "古代愛情",
-  "百合",
+  "藝術設計",
+  "科普",
+  "商業理財",
+  "文藝評論",
   "其他",
 ];
 
@@ -201,53 +209,74 @@ const wordCounts = [
   "1000字以下",
   "2萬字以內",
   "2萬-5萬字",
-  "5萬字以上",
+  "5萬-10萬字",
+  "10萬-30萬字",
+  "30萬-60萬字",
+  "60萬-100萬字",
+  "100萬字以上",
 ];
+
+const storyStates = ["不限", "連載", "完結"];
 
 const chapterLabels = [
   "不限",
-  "爽文",
-  "心情抒發",
-  "療癒",
-  "青梅竹馬",
-  "戰鬥",
-  "異界",
   "戀愛",
-  "日常",
+  "異界",
   "校園",
-  "搞笑",
-  "後宮",
+  "戰鬥",
+  "冒險",
+  "魔法",
   "異能",
+  "超能力",
+  "超自然",
+  "重生",
+  "穿越",
+  "爽文/輕鬆",
+  "搞笑",
+  "虐心",
+  "復仇",
+  "靈異神怪",
+  "暗黑",
+  "恐怖",
+  "奇幻",
+  "異世界轉生",
+  "逆襲",
+  "未來世界",
+  "英雄",
+  "百合",
+  "同志",
+  "日常",
+  "科幻",
+  "成長",
+  "家庭",
+  "友情",
+  "偵探",
+  "職場",
+  "青梅竹馬",
+  "後宮",
   "妖怪",
-  "妹控",
   "節操",
   "二創",
-  "百合",
-  "虐心",
-  "甜文",
   "悲劇",
   "喜劇",
-  "輕鬆",
-  "暗黑",
-  "清水",
-  "穿越",
-  "重生",
-  "靈異神怪",
   "異國",
-  "冒險",
-  "女性向",
-  "男性向",
   "輕小說",
-  "同志",
-  "恐怖",
+  "心理",
+  "神話",
+  "蒸汽龐克",
+  "時間旅行",
+  "機器人",
+  "人工智能",
+  "動物",
 ];
 
 const loadStories = async () => {
   try {
     const { data } = await api.get("/story");
-    stories.value = data.result.data;
+    stories.value = data.result.data || [];
   } catch (error) {
     console.error(error);
+    stories.value = [];
   }
 };
 loadStories();
@@ -261,6 +290,11 @@ const selectWordCount = (wordCount) => {
     selectedWordCount.value === wordCount ? "" : wordCount;
 };
 
+const selectStoryState = (storyState) => {
+  selectedStoryState.value =
+    selectedStoryState.value === storyState ? "" : storyState;
+};
+
 const resetLabels = () => {
   selectedLabels.value = [];
 };
@@ -268,31 +302,56 @@ const resetLabels = () => {
 const parseWordCount = (wordCount) => {
   switch (wordCount) {
     case "50字以下":
-      return 50;
+      return { min: 0, max: 50 };
     case "1000字以下":
-      return 1000;
+      return { min: 51, max: 1000 };
     case "2萬字以內":
-      return 20000;
+      return { min: 1001, max: 20000 };
     case "2萬-5萬字":
-      return 50000;
-    case "5萬字以上":
-      return Infinity;
+      return { min: 20001, max: 50000 };
+    case "5萬-10萬字":
+      return { min: 50001, max: 100000 };
+    case "10萬-30萬字":
+      return { min: 100001, max: 300000 };
+    case "30萬-60萬字":
+      return { min: 300001, max: 600000 };
+    case "60萬-100萬字":
+      return { min: 600001, max: 1000000 };
+    case "100萬字以上":
+      return { min: 1000001, max: Infinity };
     default:
-      return Infinity;
+      return { min: 0, max: Infinity };
   }
 };
 
 const filteredStories = computed(() => {
   return stories.value.filter((story) => {
-    const matchesSearch = story.title
-      .toLowerCase()
-      .includes(searchQuery.value.toLowerCase());
+    if (!story) return false;
+
+    const searchItem = searchQuery.value ? searchQuery.value.toLowerCase() : "";
+
+    const matchesSearchTitle = story.title
+      ? story.title.toLowerCase().includes(searchItem)
+      : false;
+
+    const matchesSearchAuthor = story.mainAuthor?.username
+      ? story.mainAuthor.username.toLowerCase().includes(searchItem)
+      : false;
 
     const matchesCategory = selectedCategory.value
       ? story.category === selectedCategory.value
       : true;
+
+    const wordCountRange = parseWordCount(selectedWordCount.value);
     const matchesWordCount = selectedWordCount.value
-      ? story.totalWordCount <= parseWordCount(selectedWordCount.value)
+      ? story.totalWordCount >= wordCountRange.min &&
+        story.totalWordCount <= wordCountRange.max
+      : true;
+
+    const storyStateOp = story.state ? "完結" : "連載";
+    const matchesState = selectedStoryState.value
+      ? selectedStoryState.value === "不限" ||
+        storyStateOp === selectedStoryState.value
       : true;
     const matchesLabels = selectedLabels.value.length
       ? selectedLabels.value.every((label) =>
@@ -301,7 +360,11 @@ const filteredStories = computed(() => {
       : true;
 
     return (
-      matchesSearch && matchesCategory && matchesWordCount && matchesLabels
+      (matchesSearchTitle || matchesSearchAuthor) &&
+      matchesCategory &&
+      matchesWordCount &&
+      matchesState &&
+      matchesLabels
     );
   });
 });

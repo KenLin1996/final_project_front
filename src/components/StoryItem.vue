@@ -1,7 +1,11 @@
 <template>
-  <v-expansion-panels class="customMb">
+  <v-expansion-panels
+    class="customMb"
+    v-model="internalExpanded"
+    @change="handleExpansionChange"
+  >
     <v-expansion-panel>
-      <v-expansion-panel-title>
+      <v-expansion-panel-title @click="toggleExpansion">
         <v-row no-gutters>
           <v-col
             class="d-flex align-center justify-center text--secondary"
@@ -192,7 +196,8 @@ const router = useRouter();
 
 const userId = userStore.userId;
 
-const emit = defineEmits(["update"]);
+// const emit = defineEmits(["update"]);
+const emit = defineEmits(["update", "toggle"]);
 const { apiAuth } = useApi();
 
 const remainingTime = ref("");
@@ -243,7 +248,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isExpanded: Boolean,
 });
+
+const internalExpanded = ref(props.isExpanded ? [0] : null);
 
 // const { category, title, mainAuthor, content, createdAt, _id: storyId } = props;
 const { category, title, mainAuthor, createdAt, _id: storyId } = props;
@@ -427,12 +435,14 @@ const mergeHighestVotedStory = async () => {
       console.log("所有延續故事的票數為 0，清空延續故事");
       // 發送請求來清空延續故事
       await apiAuth.patch(`/story/${storyId}/clearExtensions`);
-      createSnackbar({
-        text: "所有延續故事的票數為 0，已清空延續故事",
-        snackbarProps: {
-          color: "red",
-        },
-      });
+      if (isExpanded) {
+        createSnackbar({
+          text: "所有延續故事的票數為 0，已清空延續故事",
+          snackbarProps: {
+            color: "red",
+          },
+        });
+      }
       emit("update");
       return; // 不再執行後續合併邏輯
     }
@@ -454,12 +464,14 @@ const mergeHighestVotedStory = async () => {
         newChapterName: highestVotedExtension.chapterName,
       });
       console.log("觸發 newChapter");
-      createSnackbar({
-        text: "已成功創建新章節並合併最高票數的延續故事",
-        snackbarProps: {
-          color: "green",
-        },
-      });
+      if (isExpanded) {
+        createSnackbar({
+          text: "已成功創建新章節並合併最高票數的延續故事",
+          snackbarProps: {
+            color: "green",
+          },
+        });
+      }
       emit("update");
     } else {
       // 如果字數還未達到上限，執行合併邏輯
@@ -470,19 +482,23 @@ const mergeHighestVotedStory = async () => {
       if (response.data.isCompleted) {
         // 更新故事状态
         props.state = true;
-        createSnackbar({
-          text: "故事已完结！",
-          snackbarProps: {
-            color: "success",
-          },
-        });
+        if (isExpanded) {
+          createSnackbar({
+            text: "故事已完结！",
+            snackbarProps: {
+              color: "success",
+            },
+          });
+        }
       } else {
-        createSnackbar({
-          text: "延续故事已成功合并到主故事中",
-          snackbarProps: {
-            color: "green",
-          },
-        });
+        if (isExpanded) {
+          createSnackbar({
+            text: "延续故事已成功合并到主故事中",
+            snackbarProps: {
+              color: "green",
+            },
+          });
+        }
       }
     }
 
@@ -495,13 +511,14 @@ const mergeHighestVotedStory = async () => {
       "合併故事時發生錯誤",
       error.response?.data || error.message || error
     );
-
-    createSnackbar({
-      text: error?.response?.data?.message || "合併故事時發生錯誤",
-      snackbarProps: {
-        color: "red",
-      },
-    });
+    if (isExpanded) {
+      createSnackbar({
+        text: error?.response?.data?.message || "合併故事時發生錯誤",
+        snackbarProps: {
+          color: "red",
+        },
+      });
+    }
   } finally {
     console.log("重置 hasMerged ");
     hasMerged.value = false; // 確保無論成功或失敗後都會重置狀態
@@ -639,6 +656,23 @@ const checkVoteStatus = (extension) => {
     }
   }
   return { hasVoted, voteThis };
+};
+
+watch(
+  () => props.isExpanded,
+  (newVal) => {
+    internalExpanded.value = newVal ? [0] : null;
+  }
+);
+
+const handleExpansionChange = () => {
+  console.log("正在執行 emit(toggle)");
+  emit("toggle");
+};
+
+const toggleExpansion = () => {
+  console.log("正在執行 emit(toggle)");
+  emit("toggle");
 };
 </script>
 
