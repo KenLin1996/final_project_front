@@ -15,6 +15,7 @@ export const useUserStore = defineStore(
     const createCharacters = ref(0);
     const notifies = ref(0);
     const theme = ref("");
+    const avatar = ref("");
 
     const isLogin = computed(() => {
       return token.value.length > 0;
@@ -31,6 +32,7 @@ export const useUserStore = defineStore(
         createCharacters.value = data.result.createCharacters;
         notifies.value = data.result.notifies;
         theme.value = data.result.theme;
+        avatar.value = data.result.avatar;
 
         return "登入成功";
       } catch (error) {
@@ -51,6 +53,7 @@ export const useUserStore = defineStore(
         createCharacters.value = data.result.createCharacters;
         notifies.value = data.result.notifies;
         theme.value = data.result.theme;
+        avatar.value = data.result.avatar;
       } catch (error) {
         console.log(error);
         token.value = "";
@@ -60,6 +63,7 @@ export const useUserStore = defineStore(
         createCharacters.value = 0;
         notifies.value = 0;
         theme.value = 0;
+        avatar.value = "";
       }
     };
 
@@ -76,6 +80,7 @@ export const useUserStore = defineStore(
       createCharacters.value = 0;
       notifies.value = 0;
       theme.value = 0;
+      avatar.value = "";
     };
 
     return {
@@ -87,6 +92,7 @@ export const useUserStore = defineStore(
       createCharacters,
       notifies,
       theme,
+      avatar,
       isLogin,
       login,
       profile,

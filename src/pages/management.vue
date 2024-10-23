@@ -1,4 +1,4 @@
-<template>
+<template style="margin: auto">
   <v-container style="padding: 32px">
     <v-breadcrumbs :items="items" style="padding: 0px 12px 16px 12px">
       <template v-slot:divider>
@@ -7,10 +7,18 @@
     </v-breadcrumbs>
 
     <div class="d-flex">
-      <div class="sidebar" style="margin-right: 12px; background-color: white">
+      <div
+        class="sidebar"
+        style="
+          flex: 1;
+          margin-right: 12px;
+          background-color: white;
+          border-radius: 12px;
+        "
+      >
         <v-list class="py-0" dense>
           <h3 class="mb-3">故事管理</h3>
-          <v-list-item class="d-flex">
+          <v-list-item class="d-flex justify-center">
             <v-tabs v-model="tab" color="primary" direction="vertical">
               <v-tab
                 class="my-1"
@@ -42,13 +50,20 @@
         </v-list>
       </div>
 
-      <div class="content" style="background-color: white">
+      <div
+        class="content"
+        style="flex: 9; background-color: white; border-radius: 12px"
+      >
         <v-tabs-window v-model="tab">
           <!-- 我的故事 -->
           <v-tabs-window-item value="option-1">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3>我的故事</h3>
-              <v-btn prepend-icon="mdi-plus" size="small" to="/createStory"
+              <v-btn
+                prepend-icon="mdi-plus"
+                size="small"
+                to="/createStory"
+                style="background-color: #2883d3; color: white"
                 >新增故事</v-btn
               >
             </div>
@@ -62,6 +77,7 @@
                   :headers="myStoryHeaders"
                   :items="myStoryItems"
                   :items-length="tableItemsLength"
+                  :items-per-page-options="itemsPerPageOptions"
                   @update:items-per-page="tableLoadMyStoryItems(false)"
                   @update:sort-by="tableLoadMyStoryItems(false)"
                   @update:page="tableLoadMyStoryItems(false)"
@@ -103,10 +119,11 @@
             </div>
             <v-divider></v-divider>
             <v-card flat>
-              <v-card-text>
+              <v-card-text class="pa-0 px-1 py-3">
                 <v-data-table
                   :headers="ExtensionHeaders"
                   :items="exStoryItems"
+                  :items-per-page-options="itemsPerPageOptions"
                   density="comfortable"
                   item-key="name"
                 >
@@ -125,12 +142,13 @@
                   <template #item.actions="{ item }">
                     <v-btn
                       text
-                      :to="`/story/${item._id}`"
                       :active="false"
                       :ripple="false"
                       variant="tonal"
+                      @click="openDeleteDialog(item)"
+                      style="background-color: #f24e1e; color: white"
                     >
-                      刪除紀錄
+                      刪除
                     </v-btn>
                   </template>
                 </v-data-table>
@@ -145,25 +163,40 @@
             </div>
             <v-divider></v-divider>
             <div class="d-flex align-center justify-space-between py-2">
-              <v-btn size="small">移除</v-btn>
+              <v-btn
+                size="small"
+                @click="removeBookmarkFunc"
+                :disabled="selected.length === 0"
+                style="background-color: #ffcdd2"
+                >取消收藏</v-btn
+              >
 
               <v-select
-                dense
                 density="comfortable"
                 label="故事分類"
                 hide-details
                 max-width="150px"
-                :items="selectItems"
+                :items="['全部', ...allCategories]"
+                v-model="selectedCategory"
               ></v-select>
             </div>
 
             <v-data-table
               v-model="selected"
-              :headers="collectionHeaders"
-              :items="collectionStories"
+              :headers="bookmarkHeaders"
+              :items="bookmarkStories"
+              :items-per-page-options="itemsPerPageOptions"
+              item-value="._id"
               show-select
-              item-value="title"
-            ></v-data-table>
+            >
+              <template #item.completion="{ item }">
+                <span>{{ item.completion }}%</span>
+                <!-- 顯示完成度 -->
+              </template>
+              <template #[`item.state`]="{ item }">
+                <span>{{ item.state ? "完結" : "連載" }}</span>
+              </template>
+            </v-data-table>
           </v-tabs-window-item>
 
           <!-- 已投票的故事 -->
@@ -177,14 +210,16 @@
               item-key="name"
               :headers="voteStoryHeaders"
               :items="voteStories"
+              :items-per-page-options="itemsPerPageOptions"
             >
               <template #[`item.actions`]="{ item }">
                 <v-btn
                   text
-                  to=""
+                  @click="removeVoteRec(item)"
                   :active="false"
                   :ripple="false"
                   variant="tonal"
+                  style="background-color: #f24e1e; color: white"
                 >
                   刪除紀錄
                 </v-btn>
@@ -211,8 +246,9 @@
         </div>
 
         <v-card-text>
+          <v-label class="me-4 mb-1">更改書名</v-label>
+
           <v-text-field
-            label="書名"
             v-model="title.value.value"
             :error-messages="title.errorMessage.value"
           ></v-text-field>
@@ -249,6 +285,7 @@
             </div>
           </v-radio-group>
 
+          <v-label class="me-4 mb-1">更換封面</v-label>
           <vue-file-agent
             v-model="fileRecords"
             v-model:raw-model-value="rawFileRecords"
@@ -274,6 +311,27 @@
       </v-card>
     </v-form>
   </v-dialog>
+  <v-dialog v-model="deleteDialog" width="auto">
+    <v-card max-width="500" prepend-icon="mdi-update" title="刪除紀錄">
+      <v-card-text>
+        刪除後，故事內容並不受影響，只移除您的個人紀錄！想提醒您這些紀錄承載了過去的肯定和成長，不論多少都是您在界筆珍貴的足跡。<br />您確定要刪除嗎？
+      </v-card-text>
+      <template v-slot:actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          class="ms-auto"
+          text="取消"
+          color="red"
+          @click="deleteDialog = false"
+        ></v-btn>
+        <v-btn
+          class="ms-auto"
+          text="刪除"
+          color="green"
+          @click="handleDelete()"
+        ></v-btn>
+      </template> </v-card
+  ></v-dialog>
 </template>
 
 <script setup>
@@ -289,6 +347,7 @@ definePage({
     title: "界筆 ｜ 故事管理",
     login: false,
     admin: false,
+    hideFooter: true,
   },
 });
 
@@ -306,6 +365,14 @@ const tableItemsPerPage = ref(10);
 const tableSortBy = ref([{ key: "createdAt", order: "desc" }]);
 const tablePage = ref(1);
 const tableItemsLength = ref(0);
+
+// 項目每頁選項，不包括 -1、100
+const itemsPerPageOptions = [
+  { value: 10, title: "10" },
+  { value: 25, title: "25" },
+  { value: 50, title: "50" },
+  { value: 100, title: "100" },
+];
 
 const fileRecords = ref([]);
 const rawFileRecords = ref([]);
@@ -388,13 +455,13 @@ const submit = handleSubmit(async (values) => {
 const myStoryHeaders = [
   {
     title: "書封",
-    align: "center",
-    width: "160px",
+    align: "start",
+    width: "120px",
     sortable: false,
     key: "image",
   },
-  { title: "書名", align: "start", width: "130px", key: "title" },
-  { title: "狀態", align: "center", key: "state" },
+  { title: "書名", align: "center", width: "280px", key: "title" },
+  { title: "狀態", align: "start", key: "state" },
   { title: "顯示", align: "center", key: "show", sortable: false },
   { title: "收藏數", align: "center", key: "collectionNum" },
   { title: "總票數", align: "center", key: "totalVotes" },
@@ -464,11 +531,22 @@ const props = defineProps({
 });
 
 const ExtensionHeaders = [
-  { title: "書名", align: "start", width: "130px", key: "storyTitle" },
-  { title: "狀態", align: "center", key: "storyState" },
-  { title: "我的延續內容", align: "center", key: "extensionContent" },
-  { title: "總票數", align: "center", key: "voteCount" },
-  { title: "編輯", align: "center", key: "actions", sortable: false },
+  { title: "書名", align: "start", width: "150px", key: "storyTitle" },
+  { title: "狀態", align: "start", key: "storyState" },
+  {
+    title: "延續內容",
+    align: "center",
+    width: "400px",
+    key: "extensionContent",
+    sortable: false,
+  },
+  { title: "票數", align: "center", key: "voteCount" },
+  {
+    title: "編輯",
+    align: "center",
+    key: "actions",
+    sortable: false,
+  },
 ];
 
 const extensionStory = async () => {
@@ -483,11 +561,9 @@ const extensionStory = async () => {
 
 extensionStory();
 
-const selectItems = ["文學小說", "奇幻"];
-
 const selected = ref([]);
 
-const collectionHeaders = [
+const bookmarkHeaders = [
   {
     title: "類別",
     align: "start",
@@ -495,48 +571,193 @@ const collectionHeaders = [
     key: "category",
   },
   { title: "書名", key: "title", align: "start", sortable: false },
-  { title: "最新章節", key: "chapterName", align: "center", sortable: false },
-  { title: "最初作者", key: "author", align: "center", sortable: false },
-  { title: "總字數", key: "totalVotes", align: "center" },
-  { title: "收藏數", key: "collectionNum", align: "center" },
+  {
+    title: "狀態",
+    key: "state",
+    align: "start",
+  },
+  {
+    title: "最新章節",
+    key: "lastChapterName",
+    align: "center",
+    sortable: false,
+  },
+  {
+    title: "作者",
+    key: "mainAuthor.username",
+    align: "center",
+    sortable: false,
+  },
+  { title: "完成度", key: "completion", align: "center" },
 ];
 
-const collectionStories = ref([
-  {
-    category: "文學小說",
-    title:
-      "想要讓人因此試著鍛煉成一個跟學生成員長很像的女生，結果我卻變成了她的僕人",
-    chapterName: "後記——善良不需要很聰明",
-    author: "新北工程師",
-    totalWordCount: 4.0,
-    collectionNum: "1%",
-  },
-  {
-    category: "奇幻",
-    title: 237,
-    chapterName: 9.0,
-    author: 37,
-    totalWordCount: 4333,
-    collectionNum: "1%",
-  },
-]);
-
 const voteStoryHeaders = [
-  { title: "書名", key: "title", align: "start", sortable: false },
+  { title: "書名", key: "storyTitle", align: "start", sortable: false },
   { title: "投票記錄內容", key: "content", align: "center", sortable: false },
-  { title: "延續者", key: "supportAuthor", align: "center", sortable: false },
-  { title: "總票數", key: "totalVotes", align: "center" },
+  { title: "延續者", key: "exAuthor", align: "center", sortable: false },
+  // { title: "總票數", key: "totalVotes", align: "center" },
   { title: "編輯", align: "center", key: "actions", sortable: false },
 ];
 
-const voteStories = [
-  {
-    title: "想要讓人因此試著鍛煉成一個跟學生",
-    content: "想要讓人因此試著鍛煉成一個跟學生想要讓人因此試著鍛煉成一個跟學生",
-    supportAuthor: "阿北工程師",
-    totalVotes: 20,
-  },
-];
+const voteStories = ref([]);
+const getVoteStories = async () => {
+  try {
+    const response = await apiAuth.get("/VoteRecord/getVoteStories");
+    voteStories.value = response.data.voteStories;
+  } catch (error) {
+    console.log(error);
+  }
+};
+getVoteStories();
+
+const deleteDialog = ref(false);
+const selectedRecItem = ref(null);
+
+const handleDelete = async () => {
+  if (selectedRecItem.value) {
+    await deleteExtenRec(selectedRecItem.value);
+    deleteDialog.value = false;
+    selectedRecItem.value = null;
+    await extensionStory();
+  }
+};
+
+const openDeleteDialog = (item) => {
+  selectedRecItem.value = item; // 將 item 存儲到 selectedItem
+  deleteDialog.value = true;
+};
+
+const deleteExtenRec = async (item) => {
+  try {
+    await apiAuth.patch(`/user/deleteExtenRec/${item.id}`);
+    createSnackbar({
+      text: "刪除成功",
+      snackbarProps: {
+        color: "green",
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const originalBookmarkStories = ref([]);
+const bookmarkStories = ref([]);
+const getBookmarkStories = async () => {
+  try {
+    const response = await apiAuth.get("/story/getBookmarkStories");
+    originalBookmarkStories.value = response.data.result.data; // 保存原始數據
+    bookmarkStories.value = originalBookmarkStories.value.map((item) => ({
+      ...item,
+      lastChapterName: item.content[item.content.length - 1]?.chapterName,
+      completion: calculateCompletion(item), // 計算完成度
+    }));
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// 計算完成度的函數
+const calculateCompletion = (item) => {
+  // 使用已寫字數和總字數計算完成度
+  const totalWrittenWords = calTotalWrittenWords(item); // 使用已寫的總字數
+  const totalWords = item.totalWordCount || 1; // 確保不為零
+  // 返回已寫字數和總字數的比值
+
+  return ((totalWrittenWords / totalWords) * 100).toFixed(0); // 計算完成度百分比
+};
+
+// 計算剩餘字數的函數
+const calTotalWrittenWords = (item) => {
+  // 計算已完成章節的總字數
+  const completedChaptersWordCount =
+    (item.content.length - 1) * item.wordsPerChapter;
+
+  // 計算當前章節的字數
+  const currentChapterWordCount = item.currentChapterWordCount;
+
+  // 計算已寫的總字數
+  const totalWrittenWords =
+    completedChaptersWordCount + currentChapterWordCount;
+
+  return totalWrittenWords;
+};
+
+getBookmarkStories();
+
+const allCategories = computed(() => {
+  return [
+    ...new Set(originalBookmarkStories.value.map((story) => story.category)),
+  ];
+});
+
+const selectedCategory = ref(null);
+
+const filterBookmark = () => {
+  if (selectedCategory.value === "全部") {
+    bookmarkStories.value = originalBookmarkStories.value.map((item) => ({
+      ...item,
+      lastChapterName: item.content[item.content.length - 1]?.chapterName, // 確保提取 lastChapterName
+      completion: calculateCompletion(item), // 計算完成度
+    })); // 顯示所有收藏故事
+  } else if (selectedCategory.value) {
+    const filteredStories = originalBookmarkStories.value
+      .filter((story) => selectedCategory.value.includes(story.category))
+      .map((item) => ({
+        ...item,
+        lastChapterName: item.content[item.content.length - 1]?.chapterName, // 確保提取 lastChapterName
+        completion: calculateCompletion(item), // 計算完成度
+      }));
+
+    bookmarkStories.value = filteredStories;
+  } else {
+    bookmarkStories.value = originalBookmarkStories.value; // 顯示所有收藏故事
+  }
+};
+
+watch(selectedCategory, () => {
+  filterBookmark();
+});
+
+const removeBookmarkFunc = async () => {
+  try {
+    // 在這裡添加取消收藏的邏輯
+    await apiAuth.delete(`/user/removeBookmark`, { data: { ids: selected } }); // 傳遞多個 ID
+
+    createSnackbar({
+      text: "取消收藏成功",
+      snackbarProps: {
+        color: "green",
+      },
+    });
+    // 重新加載收藏故事
+    getBookmarkStories();
+  } catch (error) {
+    console.log(error);
+    createSnackbar({
+      text: error?.response?.data?.message || "發生錯誤",
+      snackbarProps: {
+        color: "red",
+      },
+    });
+  }
+};
+
+const removeVoteRec = async (item) => {
+  try {
+    await apiAuth.delete(`/VoteRecord/delVoteRec/${item.id}`);
+
+    createSnackbar({
+      text: "已刪除投票紀錄",
+      snackbarProps: {
+        color: "green",
+      },
+    });
+    getVoteStories();
+  } catch (error) {
+    console.log(error);
+  }
+};
 </script>
 
 <style scoped>
@@ -548,5 +769,13 @@ const voteStories = [
 .content {
   width: 80%;
   padding: 16px;
+}
+
+::v-deep .v-data-table-footer {
+  justify-content: space-between;
+}
+
+::v-deep .v-data-table-footer__info {
+  display: none; /* 隱藏該元素 */
 }
 </style>

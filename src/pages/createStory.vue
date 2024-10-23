@@ -8,7 +8,7 @@
       style="padding: 10px 20px"
     >
       <v-row>
-        <v-col cols="12" class="d-flex align-center w-100">
+        <v-col cols="12" class="d-flex align-center">
           <div class="me-2">
             <v-icon
               class="me-2"
@@ -17,11 +17,10 @@
               size="12px"
               >mdi-asterisk</v-icon
             >
-            <v-label class="me-4 mb-0">總字數</v-label>
+            <v-label class="me-6 mb-0">總字數</v-label>
           </div>
-          <div class="d-flex align-center">
+          <div class="d-flex align-center w-75 h-100">
             <v-text-field
-              max-width="600px"
               type="number"
               class="flex-grow-1"
               v-model="totalWordCount.value.value"
@@ -30,32 +29,32 @@
               required
             ></v-text-field>
 
-            <v-tooltip location="bottom">
-              <template v-slot:activator="{ props }">
-                <v-icon
-                  class="mdi mdi-lightbulb-outline"
-                  v-bind="props"
-                ></v-icon>
-              </template>
-              <div class="tooltip-content">
-                <p><strong>詩</strong></p>
-                <ul>
-                  <li>短詩：50字以内</li>
-                  <li>長詩：數百到數千字</li>
-                </ul>
-                <p><strong>小說</strong></p>
-                <ul>
-                  <li>短篇小說：1,000到20,000字（通常3,000到7,500字之間）</li>
-                  <li>中篇小說：20,000到50,000字</li>
-                  <li>長篇小說：超過50,000字（通常80,000到120,000字之間）</li>
-                </ul>
-                <p><strong>短品（散文、隨筆等）</strong></p>
-                <ul>
-                  <li>短篇散文：500到2,000字</li>
-                  <li>隨筆：1,000到5,000字</li>
-                </ul>
-              </div>
-            </v-tooltip>
+            <div style="height: 52%">
+              <v-tooltip location="bottom">
+                <template v-slot:activator="{ props }">
+                  <v-icon
+                    class="mdi mdi-lightbulb-outline"
+                    v-bind="props"
+                    style="color: darkorange"
+                  ></v-icon>
+                </template>
+                <div class="" style="padding: 12px">
+                  <p><strong>詩</strong></p>
+                  <ul>
+                    <li>短詩：50 字以内</li>
+                  </ul>
+                  <p><strong>短品</strong></p>
+                  <ul>
+                    <li>短篇散文：500 ~ 5,000 字</li>
+                  </ul>
+                  <p><strong>小說</strong></p>
+                  <ul>
+                    <li>短篇：1,000 ~ 20,000 字</li>
+                    <li>長篇：超過 50,000 字</li>
+                  </ul>
+                </div>
+              </v-tooltip>
+            </div>
           </div>
         </v-col>
       </v-row>
@@ -69,9 +68,8 @@
             size="12px"
             >mdi-asterisk</v-icon
           >
-          <v-label class="me-4 mb-0">故事名</v-label>
+          <v-label class="me-4 mb-0">故事名稱</v-label>
           <v-text-field
-            max-width="600px"
             class="flex-grow-1"
             v-model="title.value.value"
             :error-messages="title.errorMessage.value"

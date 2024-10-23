@@ -1,10 +1,5 @@
 <template>
-  <v-app-bar
-    color="#4E9194"
-    density="comfortable"
-    class="position-fixed"
-    :elevation="5"
-  >
+  <v-app-bar color="#4E9194" class="position-fixed" :elevation="5">
     <v-container class="d-flex align-center" fluid>
       <!-- 網站 logo -->
       <router-link to="/">
@@ -86,7 +81,11 @@
         <template v-if="user.isLogin">
           <v-menu open-on-hover transition="slide-y-transition">
             <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-account" v-bind="props"></v-btn>
+              <v-btn icon v-bind="props" class="d-flex">
+                <v-avatar color="secondary" class="">
+                  <v-img :src="user.avatar"></v-img>
+                </v-avatar>
+              </v-btn>
             </template>
             <v-list
               class="pa-2 text-center"
@@ -121,6 +120,7 @@ import { useRoute } from "vue-router";
 const user = useUserStore();
 const createSnackbar = useSnackbar();
 const route = useRoute();
+const router = useRouter();
 
 const isAuthPage = computed(() => {
   return route.path === "/login" || route.path === "/register";
@@ -161,6 +161,7 @@ const logout = async () => {
       color: "green",
     },
   });
+  router.push("/");
 };
 
 const handleClick = (setting) => {

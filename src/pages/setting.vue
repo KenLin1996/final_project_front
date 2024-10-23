@@ -1,7 +1,10 @@
-<template>
-  <v-container>
+<template style="margin: auto">
+  <v-container style="padding: 32px">
     <div class="d-flex">
-      <div class="sidebar" style="margin-right: 12px; background-color: white">
+      <div
+        class="sidebar"
+        style="margin-right: 12px; background-color: white; border-radius: 12px"
+      >
         <v-list class="py-0" dense>
           <h3 class="mb-1">設定</h3>
           <v-list-item class="d-flex">
@@ -12,16 +15,16 @@
                 text="帳號設定"
                 value="option-1"
               ></v-tab>
-              <!-- <v-tab
+              <v-tab
                 class="my-1"
                 prepend-icon="mdi-bell-outline"
                 text="通知設定"
                 value="option-2"
               ></v-tab>
-              <v-tab
+              <!-- <v-tab
                 class="my-1"
                 prepend-icon="mdi-theme-light-dark"
-                text="閱讀模式"
+                text="主題設定"
                 value="option-3"
               ></v-tab> -->
             </v-tabs>
@@ -29,7 +32,7 @@
         </v-list>
       </div>
 
-      <div class="content" style="background-color: white">
+      <div class="content" style="background-color: white; border-radius: 12px">
         <v-tabs-window v-model="tab">
           <!-- 帳號設定 -->
           <v-tabs-window-item value="option-1">
@@ -55,7 +58,11 @@
                         type: '檔案格式不支援',
                         size: '檔案大小不能超過 1MB',
                       }"
-                    ></vue-file-agent>
+                      v-model:file-records="fileRecords"
+                    />
+                    <!-- <div v-if="fileRecords[0].thumbnailUrl">
+                      <img :src="fileRecords[0].thumbnailUrl" alt="Avatar" />
+                    </div> -->
 
                     <v-row class="text-center" style="padding: 8px">
                       <template v-for="item in users" :key="item.id">
@@ -132,7 +139,7 @@
                         <template v-if="!item.isEmailToggleEditing">
                           <v-col cols="2" class="my-auto pa-0">
                             <label class="form-label" style="font-size: 18px">
-                              電子信箱
+                              帳號
                             </label>
                           </v-col>
                           <v-col cols="8" class="my-auto">
@@ -298,7 +305,8 @@
             </v-card>
           </v-tabs-window-item>
 
-          <v-tabs-window-item value="option-2" style="height: 450px">
+          <!-- 通知設定 -->
+          <v-tabs-window-item value="option-2" style="height: 320px">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3>通知設定</h3>
             </div>
@@ -315,8 +323,8 @@
                   ></v-switch>
                 </div>
                 <div class="d-flex align-center justify-space-between w-100">
-                  <p>追蹤通知</p>
-                  <p>您所追蹤的故事有更新時會寄送通知</p>
+                  <p>收藏通知</p>
+                  <p>您所收藏的故事有更新時會寄送通知</p>
                   <v-switch
                     :model-value="true"
                     color="primary"
@@ -327,15 +335,16 @@
             </div>
           </v-tabs-window-item>
 
+          <!-- 主題設定 -->
           <v-tabs-window-item value="option-3" style="height: 450px">
             <div class="d-flex align-center justify-space-between mb-4">
-              <h3>閱讀模式</h3>
+              <h3>主題設定</h3>
             </div>
             <v-divider></v-divider>
             <div class="d-flex align-center justify-space-between py-2">
               <v-card-actions class="d-flex flex-column w-100">
                 <div class="d-flex align-center justify-space-between w-100">
-                  <p>日間模式</p>
+                  <p>淺色模式</p>
                   <v-switch
                     :model-value="true"
                     color="primary"
@@ -343,7 +352,7 @@
                   ></v-switch>
                 </div>
                 <div class="d-flex align-center justify-space-between w-100">
-                  <p>夜間模式</p>
+                  <p>深色模式</p>
                   <v-switch
                     :model-value="false"
                     color="primary"
@@ -360,7 +369,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useForm, useField } from "vee-validate";
 import * as yup from "yup";
 import validator from "validator";
@@ -373,6 +382,7 @@ definePage({
     title: "界筆 ｜ 設定",
     login: false,
     admin: false,
+    hideFooter: true,
   },
 });
 
@@ -380,34 +390,6 @@ const { apiAuth } = useApi();
 const createSnackbar = useSnackbar();
 
 const tab = ref("option-1");
-
-// const schema = yup.object({
-//   newEmail: yup
-//     .string()
-//     .required("使用者信箱必填")
-//     .test("isEmail", "使用者信箱格式錯誤", (value) => {
-//       return validator.isEmail(value);
-//     }),
-//   newUsername: yup
-//     .string()
-//     .required("使用者暱稱必填")
-//     .min(1, "使用者暱稱長度不符")
-//     .max(20, "使用者暱稱長度不符")
-//     .test(
-//       // .test(自訂驗證名稱, 錯誤訊息, 驗證 function)
-//       "isAlphanumeric",
-//       "使用者帳號格式錯誤",
-//       (value) => {
-//         return validator.isAlphanumeric(value);
-//       }
-//     ),
-//   newPassword: yup
-//     .string()
-//     .required("使用者密碼必填")
-//     .min(4, "使用者密碼長度不符")
-//     .max(20, "使用者密碼長度不符"),
-//   passwordConfirm: yup.string().oneOf([yup.ref("newPassword")], "密碼不一致"),
-// });
 
 const schema = yup.object({
   newEmail: yup.string().test("isEmail", "使用者信箱格式錯誤", (value) => {
@@ -453,6 +435,7 @@ const loadUser = async () => {
   try {
     const { data } = await apiAuth.get("/user/profile");
     users.value = [data.result];
+    users.value[0].newAvatar = users.value[0].avatar; // 設置新用戶頭貼為現有用戶頭貼
     users.value[0].password = "********";
     users.value[0].newUsername = users.value[0].username; // 設置新用戶名為現有用戶名
     users.value[0].newEmail = users.value[0].email;
@@ -563,6 +546,19 @@ const submit = handleSubmit(async () => {
     });
   }
 });
+
+// const fileRecords = ref([
+//   {
+//     name: "Avatar.png", // 預設圖片的名稱
+//     size: 12345, // 假設的文件大小
+//     type: "image/png", // 文件類型
+//     ext: "png",
+//     thumbnailUrl:
+//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIclrE8xeM_yzEKEF59fHpOvEzmfVzvX66Jg&s", // 去掉多餘的單引號
+//     isDefault: true, // 標記此文件為預設圖片
+//   },
+// ]);
+// window.fileRecords = fileRecords;
 </script>
 
 <style scoped>
@@ -573,7 +569,7 @@ const submit = handleSubmit(async () => {
 
 .content {
   width: 80%;
-  padding: 16px;
+  padding: 20px;
 }
 
 .photoBtn {

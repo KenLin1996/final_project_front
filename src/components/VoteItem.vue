@@ -1,11 +1,14 @@
 <template>
   <v-card
-    class="w-100 px-6 py-2 rounded-lg"
+    class="w-100 px-3 py-3 rounded-lg"
     style="border: 1px solid #48a9a6; margin: 16px 0px"
   >
     <v-card-title class="pa-0">
       <div class="title-row">
         <div class="title-text">
+          <v-avatar color="secondary" class="me-3" size="46">
+            <v-img :src="author?.avatar"></v-img>
+          </v-avatar>
           <h1 class="card-title my-1">{{ author?.username }}</h1>
         </div>
         <div class="vote-section">
@@ -38,7 +41,7 @@
         </div>
       </div>
     </v-card-title>
-    <v-card-text class="pa-0 mx-7 py-1">
+    <v-card-text class="pa-0 mx-7 pl-8 pr-2 py-1">
       {{ content?.[0].latestContent }}
     </v-card-text>
     <v-card-actions class="d-flex justify-end">
@@ -155,6 +158,39 @@ const changeVoteCount = async (voteCountChange) => {
       hasVotedInOtherExtension.value = true;
     }
 
+    const checkVoteRec = await apiAuth.get(
+      `/VoteRecord/${storyId.value}/${extensionId.value}`
+    );
+
+    if (voteCountChange > 0) {
+      // // 投票: 創建投票紀錄
+
+      if (!checkVoteRec.data.exists) {
+        // 只有當紀錄不存在時才創建新紀錄
+        await apiAuth.post(
+          `/VoteRecord/postVoteRec/${storyId.value}/${extensionId.value}`,
+          {
+            content: content.value?.[0]?.latestContent,
+            exAuthor: author.value.username,
+          }
+        );
+        console.log("投票紀錄已創建");
+      } else {
+        console.log("投票紀錄已存在，無需重複創建");
+      }
+    } else {
+      // 如果 voteCountChange 是負數，表示要取消投票
+      if (checkVoteRec.data.exists) {
+        // 只有當紀錄存在時才刪除
+        await apiAuth.delete(
+          `/VoteRecord/delVoteRec/${storyId.value}/${extensionId.value}`
+        );
+        console.log("投票紀錄已刪除");
+      } else {
+        console.log("投票紀錄不存在，無需刪除");
+      }
+    }
+
     mittt.emit("updateStory");
   } catch (error) {
     console.log(error);
@@ -245,7 +281,7 @@ watch(reportDialog, (newValue) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-left: 28px;
+  /* margin-left: 28px; */
 }
 
 .title-text,

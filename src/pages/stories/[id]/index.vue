@@ -1,9 +1,14 @@
 <template>
   <v-container style="padding: 32px">
-    <v-card class="mb-4">
+    <v-card class="mb-4 rounded-lg pa-4">
       <v-row class="pa-4 align-center">
         <v-col cols="3">
-          <v-img :src="story.image" alt="書籍封面" aspect-ratio="1"></v-img>
+          <v-img
+            :src="story.image"
+            alt="書籍封面"
+            aspect-ratio="1"
+            style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)"
+          ></v-img>
         </v-col>
 
         <v-col cols="9">
@@ -35,7 +40,10 @@
               </p>
             </v-col>
             <v-col cols="12" class="d-flex">
-              <v-chip class="mr-2 grey--text" label
+              <v-chip
+                class="mr-2 text-white"
+                label
+                style="background-color: #ef5350; color: white"
                 >收藏數 {{ story.collectionNum }}</v-chip
               >
             </v-col>
@@ -51,7 +59,10 @@
         :to="'/stories/' + story._id + '/articles/' + story.content[0]?._id"
         >開始閱讀</v-btn
       >
-      <v-btn class="mr-4" style="background-color: #2883d3; color: white"
+      <v-btn
+        class="mr-4"
+        @click="openDialog(item)"
+        style="background-color: #2883d3; color: white"
         >章節列表</v-btn
       >
       <v-btn
@@ -61,7 +72,7 @@
       ></v-btn>
     </div>
 
-    <v-card class="pa-4" style="margin-top: 32px">
+    <v-card class="pa-4 rounded-lg" style="margin-top: 32px">
       <h3 class="">起始故事</h3>
       <v-divider class="my-2"></v-divider>
       <p class="py-4">{{ story.content[0]?.content?.[0] }}</p>
@@ -71,7 +82,17 @@
         </v-chip>
       </template>
     </v-card>
-
+    <v-card class="pa-4 rounded-lg" style="margin-top: 32px">
+      <h3 class="">故事投票</h3>
+      <v-divider class="my-6"></v-divider>
+      <StoryItem
+        :key="story._id"
+        v-bind="story"
+        :isExpanded="expandedStoryId === story._id"
+        @toggle="toggleStory(story._id)"
+        @update="load"
+      />
+    </v-card>
     <v-card style="margin-top: 32px">
       <h3 class="pa-4" style="background-color: rgb(146 224 227)">留言區</h3>
       <v-row class="">
@@ -131,14 +152,33 @@
       </v-row>
     </v-card>
   </v-container>
+
+  <v-dialog v-model="chaptersListDia" width="400" scrollable>
+    <v-card prepend-icon="mdi-book" title="章節列表">
+      <v-divider></v-divider>
+      <template v-for="(item, index) in story.content" :key="index">
+        <v-card-text class="px-4" style="max-height: 400px">
+          <v-list-item
+            :key="index"
+            :to="'/stories/' + story._id + '/articles/' + item._id"
+            class="chapter-link"
+          >
+            {{ item.chapterName }}
+          </v-list-item>
+        </v-card-text>
+      </template>
+    </v-card>
+  </v-dialog>
 </template>
 <script setup>
 import { definePage } from "vue-router/auto";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "@/composables/axios";
 import { useSnackbar } from "vuetify-use-dialog";
 import { useUserStore } from "@/stores/user";
+import mittt from "@/mitt";
+import StoryItem from "@/components/StoryItem.vue";
 
 definePage({
   meta: {
@@ -177,6 +217,7 @@ const story = ref({
 const load = async () => {
   try {
     const { data } = await api.get("/story/" + route.params.id);
+
     story.value._id = data.result._id;
     story.value.image = data.result.image;
     story.value.title = data.result.title;
@@ -187,6 +228,21 @@ const load = async () => {
     story.value.totalWordCount = data.result.totalWordCount;
     story.value.collectionNum = data.result.collectionNum;
     story.value.followNum = data.result.followNum;
+
+    // 投票新增的
+    story.value.storyId = data.result._id;
+    story.value.createdAt = data.result.createdAt;
+    story.value.extensions = data.result.extensions;
+
+    story.value.voteTime = data.result.voteTime;
+    story.value.voteStart = data.result.voteStart;
+    story.value.voteEnd = data.result.voteEnd;
+
+    story.value.chapters = data.result.chapters;
+    story.value.currentChapterWordCount = data.result.currentChapterWordCount;
+    story.value.wordsPerChapter = data.result.wordsPerChapter;
+    story.value.extendWordLimit = data.result.extendWordLimit;
+
     if (Array.isArray(data.result.content) && data.result.content.length > 0) {
       story.value.content = data.result.content;
     } else {
@@ -195,8 +251,6 @@ const load = async () => {
 
     document.title = "界筆 | " + story.value.title;
   } catch (error) {
-    console.log(data.result);
-
     console.log(error);
     createSnackbar({
       text: error?.response?.data?.message || "發生錯誤",
@@ -233,7 +287,7 @@ const collectionFunc = async () => {
     createSnackbar({
       text: response.data.hasCollection ? "收藏故事" : "取消收藏",
       snackbarProps: {
-        color: "accent",
+        color: "green",
       },
     });
   } catch (error) {
@@ -258,11 +312,30 @@ const checkBookmarkStatus = async () => {
   }
 };
 
+const expandedStoryId = ref(null); // 用來追蹤當前展開的故事 ID
+
+const toggleStory = (storyId) => {
+  // 如果點擊的故事已經展開，則關閉它；否則展開新的故事
+  expandedStoryId.value = expandedStoryId.value === storyId ? null : storyId;
+};
+
+// 章節列表的 v-dialog 控制
+const chaptersListDia = ref(false);
+const item = ref([]);
+const openDialog = () => {
+  chaptersListDia.value = true;
+};
+
 onMounted(async () => {
   await load();
+  mittt.on("updateStory", load);
   if (user.isLogin) {
     checkBookmarkStatus();
   }
+});
+
+onUnmounted(() => {
+  mittt.off("updateStory", load);
 });
 </script>
 

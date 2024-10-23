@@ -1,5 +1,10 @@
 <template>
   <v-container style="padding: 32px">
+    <div class="d-flex justify-space-between align-center">
+      <h2>故事分類</h2>
+      <v-btn @click="resetFilters" class="custom-reset-btn">重設所有篩選</v-btn>
+    </div>
+    <v-divider class="custom-mb-5"></v-divider>
     <v-responsive class="my-5">
       <v-text-field
         v-model="searchQuery"
@@ -14,7 +19,7 @@
       ></v-text-field>
     </v-responsive>
 
-    <h2>作品分類</h2>
+    <h3>作品分類</h3>
     <v-divider class="custom-mb-5"></v-divider>
     <v-row class="custom-mb-5" no-gutters>
       <v-col v-for="category in categories" :key="category" cols="auto">
@@ -30,12 +35,12 @@
       </v-col>
     </v-row>
 
-    <h2>作品字數</h2>
+    <h3>作品字數</h3>
     <v-divider class="custom-mb-5"></v-divider>
     <v-row class="custom-mb-5" no-gutters>
       <v-col v-for="wordCount in wordCounts" :key="wordCount" cols="auto">
         <v-btn
-          class="mr-1"
+          class="mr-1 my-1"
           :class="{
             'custom-btn': true,
             selected: selectedWordCount === wordCount,
@@ -46,7 +51,7 @@
       </v-col>
     </v-row>
 
-    <h2>作品狀態</h2>
+    <h3>作品狀態</h3>
     <v-divider class="custom-mb-5"></v-divider>
     <v-row class="custom-mb-5" no-gutters>
       <v-col v-for="storyState in storyStates" :key="storyState" cols="auto">
@@ -62,11 +67,9 @@
       </v-col>
     </v-row>
 
-    <div class="d-flex align-center justify-space-between mb-2">
-      <h2>標籤選擇</h2>
-      <v-btn dense @click="resetLabels" class="custom-reset-btn"
-        >重設標籤</v-btn
-      >
+    <div class="d-flex justify-space-between align-cente">
+      <h3>標籤選擇</h3>
+      <v-btn @click="resetLabels" class="custom-reset-btn">重設標籤</v-btn>
     </div>
 
     <v-divider class="custom-mb-5"></v-divider>
@@ -88,7 +91,7 @@
       </v-chip-group>
     </v-row>
 
-    <template v-for="story in filteredStories" :key="story.id">
+    <template v-for="story in paginatedStories" :key="story.id">
       <router-link :to="'/stories/' + story._id" style="text-decoration: none">
         <v-card style="border: 1px solid black; margin: 15px">
           <v-row no-gutters>
@@ -124,9 +127,9 @@
                   <span class="mr-4" style="font-weight: bolder; color: black"
                     >初創者：{{ story.mainAuthor.username }}</span
                   >
-                  <span style="font-weight: bolder; color: black"
+                  <!-- <span style="font-weight: bolder; color: black"
                     >最新延續者：{{ story.latestAuthor }}</span
-                  >
+                  > -->
                 </div>
                 <p class="mb-2" style="font-weight: bolder; color: black">
                   作品字數：{{ story.totalWordCount }}
@@ -153,6 +156,13 @@
         </v-card>
       </router-link>
     </template>
+
+    <v-pagination
+      v-model="currentPage"
+      :length="totalPages"
+      @input="onPageChange"
+      class="my-4"
+    ></v-pagination>
   </v-container>
 </template>
 
@@ -174,6 +184,8 @@ const searchQuery = ref("");
 const selectedCategory = ref("");
 const selectedWordCount = ref("");
 const selectedStoryState = ref("");
+const currentPage = ref(1);
+const itemsPerPage = 3;
 
 const { api } = useApi();
 const stories = ref([]);
@@ -368,6 +380,30 @@ const filteredStories = computed(() => {
     );
   });
 });
+
+const resetFilters = () => {
+  searchQuery.value = "";
+  selectedLabels.value = [];
+  selectedCategory.value = "";
+  selectedWordCount.value = "";
+  selectedStoryState.value = "";
+};
+
+// 計算總頁數
+const totalPages = computed(() => {
+  return Math.ceil(filteredStories.value.length / itemsPerPage);
+});
+
+// 計算當前頁面的故事
+const paginatedStories = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  return filteredStories.value.slice(start, start + itemsPerPage);
+});
+
+// 當頁碼改變時的處理函數
+const onPageChange = (page) => {
+  currentPage.value = page;
+};
 </script>
 <style scoped>
 .custom-btn {
@@ -400,13 +436,17 @@ const filteredStories = computed(() => {
 }
 
 .custom-mb-5 {
+  margin-top: 5px;
   margin-bottom: 30px;
 }
 
 .custom-reset-btn {
+  padding: 0px 2px;
   border: 2px solid black;
   color: black;
+  font-size: 16px;
   font-weight: bold;
+  height: fit-content;
 }
 .custom-reset-btn:hover {
   background-color: #67accf !important;

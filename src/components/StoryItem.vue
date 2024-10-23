@@ -4,7 +4,7 @@
     v-model="internalExpanded"
     @change="handleExpansionChange"
   >
-    <v-expansion-panel>
+    <v-expansion-panel style="border-radius: 10px">
       <v-expansion-panel-title @click="toggleExpansion">
         <v-row no-gutters>
           <v-col
@@ -354,6 +354,7 @@ const hasCollection = ref(false);
 const isFilled = ref(false);
 
 // 檢查收藏狀態
+// 裡面傳入 async (storyId) 愛心會不見
 const checkBookmarkStatus = async () => {
   if (!user.isLogin) return;
   try {
@@ -403,6 +404,12 @@ const collectionIcon = computed(() =>
 
 const openDialog = () => {
   if (!user.isLogin) {
+    createSnackbar({
+      text: "請先登入才能收藏",
+      snackbarProps: {
+        color: "red",
+      },
+    });
     router.push("/login");
   } else {
     dialog.value = true;
@@ -411,7 +418,7 @@ const openDialog = () => {
 
 const hasMerged = ref(false);
 
-const mergeHighestVotedStory = async () => {
+const mergeHighestVotedStory = async (isExpanded) => {
   console.log("mergeHighestVotedStory 開始執行");
 
   try {

@@ -1,15 +1,28 @@
 <template>
   <router-link :to="'/stories/' + _id" style="text-decoration: none">
-    <v-card class="pa-3 customMargin h-100 me-2" width="220">
+    <v-card
+      class="pa-3 customMargin h-100 me-2 pa-4 rounded-lg"
+      width="220"
+      style="
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
+      "
+    >
       <v-card-text
-        class="pa-0 mb-1 cursor-pointer"
+        class="pa-0 mb-2 cursor-pointer"
         style="font-size: 12px; color: #4e9194"
       >
         {{ mainAuthor?.username }}
       </v-card-text>
-      <v-img class="cursor-pointer" height="150px" :src="image" cover> </v-img>
+      <v-img
+        class="cursor-pointer rounded-lg"
+        height="160px"
+        :src="image"
+        cover
+        style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)"
+      >
+      </v-img>
 
-      <div class="d-flex justify-space-between align-center my-1">
+      <div class="d-flex justify-space-between align-center my-2">
         <v-card-title
           class="pa-0 text-subtitle-1 cursor-pointer"
           style="width: 130px"
