@@ -48,6 +48,7 @@
             v-model="email.value.value"
             :error-messages="email.errorMessage.value"
             class="mb-2"
+            autocomplete="email"
           ></v-text-field>
           <v-text-field
             label="暱稱"
@@ -57,6 +58,7 @@
             v-model="username.value.value"
             :error-messages="username.errorMessage.value"
             class="mb-2"
+            autocomplete="username"
           ></v-text-field>
           <v-text-field
             label="密碼"
@@ -69,6 +71,7 @@
             :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append-inner="togglePasswordVisibility"
             class="mb-2"
+            autocomplete="new-password"
           ></v-text-field>
           <v-text-field
             label="確認密碼"
@@ -81,15 +84,14 @@
             :append-inner-icon="showPasswordConfirm ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append-inner="togglePasswordConfirmVisibility"
             class="mb-4"
+            autocomplete="new-password"
           ></v-text-field>
           <div class="text-center">
             <v-btn
               type="submit"
               outlined
               border
-              color="#000000"
               class="register-btn mb-3 w-33"
-              variant="solo"
               :loading="isSubmitting"
             >
               註冊
@@ -138,10 +140,10 @@ const schema = yup.object({
     .string()
     .required("使用者暱稱必填")
     .min(1, "使用者暱稱長度不符")
-    .max(20, "使用者暱稱長度不符")
-    .test("isAlphanumeric", "使用者帳號格式錯誤", (value) => {
-      return validator.isAlphanumeric(value);
-    }),
+    .max(20, "使用者暱稱長度不符"),
+  // .test("isAlphanumeric", "使用者帳號格式錯誤", (value) => {
+  //   return validator.isAlphanumeric(value);
+  // })
   password: yup
     .string()
     .required("使用者密碼必填")
@@ -183,7 +185,7 @@ const submit = handleSubmit(async (values) => {
         color: "green",
       },
     });
-    router.push("/");
+    router.push("/login");
   } catch (error) {
     console.log(error);
     createSnackbar({

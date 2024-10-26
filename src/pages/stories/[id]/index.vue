@@ -93,66 +93,10 @@
         @update="load"
       />
     </v-card>
-    <v-card style="margin-top: 32px">
-      <h3 class="pa-4" style="background-color: rgb(146 224 227)">留言區</h3>
-      <v-row class="">
-        <v-col>
-          <div class="">
-            <div class="pa-4">
-              <v-avatar color="primary " class="me-3" size="large">
-                <v-img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWAhVMz9jthsapuZL1tkdJks34QlTbXolbmg&s"
-                ></v-img>
-              </v-avatar>
-              <span>貓界阿宅</span>
-              <p class="ml-13 text-body-2">這是本喵看過最好看的喵喵喵喵書</p>
-            </div>
-            <div class="pa-4">
-              <v-avatar color="secondary " class="me-3" size="large">
-                <v-img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqnRWICFHo49O2OyVoMHrqkQmAevK654iXKw&s"
-                ></v-img>
-              </v-avatar>
-              <span>黑嚕嚕咕嚕嚕</span>
-              <p class="ml-13 text-body-2">喵喵喵可以趕快更新嗎</p>
-            </div>
-            <v-divider></v-divider>
-            <!-- 留言發布 -->
-            <div class="pa-4">
-              <v-textarea
-                ref="textarea"
-                id="msg"
-                placeholder="請輸入您的留言或提問"
-                variant="outlined"
-                width="600"
-                maxlength="20"
-                counter
-                auto-grow
-              >
-                <template v-slot:prepend>
-                  <v-avatar color="primary " class="me-1" size="large">
-                    <v-img
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyKvt7MWE2LrmiZbNLMYdnwEW-OnNf1sam1g&s"
-                    ></v-img>
-                  </v-avatar>
-                </template>
-              </v-textarea>
-              <v-btn
-                variant="text"
-                class="rounded-md bg-accent mt-2"
-                density="comfortable"
-                :ripple="false"
-                id="submit"
-                style="background-color: #f4b942"
-                >送出</v-btn
-              >
-            </div>
-          </div>
-        </v-col>
-      </v-row>
-    </v-card>
-  </v-container>
 
+    <!-- 留言區的元件 -->
+    <Message />
+  </v-container>
   <v-dialog v-model="chaptersListDia" width="400" scrollable>
     <v-card prepend-icon="mdi-book" title="章節列表">
       <v-divider></v-divider>
@@ -179,6 +123,7 @@ import { useSnackbar } from "vuetify-use-dialog";
 import { useUserStore } from "@/stores/user";
 import mittt from "@/mitt";
 import StoryItem from "@/components/StoryItem.vue";
+import Message from "@/components/Message.vue";
 
 definePage({
   meta: {

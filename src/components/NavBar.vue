@@ -115,7 +115,7 @@
 import { computed } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useSnackbar } from "vuetify-use-dialog";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const user = useUserStore();
 const createSnackbar = useSnackbar();

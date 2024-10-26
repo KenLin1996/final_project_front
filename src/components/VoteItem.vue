@@ -3,7 +3,7 @@
     class="w-100 px-3 py-3 rounded-lg"
     style="border: 1px solid #48a9a6; margin: 16px 0px"
   >
-    <v-card-title class="pa-0">
+    <v-card-title class="pa-0 pr-7">
       <div class="title-row">
         <div class="title-text">
           <v-avatar color="secondary" class="me-3" size="46">
@@ -14,7 +14,7 @@
         <div class="vote-section">
           <v-icon class="vote-icon" size="20">mdi-vote</v-icon>
           <span class="vote-count text-body-2">{{ voteCount.length }}</span>
-          <v-menu location="end">
+          <v-menu location="end" v-if="userId === author._id">
             <template v-slot:activator="{ props }">
               <v-btn
                 icon
@@ -60,7 +60,7 @@
     </v-card-actions>
   </v-card>
 
-  <v-dialog v-model="reportDialog" max-width="500px">
+  <!-- <v-dialog v-model="reportDialog" max-width="500px">
     <v-form @submit.prevent="submit" :disabled="isSubmitting">
       <v-card>
         <v-card-title>
@@ -90,14 +90,14 @@
         </v-card-actions>
       </v-card>
     </v-form>
-  </v-dialog>
+  </v-dialog> -->
 </template>
 
 <script setup>
-import { ref, toRefs, watch } from "vue";
+import { ref, toRefs, watch, computed } from "vue";
 import { defineProps } from "vue";
-import * as yup from "yup";
-import { useForm, useField } from "vee-validate";
+// import * as yup from "yup";
+// import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
 import { useUserStore } from "@/stores/user";
 import { useSnackbar } from "vuetify-use-dialog";
@@ -159,7 +159,7 @@ const changeVoteCount = async (voteCountChange) => {
     }
 
     const checkVoteRec = await apiAuth.get(
-      `/VoteRecord/${storyId.value}/${extensionId.value}`
+      `/voteRecord/${storyId.value}/${extensionId.value}`
     );
 
     if (voteCountChange > 0) {
@@ -168,7 +168,7 @@ const changeVoteCount = async (voteCountChange) => {
       if (!checkVoteRec.data.exists) {
         // 只有當紀錄不存在時才創建新紀錄
         await apiAuth.post(
-          `/VoteRecord/postVoteRec/${storyId.value}/${extensionId.value}`,
+          `/voteRecord/postVoteRec/${storyId.value}/${extensionId.value}`,
           {
             content: content.value?.[0]?.latestContent,
             exAuthor: author.value.username,
@@ -183,7 +183,7 @@ const changeVoteCount = async (voteCountChange) => {
       if (checkVoteRec.data.exists) {
         // 只有當紀錄存在時才刪除
         await apiAuth.delete(
-          `/VoteRecord/delVoteRec/${storyId.value}/${extensionId.value}`
+          `/voteRecord/delVoteRec/${storyId.value}/${extensionId.value}`
         );
         console.log("投票紀錄已刪除");
       } else {
@@ -198,53 +198,57 @@ const changeVoteCount = async (voteCountChange) => {
   }
 };
 
-const schema = yup.object({
-  report: yup.string().required("請描述檢舉原因").min(50, "檢舉不能低於 50 字"),
-});
+// const schema = yup.object({
+//   report: yup.string().required("請描述檢舉原因").min(50, "檢舉不能低於 50 字"),
+// });
 
-const { handleSubmit, isSubmitting, resetForm } = useForm({
-  validationSchema: schema,
-  initialValues: {
-    report: "",
-  },
-});
+// const { handleSubmit, isSubmitting, resetForm } = useForm({
+//   validationSchema: schema,
+//   initialValues: {
+//     report: "",
+//   },
+// });
 
-const report = useField("report");
+// const report = useField("report");
 
-const reportDialog = ref(false);
-const handleReport = () => {
-  reportDialog.value = true;
-};
+// const reportDialog = ref(false);
+// const handleReport = () => {
+//   reportDialog.value = true;
+// };
 
-const items = computed(() => {
-  const baseItems = [{ title: "檢舉", action: handleReport }];
-  if (userId === props.authorId) {
-    baseItems.push({ title: "刪除", action: deleteExtensionStory });
-  }
-  return baseItems;
-});
+// 有檢舉的列表
+// const items = computed(() => {
+//   const baseItems = [{ title: "檢舉", action: handleReport }];
+//   if (userId === props.authorId) {
+//     baseItems.push({ title: "刪除", action: deleteExtensionStory });
+//   }
+//   return baseItems;
+// });
 
-const submit = handleSubmit(async (values) => {
-  if (!user.isLogin) {
-    createSnackbar({
-      text: "請先登入才能檢舉",
-      snackbarProps: {
-        color: "red",
-      },
-    });
-    return;
-  }
-  try {
-    // await apiAuth.post(`/story/${storyId.value}/${extensionId.value}`, {
-    //   report: values.report,
-    // });
-    console.log("檢舉已提交");
+const items = computed(() => [{ title: "刪除", action: deleteExtensionStory }]);
 
-    reportDialog.value = false;
-  } catch (error) {
-    console.log(error);
-  }
-});
+// 未完成的檢舉功能
+// const submit = handleSubmit(async (values) => {
+//   if (!user.isLogin) {
+//     createSnackbar({
+//       text: "請先登入才能檢舉",
+//       snackbarProps: {
+//         color: "red",
+//       },
+//     });
+//     return;
+//   }
+//   try {
+//     // await apiAuth.post(`/story/${storyId.value}/${extensionId.value}`, {
+//     //   report: values.report,
+//     // });
+//     console.log("檢舉已提交");
+
+//     reportDialog.value = false;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 const deleteExtensionStory = async () => {
   try {
@@ -269,11 +273,11 @@ const deleteExtensionStory = async () => {
   }
 };
 
-watch(reportDialog, (newValue) => {
-  if (!newValue) {
-    resetForm();
-  }
-});
+// watch(reportDialog, (newValue) => {
+//   if (!newValue) {
+//     resetForm();
+//   }
+// });
 </script>
 
 <style scoped>

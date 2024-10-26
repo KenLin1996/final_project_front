@@ -50,24 +50,26 @@
       </v-col>
     </v-row>
     <template v-if="user.isLogin">
-      <v-container style="padding: 32px">
-        <v-row class="justify-space-between">
-          <v-col cols="12" class="pb-0">
-            <h2>收藏故事</h2>
-          </v-col>
-          <v-divider class="mb-3"></v-divider>
-          <v-col cols="12" class="d-flex flex-column justify-space-between">
-            <StoryItem
-              v-for="story in bookmarkStories"
-              :key="story._id"
-              v-bind="story"
-              :isExpanded="expandedStoryId === story._id"
-              @toggle="toggleStory(story._id)"
-              @update="loadStories"
-            />
-          </v-col>
-        </v-row>
-      </v-container>
+      <template v-if="bookmarkStories.length > 0">
+        <v-container style="padding: 32px">
+          <v-row class="justify-space-between">
+            <v-col cols="12" class="pb-0">
+              <h2>收藏故事</h2>
+            </v-col>
+            <v-divider class="mb-3"></v-divider>
+            <v-col cols="12" class="d-flex flex-column justify-space-between">
+              <StoryItem
+                v-for="story in bookmarkStories"
+                :key="story._id"
+                v-bind="story"
+                :isExpanded="expandedStoryId === story._id"
+                @toggle="toggleStory(story._id)"
+                @update="loadStories"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+      </template>
     </template>
 
     <v-container style="padding: 32px">
@@ -204,20 +206,27 @@ const toggleStory = (storyId) => {
 
 const loadStories = async () => {
   try {
+    // 獲取所有故事數據
     const { data } = await api.get("/story");
-    stories.value = data.result.data; // 更新 stories
+    stories.value = data.result.data;
 
-    const popularRes = await api.get("/story/getPopularStories");
+    // 獲取熱門、最新和完結故事
+    const [popularRes, newestRes, completedRes] = await Promise.all([
+      api.get("/story/getPopularStories"),
+      api.get("/story/getNewestStories"),
+      api.get("/story/getCompletedStories"),
+    ]);
     popularStories.value = popularRes.data.result.data;
-
-    const newestRes = await api.get("/story/getNewestStories");
     newestStories.value = newestRes.data.result.data;
-
-    const completedRes = await api.get("/story/getCompletedStories");
     completedStories.value = completedRes.data.result.data;
 
-    const bookmarkRes = await apiAuth.get("/story/getBookmarkStories");
-    bookmarkStories.value = bookmarkRes.data.result.data;
+    // 如果已登入，則加載收藏故事
+    if (user.isLogin) {
+      const bookmarkRes = await apiAuth.get("/story/getBookmarkStories");
+      bookmarkStories.value = bookmarkRes.data.result.data;
+    } else {
+      bookmarkStories.value = []; // 未登入時清空收藏故事
+    }
   } catch (error) {
     console.error("Failed to load stories:", error);
   }

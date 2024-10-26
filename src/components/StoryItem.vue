@@ -188,10 +188,12 @@ import { useApi } from "../composables/axios.js";
 import { useSnackbar } from "vuetify-use-dialog";
 import VoteItem from "@/components/VoteItem.vue";
 import { useUserStore } from "@/stores/user";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const userStore = useUserStore();
 const user = useUserStore();
+const route = useRoute();
+
 const router = useRouter();
 
 const userId = userStore.userId;
@@ -354,13 +356,17 @@ const hasCollection = ref(false);
 const isFilled = ref(false);
 
 // 檢查收藏狀態
-// 裡面傳入 async (storyId) 愛心會不見
 const checkBookmarkStatus = async () => {
   if (!user.isLogin) return;
   try {
-    const response = await apiAuth.get(`user/checkBookmark/${storyId}`);
+    const storyIdToCheck = route.params.id || storyId;
+
+    const response = await apiAuth.get(`user/checkBookmark/${storyIdToCheck}`);
+
     hasCollection.value = response.data.hasCollection;
     isFilled.value = response.data.hasCollection;
+    // console.log("到前端 hasCollection 的值：", response.data.hasCollection);
+    // console.log("isFilled 的值：", isFilled.value);
   } catch (error) {
     console.error("檢查收藏狀態失敗", error);
   }
@@ -385,7 +391,7 @@ const collectionFunc = async () => {
     createSnackbar({
       text: response.data.hasCollection ? "收藏故事" : "取消收藏",
       snackbarProps: {
-        color: "accent",
+        color: "green",
       },
     });
   } catch (error) {

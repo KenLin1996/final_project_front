@@ -151,7 +151,7 @@
                         <template v-else>
                           <v-col cols="2" class="my-auto pa-0">
                             <label class="form-label" style="font-size: 18px">
-                              電子信箱
+                              帳號
                             </label>
                           </v-col>
                           <v-col cols="10" class="my-auto">

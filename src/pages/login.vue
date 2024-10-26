@@ -53,6 +53,7 @@
               type="email"
               v-model="email.value.value"
               :error-messages="email.errorMessage.value"
+              autocomplete="email"
             ></v-text-field>
             <v-text-field
               label="密碼"
@@ -64,6 +65,7 @@
               :error-messages="password.errorMessage.value"
               :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
               @click:append-inner="togglePasswordVisibility"
+              autocomplete="current-password"
             ></v-text-field>
             <v-btn
               type="submit"
@@ -74,9 +76,7 @@
                 font-weight: bold;
                 font-size: 16px;
               "
-              color="#000000"
               class="my-4 elevation-1 w-33"
-              variant="solo"
               :loading="isSubmitting"
             >
               登入

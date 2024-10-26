@@ -523,13 +523,6 @@ const deleteItem = async () => {
   }
 };
 
-const props = defineProps({
-  storyId: {
-    type: String,
-    required: true,
-  },
-});
-
 const ExtensionHeaders = [
   { title: "書名", align: "start", width: "150px", key: "storyTitle" },
   { title: "狀態", align: "start", key: "storyState" },
@@ -602,7 +595,7 @@ const voteStoryHeaders = [
 const voteStories = ref([]);
 const getVoteStories = async () => {
   try {
-    const response = await apiAuth.get("/VoteRecord/getVoteStories");
+    const response = await apiAuth.get("/voteRecord/getVoteStories");
     voteStories.value = response.data.voteStories;
   } catch (error) {
     console.log(error);
@@ -745,7 +738,7 @@ const removeBookmarkFunc = async () => {
 
 const removeVoteRec = async (item) => {
   try {
-    await apiAuth.delete(`/VoteRecord/delVoteRec/${item.id}`);
+    await apiAuth.delete(`/voteRecord/delVoteRec/${item.id}`);
 
     createSnackbar({
       text: "已刪除投票紀錄",

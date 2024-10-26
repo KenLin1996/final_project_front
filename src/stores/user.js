@@ -81,6 +81,7 @@ export const useUserStore = defineStore(
       notifies.value = 0;
       theme.value = 0;
       avatar.value = "";
+      userId.value = "";
     };
 
     return {
