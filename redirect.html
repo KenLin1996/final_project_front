@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="google-site-verification"
+      content="C0362y5ygHRHMnRbcoTcepmf6Z-OotaOY30-wneZEVg"
+    />
+
+    <title>OAuth Redirect</title>
+    <!-- <script>
+      // 解析 OAuth 回傳的查詢參數
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token"); // 假設 OAuth 回傳 token
+
+      // 重定向到您的應用的帶有 # 的路徑
+      const targetUrl = `https://kenlin1996.github.io/final_project_front/#/auth/google/redirect?token=${token}`;
+      window.location.replace(targetUrl);
+    </script> -->
+    <script>
+      // 自動重定向到首頁
+      window.onload = function () {
+        window.location.href =
+          "https://kenlin1996.github.io/final_project_front/#/";
+      };
+    </script>
+  </head>
+  <body>
+    <p>正在重導向，請稍候...</p>
+    <p>
+      如果您沒有自動重定向，請<a
+        href="https://kenlin1996.github.io/final_project_front/#/"
+        >點擊這裡</a
+      >
+    </p>
+  </body>
+</html>
