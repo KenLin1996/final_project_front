@@ -84,6 +84,10 @@ export const useUserStore = defineStore(
       userId.value = "";
     };
 
+    function setToken(newToken) {
+      token.value = newToken;
+    }
+
     return {
       userId,
       token,
@@ -98,6 +102,7 @@ export const useUserStore = defineStore(
       login,
       profile,
       logout,
+      setToken,
     };
   },
   {
