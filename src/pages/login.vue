@@ -27,6 +27,7 @@
             prepend-icon="mdi-google"
             class="my-2 elevation-1 w-66 h-25"
             variant="plain"
+            to="/externalAuth/google"
             @click="googleLogin"
           >
             使用 Google 登入
@@ -161,6 +162,12 @@ const submit = handleSubmit(async (values) => {
 
 // OAuth 流程會重定向到 Google 登入頁面並在驗證後返回，因此無法使用 api.get 處理，而應直接導向至 Google OAuth 的後端路由。
 const googleLogin = () => {
-  window.location.href = "/externalAuth/google"; // 直接重定向至 Google OAuth 路由
+  const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${
+    import.meta.env.VITE_GOOGLE_CLIENT_ID
+  }&redirect_uri=${
+    import.meta.env.VITE_REDIRECT_URI
+  }&scope=email profile&response_type=token`;
+
+  window.location.href = authUrl; // 重定向到後端 Google 認證路由
 };
 </script>

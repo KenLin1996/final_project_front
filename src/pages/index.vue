@@ -191,7 +191,7 @@ const handleCreateStory = () => {
   }
 };
 
-const stories = ref([]);
+// const stories = ref([]);
 const bookmarkStories = ref([]);
 const popularStories = ref([]);
 const newestStories = ref([]);
@@ -207,8 +207,8 @@ const toggleStory = (storyId) => {
 const loadStories = async () => {
   try {
     // 獲取所有故事數據
-    const { data } = await api.get("/story");
-    stories.value = data.result.data;
+    // const { data } = await api.get("/story");
+    // stories.value = data.result.data;
 
     // 獲取熱門、最新和完結故事
     const [popularRes, newestRes, completedRes] = await Promise.all([
