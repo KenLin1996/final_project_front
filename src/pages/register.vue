@@ -2,7 +2,8 @@
   <div class="register-page">
     <v-card class="register-card" style="margin-top: 46px">
       <v-card-text class="card-content px-8 py-4">
-        <div class="text-center mb-4">
+        <!-- <div class="text-center mb-4"> -->
+        <div class="d-flex justify-center text-center">
           <router-link to="/">
             <v-img
               class="mx-auto"
@@ -20,13 +21,13 @@
             style="background-color: #ffffff"
             color="#000000"
             prepend-icon="mdi-google"
-            class="mb-2 elevation-1 w-66"
+            class="my-4 elevation-1 w-66"
             variant="plain"
             to="/login"
           >
             使用 Google 註冊
           </v-btn>
-          <v-btn
+          <!-- <v-btn
             outlined
             border
             style="background-color: #ffffff"
@@ -38,7 +39,7 @@
             to="/login"
           >
             使用 Facebook 註冊
-          </v-btn>
+          </v-btn> -->
         </div>
         <v-divider class="mb-4"></v-divider>
         <v-form @submit.prevent="submit" :disabled="isSubmitting">

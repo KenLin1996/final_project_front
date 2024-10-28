@@ -32,7 +32,7 @@
           >
             使用 Google 登入
           </v-btn>
-          <v-btn
+          <!-- <v-btn
             outlined
             border
             style="background-color: #ffffff"
@@ -44,7 +44,7 @@
             to="/login"
           >
             使用 Facebook 登入
-          </v-btn>
+          </v-btn> -->
         </v-col>
         <v-divider class="my-2"></v-divider>
         <v-col cols="12">
