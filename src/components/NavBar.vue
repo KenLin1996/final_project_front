@@ -54,7 +54,7 @@
           class="mx-2"
           to="/login"
         >
-          登入/註冊
+          登入
         </v-btn>
       </template>
 
