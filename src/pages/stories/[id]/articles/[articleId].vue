@@ -1,12 +1,13 @@
 <template>
-  <v-container
-    class="d-flex flex-column justify-space-between pa-8"
-    style="min-height: 480px"
-  >
+  <v-container class="d-flex flex-column justify-space-between pa-8">
     <!-- 章節和章節內容 -->
     <div>
+      <h3>{{ story.title }}</h3>
       <h2>{{ currentChapter?.chapterName }}</h2>
-      <p class="my-4 white-space-pre-line word-wrap-break-word">
+      <p
+        class="my-4 white-space-pre-line word-wrap-break-word"
+        :class="contentClass"
+      >
         {{ currentChapterContent }}
       </p>
     </div>
@@ -102,6 +103,17 @@ const loadStory = async () => {
   }
 };
 
+// 計算內容長度的樣式類別
+const contentClass = computed(() => {
+  const length = currentChapterContent.value.length;
+  if (length > 1000) {
+    return "long-content"; // 內容長的樣式
+  } else if (length < 300) {
+    return "short-content"; // 內容短的樣式
+  }
+  return ""; // 默認樣式
+});
+
 // 在組件創建時加載故事
 loadStory();
 </script>
@@ -112,5 +124,13 @@ loadStory();
 }
 .word-wrap-break-word {
   word-wrap: break-word;
+}
+.long-content {
+  font-size: 1.2em; /* 長內容的字體大小 */
+  padding: 20px; /* 長內容的內邊距 */
+}
+.short-content {
+  font-size: 28px; /* 短內容的字體大小 */
+  padding: 10px; /* 短內容的內邊距 */
 }
 </style>

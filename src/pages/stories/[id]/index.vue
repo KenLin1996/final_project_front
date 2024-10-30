@@ -35,7 +35,7 @@
             </v-col>
             <v-col cols="12">
               <p>
-                <strong>總字數：</strong>
+                <strong>預計字數：</strong>
                 <span class="grey--text">{{ story.totalWordCount }}</span>
               </p>
             </v-col>

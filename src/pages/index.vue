@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container class="ma-0 bg-white" style="max-width: 100vw">
     <v-row>
       <v-col cols="12">
         <v-card
@@ -156,7 +156,7 @@
         </v-col>
       </v-row>
     </v-container>
-  </div>
+  </v-container>
 </template>
 
 <script setup>

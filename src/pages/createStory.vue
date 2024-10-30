@@ -385,9 +385,13 @@ const show = useField("show");
 const totalWordCount = useField("totalWordCount");
 const content = useField("content");
 
+// const startingContentLimit = computed(() => {
+//   const totalWords = Number(totalWordCount.value.value);
+//   return Math.max(1, Math.floor(totalWords / 10));
+// });
 const startingContentLimit = computed(() => {
   const totalWords = Number(totalWordCount.value.value);
-  return Math.max(1, Math.floor(totalWords / 10));
+  return Math.max(1, Math.floor(totalWords / 5));
 });
 
 const validateContentLength = () => {
