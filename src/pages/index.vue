@@ -1,9 +1,9 @@
 <template>
   <v-container class="ma-0 bg-white" style="max-width: 100vw">
     <v-row>
-      <v-col cols="12">
+      <v-col cols="12" class="pa-0">
         <v-card
-          class="rounded-0 px-10 py-auto"
+          class="rounded-0 px-10 py-auto rounded-lg"
           height="200px"
           color="surface-variant"
           image="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2948&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -11,12 +11,15 @@
           elevation="5"
         >
           <v-col>
-            <v-card-title class="text-h4 font-weight-bold">
+            <v-card-title
+              class="text-h4 font-weight-bold"
+              style="font-size: 2rem"
+            >
               歡迎來到界筆！
             </v-card-title>
             <v-card-text
-              class="font-weight-bold pa-0 py-2 px-4 mb-2"
-              style="font-size: 24px; letter-spacing: 12px"
+              class="font-weight-bold pa-0 pb-2 px-4 mb-2"
+              style="font-size: 1rem; letter-spacing: 12px"
             >
               探索和創作無限可能的故事
             </v-card-text>
@@ -72,7 +75,7 @@
       </template>
     </template>
 
-    <v-container style="padding: 32px">
+    <v-container style="padding: 32px; max-width: 98%" class="">
       <v-row class="justify-space-between">
         <v-col cols="12" class="pb-0">
           <h2>熱門故事</h2>

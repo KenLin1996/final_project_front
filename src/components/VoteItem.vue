@@ -174,7 +174,7 @@ const changeVoteCount = async (voteCountChange) => {
             exAuthor: author.value.username,
           }
         );
-        console.log("投票紀錄已創建");
+        // console.log("投票紀錄已創建");
       } else {
         console.log("投票紀錄已存在，無需重複創建");
       }
@@ -185,7 +185,7 @@ const changeVoteCount = async (voteCountChange) => {
         await apiAuth.delete(
           `/voteRecord/delVoteRec/${storyId.value}/${extensionId.value}`
         );
-        console.log("投票紀錄已刪除");
+        // console.log("投票紀錄已刪除");
       } else {
         console.log("投票紀錄不存在，無需刪除");
       }

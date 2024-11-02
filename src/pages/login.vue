@@ -13,10 +13,9 @@
           <router-link to="/">
             <v-img
               class="my-4"
-              :width="100"
-              aspect-ratio="1/1"
+              :width="50"
               cover
-              src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+              src="../assets/stor-genLogo.png"
             ></v-img>
           </router-link>
           <v-btn

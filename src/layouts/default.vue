@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <NavBar style="height: 64px" />
+    <NavBar />
     <v-main :class="{ 'auth-page': isAuthPage }" class="main-content">
       <router-view :key="$route.fullPath" />
     </v-main>
@@ -31,4 +31,8 @@ const isAuthPage = computed(() => {
 .main-content {
   min-height: calc(100vh - 64px - (v-if(showFooter, 120px, 0)));
 }
+
+// .navHeight {
+//   height: 64px;
+// }
 </style>

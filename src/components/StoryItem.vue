@@ -62,13 +62,13 @@
       </v-expansion-panel-title>
       <v-expansion-panel-text>
         <v-row style="padding: 12px">
-          <v-col cols="12" class="mt-1 pa-0" style="font-size: 8px"
-            ><h1>
+          <v-col cols="12" class="mt-1 pa-0" style="font-size: 8px">
+            <h1>
               {{ content.length > 0 ? "最新內容" : "開始故事" }} ({{
                 remainingWords === 0 ? "已結束" : `剩餘字數：${remainingWords}`
               }})
-            </h1></v-col
-          >
+            </h1>
+          </v-col>
           <v-col cols="12">
             <v-row>
               <v-col cols="1" class="d-flex align-center justify-center pa-0">

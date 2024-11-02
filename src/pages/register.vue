@@ -7,10 +7,9 @@
           <router-link to="/">
             <v-img
               class="mx-auto"
-              :width="80"
-              aspect-ratio="1/1"
+              :width="50"
               cover
-              src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+              src="../assets/stor-genLogo.png"
             ></v-img>
           </router-link>
         </div>
