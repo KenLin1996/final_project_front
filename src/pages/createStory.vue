@@ -605,6 +605,7 @@ const submit = handleSubmit(async (values) => {
       },
     });
     clearForm();
+    router.push("/");
   } catch (error) {
     console.error("提交表單時發生錯誤:", error);
     createSnackbar({

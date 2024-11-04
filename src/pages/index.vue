@@ -81,16 +81,17 @@
           <h2>熱門故事</h2>
         </v-col>
         <v-divider class="mb-3"></v-divider>
-        <v-col cols="12" class="d-flex flex-row justify-start">
-          <BookCard
-            v-for="story in popularStories"
-            :key="story._id"
-            v-bind="story"
-          />
+        <v-col cols="12" class="d-flex flex-row align-center justify-center">
+          <v-row class="w-100 d-flex align-center justify-center">
+            <BookCard
+              v-for="story in popularStories"
+              :key="story._id"
+              v-bind="story"
+          /></v-row>
         </v-col>
       </v-row>
     </v-container>
-    <v-container style="padding: 32px">
+    <v-container style="padding: 32px; max-width: 98%">
       <v-row class="justify-space-between">
         <v-col cols="12" class="pb-0">
           <h2>最新故事</h2>
@@ -107,28 +108,30 @@
       </v-row>
     </v-container>
 
-    <v-container style="padding: 32px">
+    <v-container style="padding: 32px; max-width: 98%">
       <v-row class="justify-space-between">
         <v-col cols="12" class="pb-0">
           <h2>完結故事</h2>
         </v-col>
         <v-divider class="mb-3"></v-divider>
-        <v-col cols="12" class="d-flex flex-row justify-space-between">
-          <template v-if="completedStories.length > 0">
-            <BookCard
-              v-for="story in completedStories"
-              :key="story._id"
-              v-bind="story"
-            />
-          </template>
-          <template v-else>
-            <div class="">尚未有已完結故事</div>
-          </template>
+        <v-col cols="12" class="d-flex flex-row align-center justify-center">
+          <v-row class="w-100 d-flex align-center justify-space-between">
+            <template v-if="completedStories.length > 0">
+              <BookCard
+                v-for="story in completedStories"
+                :key="story._id"
+                v-bind="story"
+              />
+            </template>
+            <template v-else>
+              <div class="">尚未有已完結故事</div>
+            </template>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
 
-    <v-container style="padding: 32px">
+    <v-container style="padding: 32px; max-width: 98%">
       <v-row class="justify-space-between">
         <v-col cols="12" class="pb-0">
           <h2>創作資源區</h2>

@@ -5,61 +5,69 @@
     @change="handleExpansionChange"
   >
     <v-expansion-panel style="border-radius: 10px">
-      <v-expansion-panel-title @click="toggleExpansion">
-        <v-row no-gutters>
-          <v-col
-            class="d-flex align-center justify-center text--secondary"
-            style="padding-right: 24px"
-            cols="1"
-          >
-            <div class="text--muted">{{ category }}</div>
+      <v-expansion-panel-title @click="toggleExpansion" class="d-flex pa-2">
+        <v-container
+          class="ma-0 pa-0 bg-white rounded-0 d-flex"
+          style="box-shadow: none; max-width: 100%"
+        >
+          <v-col cols="1" class="d-flex align-center justify-center ml-1">
+            {{ category }}
           </v-col>
-          <v-col cols="8" class="text--secondary">
-            <span
-              class="font-weight-black"
-              style="font-size: 16px; margin-right: 4px"
-              >{{ title }}</span
+
+          <v-col cols="11">
+            <v-row no-gutters class="d-flex align-center justify-space-between">
+              <span
+                class="font-weight-black"
+                style="font-size: 16px; margin-right: 4px"
+                >{{ title }}
+                <template v-if="isStoryCompleted">
+                  <span style="color: #4e9194; font-size: 12px">
+                    （完）
+                  </span>
+                </template>
+              </span>
+
+              <span style="color: #4e9194; margin-right: 10px; font-size: 14px">
+                {{ mainAuthor?.username }}
+              </span>
+            </v-row>
+            <v-row
+              no-gutters
+              class="d-flex align-center justify-space-between my-2"
             >
-            <span
-              v-if="isStoryCompleted"
-              style="color: #4e9194; font-size: 14px"
+              <span
+                v-if="extensions && extensions.length > 0"
+                class="text--danger d-inline-block font-weight-black"
+                style="font-size: 12px"
+                >投票倒數計時：
+              </span>
+              <span
+                v-if="extensions && extensions.length > 0"
+                class="d-inline-block"
+                style="color: black; margin-right: 10px"
+                >{{ remainingTime }}</span
+              >
+            </v-row>
+            <v-row
+              no-gutters
+              class="d-flex align-center justify-space-between mt-2"
             >
-              （已完結）
-            </span>
-            <br />
-            <span
-              v-if="extensions && extensions.length > 0"
-              class="text--danger my-2 d-inline-block font-weight-black"
-              style="font-size: 12px"
-              >投票倒數計時：</span
-            >
-            <br />
-            <span>{{ latestChapterName }}</span>
+              <span>{{ latestChapterName }}</span>
+              <span style="color: black; margin-right: 10px">
+                {{
+                  new Date(createdAt).toLocaleString("zh-TW", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })
+                }}
+              </span>
+            </v-row>
           </v-col>
-          <v-col cols="3" class="text-right" style="color: #4e9194">
-            <span style="color: #4e9194; margin-right: 10px; font-size: 14px">
-              {{ mainAuthor?.username }}
-            </span>
-            <br />
-            <span
-              v-if="extensions && extensions.length > 0"
-              class="my-2 d-inline-block"
-              style="color: black; margin-right: 10px"
-              >{{ remainingTime }}</span
-            >
-            <br />
-            <span style="color: black; margin-right: 10px">
-              {{
-                new Date(createdAt).toLocaleString("zh-TW", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                })
-              }}
-            </span>
-          </v-col>
-        </v-row>
+        </v-container>
       </v-expansion-panel-title>
+
+      <!-- 展開區域 -->
       <v-expansion-panel-text>
         <v-row style="padding: 12px">
           <v-col cols="12" class="mt-1 pa-0" style="font-size: 8px">

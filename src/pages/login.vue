@@ -135,6 +135,10 @@ const togglePasswordVisibility = () => {
 
 const { handleSubmit, isSubmitting } = useForm({
   validationSchema: schema,
+  initialValues: {
+    email: "visitor01@gmail.com",
+    password: "visitor01",
+  },
 });
 const email = useField("email");
 const password = useField("password");

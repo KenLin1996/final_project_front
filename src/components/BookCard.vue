@@ -1,10 +1,11 @@
 <template>
   <router-link :to="'/stories/' + _id" style="text-decoration: none">
     <v-card
-      class="pa-3 customMargin h-100 me-2 pa-4 rounded-lg"
-      width="220"
+      class="pa-3 customMargin h-100 pa-4 rounded-lg ma-2"
       style="
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
+        width: 230px;
+        min-width: 228px;
       "
     >
       <v-card-text
