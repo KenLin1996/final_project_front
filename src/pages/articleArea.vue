@@ -1,74 +1,87 @@
 <template>
-  <v-container style="padding: 32px">
-    <!-- 創作指引 -->
-    <v-card class="pa-3 mb-4">
-      <v-card-title>創作指引</v-card-title>
-      <v-divider></v-divider>
+  <div class="w-100 d-flex align-center justify-center" style="padding: 32px">
+    <v-container
+      class="ma-0 d-flex"
+      style="padding: 32px; max-width: 100%; min-height: 70vh"
+    >
+      <!-- 創作指引 -->
+      <v-row class="d-flex justify-center align-center">
+        <v-col cols="12">
+          <v-card class="pa-3 rounded-lg" style="min-height: 60vh">
+            <v-card-title>創作指引</v-card-title>
+            <v-divider></v-divider>
 
-      <!-- 創作流程指導 -->
-      <v-card-subtitle class="mt-4">創作流程指導</v-card-subtitle>
+            <!-- 創作流程指導 -->
+            <v-card-subtitle class="mt-4">創作流程指導</v-card-subtitle>
 
-      <v-list dense>
-        <v-list-group
-          v-for="item in creativeProcessGuidance"
-          :key="item.title"
-          :value="item.title"
-        >
-          <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" :title="item.title"></v-list-item>
-          </template>
+            <v-list dense>
+              <v-list-group
+                v-for="item in creativeProcessGuidance"
+                :key="item.title"
+                :value="item.title"
+              >
+                <template v-slot:activator="{ props }">
+                  <v-list-item v-bind="props" :title="item.title"></v-list-item>
+                </template>
 
-          <v-list-item
-            v-for="subItem in item.subItems"
-            :key="subItem.title"
-            :title="subItem.title"
-            :href="subItem.link"
-            target="_blank"
-          ></v-list-item>
-        </v-list-group>
-      </v-list>
+                <v-list-item
+                  v-for="subItem in item.subItems"
+                  :key="subItem.title"
+                  :title="subItem.title"
+                  :href="subItem.link"
+                  target="_blank"
+                ></v-list-item>
+              </v-list-group>
+            </v-list>
 
-      <!-- 創作技巧 -->
-      <v-card-subtitle class="mt-4">創作技巧</v-card-subtitle>
-      <v-list dense>
-        <v-list-group
-          v-for="item in creativeSkills"
-          :key="item.title"
-          :value="item.title"
-        >
-          <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" :title="item.title"></v-list-item>
-          </template>
+            <!-- 創作技巧 -->
+            <v-card-subtitle class="mt-4">創作技巧</v-card-subtitle>
+            <v-list dense>
+              <v-list-group
+                v-for="item in creativeSkills"
+                :key="item.title"
+                :value="item.title"
+              >
+                <template v-slot:activator="{ props }">
+                  <v-list-item v-bind="props" :title="item.title"></v-list-item>
+                </template>
 
-          <v-list-item
-            v-for="subItem in item.subItems"
-            :key="subItem.title"
-            :title="subItem.title"
-            :href="subItem.link"
-            target="_blank"
-          ></v-list-item>
-        </v-list-group>
-      </v-list>
+                <v-list-item
+                  v-for="subItem in item.subItems"
+                  :key="subItem.title"
+                  :title="subItem.title"
+                  :href="subItem.link"
+                  target="_blank"
+                ></v-list-item>
+              </v-list-group>
+            </v-list>
 
-      <!-- 常見問題與解答 -->
-      <v-card-subtitle class="mt-4">常見問題與解答</v-card-subtitle>
-      <v-list dense>
-        <v-list-group v-for="item in faq" :key="item.title" :value="item.title">
-          <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" :title="item.title"></v-list-item>
-          </template>
+            <!-- 常見問題與解答 -->
+            <v-card-subtitle class="mt-4">常見問題與解答</v-card-subtitle>
+            <v-list dense>
+              <v-list-group
+                v-for="item in faq"
+                :key="item.title"
+                :value="item.title"
+              >
+                <template v-slot:activator="{ props }">
+                  <v-list-item v-bind="props" :title="item.title"></v-list-item>
+                </template>
 
-          <v-list-item
-            v-for="subItem in item.subItems"
-            :key="subItem.title"
-            :title="subItem.title"
-            :href="subItem.link"
-            target="_blank"
-          ></v-list-item>
-        </v-list-group>
-      </v-list>
-    </v-card>
-  </v-container>
+                <v-list-item
+                  v-for="subItem in item.subItems"
+                  :key="subItem.title"
+                  :title="subItem.title"
+                  :href="subItem.link"
+                  target="_blank"
+                ></v-list-item>
+              </v-list-group>
+            </v-list>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script setup>

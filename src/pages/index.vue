@@ -54,7 +54,7 @@
     </v-row>
     <template v-if="user.isLogin">
       <template v-if="bookmarkStories.length > 0">
-        <v-container style="padding: 32px">
+        <v-container style="padding: 32px; max-width: 98%" class="">
           <v-row class="justify-space-between">
             <v-col cols="12" class="pb-0">
               <h2>收藏故事</h2>
@@ -75,7 +75,7 @@
       </template>
     </template>
 
-    <v-container style="padding: 32px; max-width: 98%" class="">
+    <v-container style="padding: 32px; max-width: 98%">
       <v-row class="justify-space-between">
         <v-col cols="12" class="pb-0">
           <h2>熱門故事</h2>

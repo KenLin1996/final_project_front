@@ -1,169 +1,193 @@
 <template>
-  <v-container style="padding: 32px">
-    <div class="d-flex justify-space-between align-center">
-      <h2>故事分類</h2>
-      <v-btn @click="resetFilters" class="custom-reset-btn">重設所有篩選</v-btn>
-    </div>
-    <v-divider class="custom-mb-5"></v-divider>
-    <v-responsive class="my-5">
-      <v-text-field
-        v-model="searchQuery"
-        label="搜尋"
-        prepend-inner-icon="mdi-magnify"
-        density="compact"
-        hide-details
-        single-line
-        variant="solo"
-        clearable
-        color="black"
-      ></v-text-field>
-    </v-responsive>
-
-    <h3>作品分類</h3>
-    <v-divider class="custom-mb-5"></v-divider>
-    <v-row class="custom-mb-5" no-gutters>
-      <v-col v-for="category in categories" :key="category" cols="auto">
-        <v-btn
-          :class="{
-            'custom-btn': true,
-            selected: selectedCategory === category,
-          }"
-          @click="selectCategory(category)"
-          class="my-1 mr-1"
-          >{{ category }}</v-btn
+  <v-container class="ma-0 bg-white" style="max-width: 100vw">
+    <v-container class="w-100" style="padding: 32px">
+      <div class="d-flex justify-space-between align-center">
+        <h2>故事分類</h2>
+        <v-btn @click="resetFilters" class="custom-reset-btn"
+          >重設所有篩選</v-btn
         >
-      </v-col>
-    </v-row>
+      </div>
+      <v-divider class="custom-mb-5"></v-divider>
+      <v-responsive class="my-5">
+        <v-text-field
+          v-model="searchQuery"
+          label="搜尋"
+          prepend-inner-icon="mdi-magnify"
+          density="compact"
+          hide-details
+          single-line
+          variant="solo"
+          clearable
+          color="black"
+        ></v-text-field>
+      </v-responsive>
 
-    <h3>作品字數</h3>
-    <v-divider class="custom-mb-5"></v-divider>
-    <v-row class="custom-mb-5" no-gutters>
-      <v-col v-for="wordCount in wordCounts" :key="wordCount" cols="auto">
-        <v-btn
-          class="mr-1 my-1"
-          :class="{
-            'custom-btn': true,
-            selected: selectedWordCount === wordCount,
-          }"
-          @click="selectWordCount(wordCount)"
-          >{{ wordCount }}</v-btn
+      <h3>作品分類</h3>
+      <v-divider class="custom-mb-5"></v-divider>
+      <v-row class="custom-mb-5" no-gutters>
+        <v-col v-for="category in categories" :key="category" cols="auto">
+          <v-btn
+            :class="{
+              'custom-btn': true,
+              selected: selectedCategory === category,
+            }"
+            @click="selectCategory(category)"
+            class="my-1 mr-1"
+            >{{ category }}</v-btn
+          >
+        </v-col>
+      </v-row>
+
+      <h3>作品字數</h3>
+      <v-divider class="custom-mb-5"></v-divider>
+      <v-row class="custom-mb-5" no-gutters>
+        <v-col v-for="wordCount in wordCounts" :key="wordCount" cols="auto">
+          <v-btn
+            class="mr-1 my-1"
+            :class="{
+              'custom-btn': true,
+              selected: selectedWordCount === wordCount,
+            }"
+            @click="selectWordCount(wordCount)"
+            >{{ wordCount }}</v-btn
+          >
+        </v-col>
+      </v-row>
+
+      <h3>作品狀態</h3>
+      <v-divider class="custom-mb-5"></v-divider>
+      <v-row class="custom-mb-5" no-gutters>
+        <v-col v-for="storyState in storyStates" :key="storyState" cols="auto">
+          <v-btn
+            class="mr-1"
+            :class="{
+              'custom-btn': true,
+              selected: selectedStoryState === storyState,
+            }"
+            @click="selectStoryState(storyState)"
+            >{{ storyState }}</v-btn
+          >
+        </v-col>
+      </v-row>
+
+      <div class="d-flex justify-space-between align-cente">
+        <h3>標籤選擇</h3>
+        <v-btn @click="resetLabels" class="custom-reset-btn">重設標籤</v-btn>
+      </div>
+
+      <v-divider class="custom-mb-5"></v-divider>
+      <v-row class="custom-mb-5" no-gutters>
+        <v-chip-group
+          column
+          multiple
+          v-model="selectedLabels"
+          selected-class="custom-chipsSelected"
         >
-      </v-col>
-    </v-row>
+          <v-chip
+            v-for="label in chapterLabels"
+            :key="label"
+            :text="label"
+            class="custom-chip d-flex align-center justify-center"
+            elevation="2"
+            :value="label"
+          ></v-chip>
+        </v-chip-group>
+      </v-row>
 
-    <h3>作品狀態</h3>
-    <v-divider class="custom-mb-5"></v-divider>
-    <v-row class="custom-mb-5" no-gutters>
-      <v-col v-for="storyState in storyStates" :key="storyState" cols="auto">
-        <v-btn
-          class="mr-1"
-          :class="{
-            'custom-btn': true,
-            selected: selectedStoryState === storyState,
-          }"
-          @click="selectStoryState(storyState)"
-          >{{ storyState }}</v-btn
+      <template v-for="story in paginatedStories" :key="story.id">
+        <router-link
+          :to="'/stories/' + story._id"
+          style="text-decoration: none"
         >
-      </v-col>
-    </v-row>
-
-    <div class="d-flex justify-space-between align-cente">
-      <h3>標籤選擇</h3>
-      <v-btn @click="resetLabels" class="custom-reset-btn">重設標籤</v-btn>
-    </div>
-
-    <v-divider class="custom-mb-5"></v-divider>
-    <v-row class="custom-mb-5" no-gutters>
-      <v-chip-group
-        column
-        selected-class="text-primary"
-        multiple
-        v-model="selectedLabels"
-      >
-        <v-chip
-          v-for="label in chapterLabels"
-          :key="label"
-          :text="label"
-          class="custom-chip d-flex align-center justify-center"
-          elevation="2"
-          :value="label"
-        ></v-chip>
-      </v-chip-group>
-    </v-row>
-
-    <template v-for="story in paginatedStories" :key="story.id">
-      <router-link :to="'/stories/' + story._id" style="text-decoration: none">
-        <v-card style="border: 1px solid black; margin: 15px">
-          <v-row no-gutters>
-            <v-col cols="2" class="pt-4 pb-4 pl-4">
-              <v-img
-                :src="story.image"
-                width="200px"
-                height="150px"
-                cover
-              ></v-img>
-            </v-col>
-            <v-col cols="10">
-              <v-row no-gutters>
-                <v-col class="mt-4">
-                  <v-card-title class="d-flex justify-space-between pt-0">
-                    <span>{{ story.title }}</span>
-                    <v-chip
-                      style="
-                        border-radius: 4px;
-                        padding: 0px 12px;
-                        border: 1px solid black;
-                        background-color: rgba(151, 216, 196, 0.4);
-                        color: black;
-                        font-weight: bold;
-                      "
-                      >{{ story.category }}</v-chip
+          <v-card
+            class="rounded-lg"
+            style="
+              margin: 15px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(0, 0, 0, 0.2);
+            "
+          >
+            <v-row no-gutters>
+              <v-col cols="2" class="pt-4 pb-4 pl-4">
+                <v-img
+                  class="rounded-lg"
+                  :src="story.image"
+                  width="200px"
+                  height="150px"
+                  cover
+                ></v-img>
+              </v-col>
+              <v-col cols="10">
+                <v-row no-gutters>
+                  <v-col class="mt-4">
+                    <v-card-title class="d-flex justify-space-between pt-0">
+                      <span>{{ story.title }}</span>
+                      <v-chip
+                        style="
+                          border-radius: 4px;
+                          padding: 0px 12px;
+                          /* border: 1px solid black; */
+                          /* background-color: rgba(151, 216, 196, 0.4); */
+                          /* background-color: #67accf; */
+                          background-color: #7dbfe0;
+                          color: black;
+                          font-weight: bold;
+                        "
+                        >{{ story.category }}</v-chip
+                      >
+                    </v-card-title>
+                  </v-col>
+                </v-row>
+                <v-card-subtitle>
+                  <div>
+                    <span class="mr-4" style="font-weight: bolder; color: black"
+                      >初創者：{{ story.mainAuthor.username }}</span
                     >
-                  </v-card-title>
-                </v-col>
-              </v-row>
-              <v-card-subtitle>
-                <div>
-                  <span class="mr-4" style="font-weight: bolder; color: black"
-                    >初創者：{{ story.mainAuthor.username }}</span
-                  >
-                  <!-- <span style="font-weight: bolder; color: black"
+                    <!-- <span style="font-weight: bolder; color: black"
                     >最新延續者：{{ story.latestAuthor }}</span
                   > -->
-                </div>
-                <p class="mb-2" style="font-weight: bolder; color: black">
-                  作品字數：{{ story.totalWordCount }}
-                </p>
-                <p class="mb-2" style="font-weight: bolder; color: black">
-                  作品狀態：{{ story.state ? "完結" : "連載" }}
-                </p>
-                <p style="font-weight: bolder; color: black">最新內容：</p>
-              </v-card-subtitle>
-              <v-card-text class="text py-1" style="font-weight: 500">
-                {{ story.content[story.content.length - 1]?.content.join("") }}
-              </v-card-text>
-            </v-col>
-          </v-row>
-          <v-divider style="color: black"></v-divider>
-          <v-card-actions class="px-4 py-1">
-            <v-icon class="mr-2">mdi-label-outline</v-icon>
-            <template v-for="label in story.chapterLabels">
-              <v-chip class="mr-2" style="border-radius: 4px"
-                >#{{ label }}</v-chip
-              >
-            </template>
-          </v-card-actions>
-        </v-card>
-      </router-link>
-    </template>
+                  </div>
+                  <p class="mb-2" style="font-weight: bolder; color: black">
+                    作品字數：{{ story.totalWordCount }}
+                  </p>
+                  <p class="mb-2" style="font-weight: bolder; color: black">
+                    作品狀態：{{ story.state ? "完結" : "連載" }}
+                  </p>
+                  <p style="font-weight: bolder; color: black">最新內容：</p>
+                </v-card-subtitle>
+                <v-card-text class="text py-1" style="font-weight: 500">
+                  {{
+                    story.content[story.content.length - 1]?.content.join("")
+                  }}
+                </v-card-text>
+              </v-col>
+            </v-row>
+            <v-divider style="color: black"></v-divider>
+            <v-card-actions class="px-4 py-1">
+              <v-icon class="mr-2">mdi-label-outline</v-icon>
+              <template v-for="label in story.chapterLabels">
+                <v-chip
+                  class="mr-2"
+                  style="
+                    border-radius: 4px;
+                    background-color: rgba(151, 216, 196, 0.4);
+                  "
+                  >#{{ label }}</v-chip
+                >
+              </template>
+            </v-card-actions>
+          </v-card>
+        </router-link>
+      </template>
 
-    <v-pagination
-      v-model="currentPage"
-      :length="totalPages"
-      @input="onPageChange"
-      class="mt-5"
-      density="compact"
-    ></v-pagination>
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        @input="onPageChange"
+        class="mt-5"
+        density="compact"
+      ></v-pagination>
+    </v-container>
   </v-container>
 </template>
 
@@ -424,10 +448,10 @@ const onPageChange = (page) => {
 </script>
 <style scoped>
 .custom-btn {
-  border-radius: 30px;
+  border-radius: 8px;
   background-color: white;
   font-weight: bold;
-  border: 2px solid black;
+  border: 1px solid black;
   color: black;
 }
 .custom-btn:hover {
@@ -440,16 +464,18 @@ const onPageChange = (page) => {
 }
 
 .custom-chip {
+  border-radius: 8px;
   margin: 5px;
   padding: 2px 10px;
   cursor: pointer;
-  background-color: rgba(151, 216, 196, 0.4);
+  background-color: white;
   border: 1px solid black;
   font-weight: bold;
 }
-.custom-chip.selected {
-  background-color: #67accf;
-  color: black;
+
+.custom-chip:hover {
+  background-color: rgba(151, 216, 196, 0.4) !important;
+  color: black !important;
 }
 
 .custom-mb-5 {
@@ -458,15 +484,20 @@ const onPageChange = (page) => {
 }
 
 .custom-reset-btn {
-  padding: 0px 2px;
-  border: 2px solid black;
+  padding: 1px 2px;
+  border: 1px solid black;
   color: black;
   font-size: 16px;
   font-weight: bold;
   height: fit-content;
 }
-.custom-reset-btn:hover {
-  background-color: #67accf !important;
-  color: black !important;
+
+.custom-chipsSelected {
+  background-color: rgba(151, 216, 196, 0.4);
+  color: black;
+}
+
+::v-deep .v-chip--variant-tonal .v-chip__underlay {
+  background: none;
 }
 </style>
