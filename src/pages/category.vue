@@ -161,7 +161,8 @@
       v-model="currentPage"
       :length="totalPages"
       @input="onPageChange"
-      class="my-4"
+      class="mt-5"
+      density="compact"
     ></v-pagination>
   </v-container>
 </template>

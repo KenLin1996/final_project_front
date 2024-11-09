@@ -1,30 +1,32 @@
 <template>
   <v-footer
-    class="text-center d-flex flex-column"
+    class="d-flex flex-column align-center justify-center text-center"
     color="#4E9194"
     density="comfortable"
   >
-    <div class="d-flex justify-space-between px-16 py-0">
-      <div class="d-flex flex-column align-start pt-0 w-75">
-        <p style="color: black; font-size: 16px">關於我們</p>
-        <p class="text-left" style="color: black; font-size: 16px">
-          「界筆」是指世界之筆，我們期望構築一個文字的世界！「界」有「借鑑」與「世界」兩個概念，代表每個故事的後續都是借鑑最初的故事以及我們有著遍佈全世界的野望！
-        </p>
+    <div
+      class="d-flex justify-space-between align-center flex-wrap px-6 py-0 w-100"
+    >
+      <div
+        class="d-flex align-center justify-center justify-sm-start pt-0 order-2 order-sm-1 w-100 w-sm-33"
+        style="font-size: 14px"
+      >
+        COPYRIGHT &#xa0; &copy; &#xa0; {{ new Date().getFullYear() }} &#xa0;
+        <strong>界筆</strong>
       </div>
-      <div>
+      <div
+        class="d-flex align-center justify-center justify-sm-end order-1 order-sm-2 w-100 w-sm-33"
+      >
         <v-btn
           v-for="icon in icons"
           :key="icon"
           :icon="icon.name"
           class="mx-4"
           variant="text"
+          density="compact"
           @click="navigateToLink(icon.link)"
         ></v-btn>
       </div>
-    </div>
-
-    <div class="my-1">
-      {{ new Date().getFullYear() }} — <strong>界筆</strong>
     </div>
   </v-footer>
 </template>
