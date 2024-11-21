@@ -44,7 +44,7 @@
         content[content.length - 1].chapterName
       }}</v-card-subtitle>
 
-      <v-card-text class="pa-0 ellipsis-3-lines">
+      <v-card-text class="pa-0 ellipsis-3-lines" style="height: 60px">
         {{ content[0].content[0] }}
       </v-card-text>
     </v-card>
