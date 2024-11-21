@@ -11,7 +11,7 @@
       <v-responsive class="my-5">
         <v-text-field
           v-model="searchQuery"
-          label="搜尋"
+          label="搜尋作者及書名"
           prepend-inner-icon="mdi-magnify"
           density="compact"
           hide-details
