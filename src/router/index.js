@@ -20,6 +20,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  window.scrollTo(0, 0);
   const user = useUserStore();
 
   if (from === START_LOCATION) {
