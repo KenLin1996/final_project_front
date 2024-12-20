@@ -1,234 +1,281 @@
 <template style="margin: auto">
-  <v-container style="padding: 32px">
-    <v-breadcrumbs :items="items" style="padding: 0px 12px 16px 12px">
-      <template v-slot:divider>
-        <v-icon icon="mdi-chevron-right"></v-icon>
-      </template>
-    </v-breadcrumbs>
+  <v-container
+    class="d-flex align-center justify-center ma-0 bg-white h-100"
+    style="max-width: 100vw; max-height: 100%"
+  >
+    <v-container class="w-100 h-xs-100" style="padding: 32px">
+      <v-breadcrumbs :items="items" style="padding: 0px 12px 16px 12px">
+        <template v-slot:divider>
+          <v-icon icon="mdi-chevron-right"></v-icon>
+        </template>
+      </v-breadcrumbs>
 
-    <div class="d-flex">
-      <div
-        class="sidebar"
-        style="
-          flex: 1;
-          margin-right: 12px;
-          background-color: white;
-          border-radius: 12px;
-        "
+      <!-- 分隔一下 -->
+      <v-list
+        class="py-0 mb-3 w-100 smallSidebar"
+        style="border-radius: 8px"
+        dense
       >
-        <v-list class="py-0" dense>
-          <h3 class="mb-3">故事管理</h3>
-          <v-list-item class="d-flex justify-center">
-            <v-tabs v-model="tab" color="primary" direction="vertical">
-              <v-tab
-                class="my-1"
-                prepend-icon="mdi-book"
-                text="我的故事"
-                value="option-1"
-              ></v-tab>
-              <v-tab
-                class="my-1"
-                prepend-icon="mdi-book"
-                text="我的延續"
-                value="option-2"
-              ></v-tab>
-              <v-tab
-                class="my-1"
-                prepend-icon="mdi-bookmark"
-                text="收藏的故事"
-                value="option-3"
-              ></v-tab>
+        <v-list-item class="w-100" style="border-radius: 12px">
+          <v-tabs v-model="tab" color="primary" grow>
+            <v-tab
+              prepend-icon="mdi-book"
+              text="我的故事"
+              value="option-1"
+            ></v-tab>
+            <v-tab
+              prepend-icon="mdi-book"
+              text="我的延續"
+              value="option-2"
+            ></v-tab>
+            <v-tab
+              prepend-icon="mdi-bookmark"
+              text="收藏的故事"
+              value="option-3"
+            ></v-tab>
 
-              <v-tab
-                class="my-1"
-                prepend-icon="mdi-vote"
-                text="已投票的故事"
-                value="option-4"
-              ></v-tab>
-            </v-tabs>
-          </v-list-item>
-        </v-list>
-      </div>
+            <v-tab
+              prepend-icon="mdi-vote"
+              text="已投票的故事"
+              value="option-4"
+            ></v-tab>
+          </v-tabs>
+        </v-list-item>
+      </v-list>
 
-      <div
-        class="content"
-        style="flex: 9; background-color: white; border-radius: 12px"
-      >
-        <v-tabs-window v-model="tab">
-          <!-- 我的故事 -->
-          <v-tabs-window-item value="option-1">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>我的故事</h3>
-              <v-btn
-                prepend-icon="mdi-plus"
-                size="small"
-                to="/createStory"
-                style="background-color: #2883d3; color: white"
-                >新增故事</v-btn
-              >
-            </div>
-            <v-divider></v-divider>
-            <v-card flat>
-              <v-card-text>
-                <v-data-table
-                  v-model:items-per-page="tableItemsPerPage"
-                  v-model:sort-by="tableSortBy"
-                  v-model:page="tablePage"
-                  :headers="myStoryHeaders"
-                  :items="myStoryItems"
-                  :items-length="tableItemsLength"
-                  :items-per-page-options="itemsPerPageOptions"
-                  @update:items-per-page="tableLoadMyStoryItems(false)"
-                  @update:sort-by="tableLoadMyStoryItems(false)"
-                  @update:page="tableLoadMyStoryItems(false)"
-                  density="comfortable"
-                  item-key="name"
-                >
-                  <template #[`item.image`]="{ value }">
-                    <v-img :src="value" max-height="100px" class="py-1"></v-img>
-                  </template>
-                  <template #[`item.state`]="{ item }">
-                    <span>{{ item.state ? "完結" : "連載" }}</span>
-                  </template>
+      <div class="d-flex">
+        <div
+          class="sidebar"
+          style="
+            flex: 1;
+            margin-right: 12px;
+            background-color: white;
+            border-radius: 12px;
+          "
+        >
+          <v-list class="py-0" dense>
+            <h3 class="mb-3">故事管理</h3>
+            <v-list-item class="d-flex justify-center">
+              <v-tabs v-model="tab" color="primary" direction="vertical">
+                <!-- <v-tabs v-model="tab" color="primary"> -->
+                <v-tab
+                  class="my-1"
+                  prepend-icon="mdi-book"
+                  text="我的故事"
+                  value="option-1"
+                ></v-tab>
+                <v-tab
+                  class="my-1"
+                  prepend-icon="mdi-book"
+                  text="我的延續"
+                  value="option-2"
+                ></v-tab>
+                <v-tab
+                  class="my-1"
+                  prepend-icon="mdi-bookmark"
+                  text="收藏的故事"
+                  value="option-3"
+                ></v-tab>
 
-                  <!-- 顯示 -->
-                  <template #[`item.show`]="{ item }">
-                    <span>{{ item.show ? "公開" : "隱藏" }}</span>
-                  </template>
-                  <template #[`item.actions`]="{ item }">
-                    <v-btn
-                      text
-                      to=""
-                      :active="false"
-                      :ripple="false"
-                      variant="tonal"
-                      @click="openDialog(item)"
-                    >
-                      編輯
-                    </v-btn>
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-tabs-window-item>
-
-          <!-- 我的延續 -->
-          <v-tabs-window-item value="option-2">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>我的延續</h3>
-            </div>
-            <v-divider></v-divider>
-            <v-card flat>
-              <v-card-text class="pa-0 px-1 py-3">
-                <v-data-table
-                  :headers="ExtensionHeaders"
-                  :items="exStoryItems"
-                  :items-per-page-options="itemsPerPageOptions"
-                  density="comfortable"
-                  item-key="name"
-                >
-                  <template #item.storyTitle="{ item }">
-                    <span>{{ item.storyTitle }}</span>
-                  </template>
-                  <template #item.storyStatus="{ item }">
-                    <span>{{ item.storyStatus }}</span>
-                  </template>
-                  <template #item.extensionContent="{ item }">
-                    <span>{{ item.extensionContent }}</span>
-                  </template>
-                  <template #item.voteCount="{ item }">
-                    <span>{{ item.voteCount }}</span>
-                  </template>
-                  <template #item.actions="{ item }">
-                    <v-btn
-                      text
-                      :active="false"
-                      :ripple="false"
-                      variant="tonal"
-                      @click="openDeleteDialog(item)"
-                      style="background-color: #f24e1e; color: white"
-                    >
-                      刪除
-                    </v-btn>
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-tabs-window-item>
-
-          <!-- 收藏的故事 -->
-          <v-tabs-window-item value="option-3">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>收藏的故事</h3>
-            </div>
-            <v-divider></v-divider>
-            <div class="d-flex align-center justify-space-between py-2">
-              <v-btn
-                size="small"
-                @click="removeBookmarkFunc"
-                :disabled="selected.length === 0"
-                style="background-color: #ffcdd2"
-                >取消收藏</v-btn
-              >
-
-              <v-select
-                density="comfortable"
-                label="故事分類"
-                hide-details
-                max-width="150px"
-                :items="['全部', ...allCategories]"
-                v-model="selectedCategory"
-              ></v-select>
-            </div>
-
-            <v-data-table
-              v-model="selected"
-              :headers="bookmarkHeaders"
-              :items="bookmarkStories"
-              :items-per-page-options="itemsPerPageOptions"
-              item-value="._id"
-              show-select
-            >
-              <template #item.completion="{ item }">
-                <span>{{ item.completion }}%</span>
-                <!-- 顯示完成度 -->
-              </template>
-              <template #[`item.state`]="{ item }">
-                <span>{{ item.state ? "完結" : "連載" }}</span>
-              </template>
-            </v-data-table>
-          </v-tabs-window-item>
-
-          <!-- 已投票的故事 -->
-          <v-tabs-window-item value="option-4">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>已投票的故事</h3>
-            </div>
-            <v-divider></v-divider>
-            <v-data-table
-              density="comfortable"
-              item-key="name"
-              :headers="voteStoryHeaders"
-              :items="voteStories"
-              :items-per-page-options="itemsPerPageOptions"
-            >
-              <template #[`item.actions`]="{ item }">
+                <v-tab
+                  class="my-1"
+                  prepend-icon="mdi-vote"
+                  text="已投票的故事"
+                  value="option-4"
+                ></v-tab>
+              </v-tabs>
+            </v-list-item>
+          </v-list>
+        </div>
+        <div
+          class="content"
+          style="
+            flex: 9;
+            background-color: white;
+            border-radius: 12px;
+            min-height: 400px;
+          "
+        >
+          <v-tabs-window v-model="tab">
+            <!-- 我的故事 -->
+            <v-tabs-window-item value="option-1">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <h3>我的故事</h3>
                 <v-btn
-                  text
-                  @click="removeVoteRec(item)"
-                  :active="false"
-                  :ripple="false"
-                  variant="tonal"
-                  style="background-color: #f24e1e; color: white"
+                  prepend-icon="mdi-plus"
+                  size="small"
+                  to="/createStory"
+                  style="background-color: #2883d3; color: white"
+                  >新增故事</v-btn
                 >
-                  刪除紀錄
-                </v-btn>
-              </template>
-            </v-data-table>
-          </v-tabs-window-item>
-        </v-tabs-window>
+              </div>
+              <v-divider></v-divider>
+              <v-card flat>
+                <v-card-text>
+                  <v-data-table
+                    v-model:items-per-page="tableItemsPerPage"
+                    v-model:sort-by="tableSortBy"
+                    v-model:page="tablePage"
+                    :headers="myStoryHeaders"
+                    :items="myStoryItems"
+                    :items-length="tableItemsLength"
+                    :items-per-page-options="itemsPerPageOptions"
+                    @update:items-per-page="tableLoadMyStoryItems(false)"
+                    @update:sort-by="tableLoadMyStoryItems(false)"
+                    @update:page="tableLoadMyStoryItems(false)"
+                    density="comfortable"
+                    item-key="name"
+                  >
+                    <template #[`item.image`]="{ value }">
+                      <v-img
+                        :src="value"
+                        max-height="100px"
+                        class="py-1"
+                      ></v-img>
+                    </template>
+                    <template #[`item.state`]="{ item }">
+                      <span>{{ item.state ? "完結" : "連載" }}</span>
+                    </template>
+
+                    <!-- 顯示 -->
+                    <template #[`item.show`]="{ item }">
+                      <span>{{ item.show ? "公開" : "隱藏" }}</span>
+                    </template>
+                    <template #[`item.actions`]="{ item }">
+                      <v-btn
+                        text
+                        to=""
+                        :active="false"
+                        :ripple="false"
+                        variant="tonal"
+                        @click="openDialog(item)"
+                      >
+                        編輯
+                      </v-btn>
+                    </template>
+                  </v-data-table>
+                </v-card-text>
+              </v-card>
+            </v-tabs-window-item>
+
+            <!-- 我的延續 -->
+            <v-tabs-window-item value="option-2">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <h3>我的延續</h3>
+              </div>
+              <v-divider></v-divider>
+              <v-card flat>
+                <v-card-text class="pa-0 px-1 py-3">
+                  <v-data-table
+                    :headers="ExtensionHeaders"
+                    :items="exStoryItems"
+                    :items-per-page-options="itemsPerPageOptions"
+                    density="comfortable"
+                    item-key="name"
+                  >
+                    <template #item.storyTitle="{ item }">
+                      <span>{{ item.storyTitle }}</span>
+                    </template>
+                    <template #item.storyStatus="{ item }">
+                      <span>{{ item.storyStatus }}</span>
+                    </template>
+                    <template #item.extensionContent="{ item }">
+                      <span>{{ item.extensionContent }}</span>
+                    </template>
+                    <template #item.voteCount="{ item }">
+                      <span>{{ item.voteCount }}</span>
+                    </template>
+                    <template #item.actions="{ item }">
+                      <v-btn
+                        text
+                        :active="false"
+                        :ripple="false"
+                        variant="tonal"
+                        @click="openDeleteDialog(item)"
+                        style="background-color: #f24e1e; color: white"
+                      >
+                        刪除
+                      </v-btn>
+                    </template>
+                  </v-data-table>
+                </v-card-text>
+              </v-card>
+            </v-tabs-window-item>
+
+            <!-- 收藏的故事 -->
+            <v-tabs-window-item value="option-3">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <h3>收藏的故事</h3>
+              </div>
+              <v-divider></v-divider>
+              <div class="d-flex align-center justify-space-between py-2">
+                <v-btn
+                  size="small"
+                  @click="removeBookmarkFunc"
+                  :disabled="selected.length === 0"
+                  style="background-color: #ffcdd2"
+                  >取消收藏</v-btn
+                >
+
+                <v-select
+                  density="comfortable"
+                  label="故事分類"
+                  hide-details
+                  max-width="150px"
+                  :items="['全部', ...allCategories]"
+                  v-model="selectedCategory"
+                ></v-select>
+              </div>
+
+              <v-data-table
+                v-model="selected"
+                :headers="bookmarkHeaders"
+                :items="bookmarkStories"
+                :items-per-page-options="itemsPerPageOptions"
+                item-value="._id"
+                show-select
+              >
+                <template #item.completion="{ item }">
+                  <span>{{ item.completion }}%</span>
+                  <!-- 顯示完成度 -->
+                </template>
+                <template #[`item.state`]="{ item }">
+                  <span>{{ item.state ? "完結" : "連載" }}</span>
+                </template>
+              </v-data-table>
+            </v-tabs-window-item>
+
+            <!-- 已投票的故事 -->
+            <v-tabs-window-item value="option-4">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <h3>已投票的故事</h3>
+              </div>
+              <v-divider></v-divider>
+              <v-data-table
+                density="comfortable"
+                item-key="name"
+                :headers="voteStoryHeaders"
+                :items="voteStories"
+                :items-per-page-options="itemsPerPageOptions"
+              >
+                <template #[`item.actions`]="{ item }">
+                  <v-btn
+                    text
+                    @click="removeVoteRec(item)"
+                    :active="false"
+                    :ripple="false"
+                    variant="tonal"
+                    style="background-color: #f24e1e; color: white"
+                  >
+                    刪除紀錄
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-tabs-window-item>
+          </v-tabs-window>
+        </div>
       </div>
-    </div>
+    </v-container>
   </v-container>
   <v-dialog v-model="dialog.open" persistent width="500">
     <v-form @submit.prevent="submit" :disabled="isSubmitting">
@@ -753,7 +800,11 @@ const removeVoteRec = async (item) => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.smallSidebar {
+  display: none;
+}
+
 .sidebar {
   width: 20%;
   padding: 20px;
@@ -770,5 +821,13 @@ const removeVoteRec = async (item) => {
 
 ::v-deep .v-data-table-footer__info {
   display: none; /* 隱藏該元素 */
+}
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
+  .smallSidebar {
+    display: block;
+  }
 }
 </style>

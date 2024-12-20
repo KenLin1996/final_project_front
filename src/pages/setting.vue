@@ -1,28 +1,28 @@
 <template style="margin: auto">
-  <v-container style="padding: 32px">
-    <div class="d-flex">
+  <v-container
+    class="d-flex align-center justify-center ma-0 bg-white h-100"
+    style="max-width: 100vw; max-height: 100%"
+  >
+    <v-container class="w-100 h-xs-100" style="padding: 32px">
       <div
-        class="sidebar"
-        style="margin-right: 12px; background-color: white; border-radius: 12px"
+        class="smallSidebar mb-3 w-100"
+        style="background-color: white; border-radius: 12px"
       >
         <v-list class="py-0" dense>
-          <h3 class="mb-1">設定</h3>
-          <v-list-item class="d-flex">
-            <v-tabs v-model="tab" color="primary" direction="vertical">
+          <v-list-item class="w-100">
+            <v-tabs v-model="tab" color="primary" grow>
               <v-tab
-                class="my-1"
                 prepend-icon="mdi-cog-outline"
                 text="帳號設定"
                 value="option-1"
               ></v-tab>
               <v-tab
-                class="my-1"
                 prepend-icon="mdi-bell-outline"
                 text="通知設定"
                 value="option-2"
               ></v-tab>
               <!-- <v-tab
-                class="my-1"
+                
                 prepend-icon="mdi-theme-light-dark"
                 text="主題設定"
                 value="option-3"
@@ -31,340 +31,383 @@
           </v-list-item>
         </v-list>
       </div>
+      <div class="d-flex justify-center">
+        <div
+          class="sidebar"
+          style="
+            margin-right: 12px;
+            background-color: white;
+            border-radius: 12px;
+          "
+        >
+          <v-list class="py-0" dense>
+            <h3 class="mb-1">設定</h3>
+            <v-list-item class="d-flex">
+              <v-tabs v-model="tab" color="primary" direction="vertical">
+                <v-tab
+                  class="my-1"
+                  prepend-icon="mdi-cog-outline"
+                  text="帳號設定"
+                  value="option-1"
+                ></v-tab>
+                <v-tab
+                  class="my-1"
+                  prepend-icon="mdi-bell-outline"
+                  text="通知設定"
+                  value="option-2"
+                ></v-tab>
+                <!-- <v-tab
+                class="my-1"
+                prepend-icon="mdi-theme-light-dark"
+                text="主題設定"
+                value="option-3"
+              ></v-tab> -->
+              </v-tabs>
+            </v-list-item>
+          </v-list>
+        </div>
 
-      <div class="content" style="background-color: white; border-radius: 12px">
-        <v-tabs-window v-model="tab">
-          <!-- 帳號設定 -->
-          <v-tabs-window-item value="option-1">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>帳號設定</h3>
-            </div>
-            <v-divider></v-divider>
+        <div
+          class="content w-100"
+          style="background-color: white; border-radius: 12px"
+        >
+          <v-tabs-window v-model="tab">
+            <!-- 帳號設定 -->
+            <v-tabs-window-item value="option-1">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <h3>帳號設定</h3>
+              </div>
+              <v-divider></v-divider>
 
-            <v-card flat>
-              <v-form @submit.prevent="submit" :disabled="isSubmitting">
-                <v-card-text>
-                  <div
-                    id="profile"
-                    class="b-1 w-50 text-center mx-auto rounded-lg"
-                  >
-                    <vue-file-agent
-                      class="d-flex justify-center mb-5"
-                      accept="image/jpeg,image/png"
-                      deletable
-                      max-size="1MB"
-                      help-text="上傳大頭照"
-                      :error-text="{
-                        type: '檔案格式不支援',
-                        size: '檔案大小不能超過 1MB',
-                      }"
-                      v-model:file-records="fileRecords"
-                    />
-                    <!-- <div v-if="fileRecords[0].thumbnailUrl">
+              <v-card flat>
+                <v-form @submit.prevent="submit" :disabled="isSubmitting">
+                  <v-card-text>
+                    <div
+                      id="profile"
+                      class="w-md-50 w-100 text-center mx-auto rounded-lg"
+                    >
+                      <vue-file-agent
+                        class="d-flex justify-center mb-5"
+                        accept="image/jpeg,image/png"
+                        deletable
+                        max-size="1MB"
+                        help-text="上傳大頭照"
+                        :error-text="{
+                          type: '檔案格式不支援',
+                          size: '檔案大小不能超過 1MB',
+                        }"
+                        v-model:file-records="fileRecords"
+                      />
+                      <!-- <div v-if="fileRecords[0].thumbnailUrl">
                       <img :src="fileRecords[0].thumbnailUrl" alt="Avatar" />
                     </div> -->
 
-                    <v-row class="text-center" style="padding: 8px">
-                      <template v-for="item in users" :key="item.id">
-                        <template v-if="!item.isEditing">
-                          <v-col cols="2" class="my-auto pa-0">
-                            <label class="form-label" style="font-size: 18px">
-                              暱稱
-                            </label>
-                          </v-col>
-                          <v-col cols="8" class="my-auto">
-                            <p style="font-size: 18px">
-                              {{ item.username }}
-                            </p>
-                          </v-col>
-                        </template>
+                      <v-row class="text-center" style="padding: 8px">
+                        <template v-for="item in users" :key="item.id">
+                          <template v-if="!item.isEditing">
+                            <v-col cols="2" class="my-auto pa-0">
+                              <label class="form-label" style="font-size: 18px">
+                                暱稱
+                              </label>
+                            </v-col>
+                            <v-col cols="8" class="my-auto">
+                              <p style="font-size: 18px">
+                                {{ item.username }}
+                              </p>
+                            </v-col>
+                          </template>
 
-                        <template v-else>
-                          <v-col cols="2" class="my-auto pa-0">
-                            <label class="form-label" style="font-size: 18px">
-                              暱稱
-                            </label>
-                          </v-col>
-                          <v-col cols="10" class="my-auto">
-                            <v-text-field
-                              class="form-label"
-                              style="font-size: 18px"
-                              minlength="3"
-                              maxlength="20"
-                              variant="outlined"
-                              single-line
-                              density="comfortable"
-                              clearable
-                              dense
-                              v-model="newUsername"
-                              :error-messages="newUsernameError"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="12" class="my-auto">
-                            <v-btn
-                              variant="flat"
-                              color="#4E9194"
-                              class="mx-1"
-                              @click="cancelEdit(item, 'username')"
-                              >取消</v-btn
-                            >
-                            <v-btn
-                              type="submit"
-                              variant="flat"
-                              color="#4E9194"
-                              class="mx-1"
-                              :loading="isSubmitting"
-                              >保存</v-btn
-                            >
-                          </v-col>
+                          <template v-else>
+                            <v-col cols="2" class="my-auto pa-0">
+                              <label class="form-label" style="font-size: 18px">
+                                暱稱
+                              </label>
+                            </v-col>
+                            <v-col cols="10" class="my-auto">
+                              <v-text-field
+                                class="form-label"
+                                style="font-size: 18px"
+                                minlength="3"
+                                maxlength="20"
+                                variant="outlined"
+                                single-line
+                                density="comfortable"
+                                clearable
+                                dense
+                                v-model="newUsername"
+                                :error-messages="newUsernameError"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" class="my-auto">
+                              <v-btn
+                                variant="flat"
+                                color="#4E9194"
+                                class="mx-1"
+                                @click="cancelEdit(item, 'username')"
+                                >取消</v-btn
+                              >
+                              <v-btn
+                                type="submit"
+                                variant="flat"
+                                color="#4E9194"
+                                class="mx-1"
+                                :loading="isSubmitting"
+                                >保存</v-btn
+                              >
+                            </v-col>
+                          </template>
+                          <template v-if="!item.isEditing">
+                            <v-col cols="2" class="my-auto pa-0">
+                              <v-btn
+                                @click="toggleEdit(item)"
+                                variant="flat"
+                                color="#4E9194"
+                                class="pa-0"
+                                >編輯</v-btn
+                              >
+                            </v-col>
+                          </template>
                         </template>
-                        <template v-if="!item.isEditing">
-                          <v-col cols="2" class="my-auto pa-0">
-                            <v-btn
-                              @click="toggleEdit(item)"
-                              variant="flat"
-                              color="#4E9194"
-                              class="pa-0"
-                              >編輯</v-btn
-                            >
-                          </v-col>
-                        </template>
-                      </template>
-                    </v-row>
+                      </v-row>
 
-                    <v-divider class="text-center my-3"></v-divider>
+                      <v-divider class="text-center my-3"></v-divider>
 
-                    <v-row class="text-center" style="padding: 8px">
-                      <template v-for="item in users" :key="item.id">
-                        <template v-if="!item.isEmailToggleEditing">
-                          <v-col cols="2" class="my-auto pa-0">
-                            <label class="form-label" style="font-size: 18px">
-                              帳號
-                            </label>
-                          </v-col>
-                          <v-col cols="8" class="my-auto">
-                            <p style="font-size: 18px">
-                              {{ item.email }}
-                            </p>
-                          </v-col>
-                        </template>
-                        <template v-else>
-                          <v-col cols="2" class="my-auto pa-0">
-                            <label class="form-label" style="font-size: 18px">
-                              帳號
-                            </label>
-                          </v-col>
-                          <v-col cols="10" class="my-auto">
-                            <v-text-field
-                              class="form-label"
-                              style="font-size: 18px"
-                              variant="outlined"
-                              single-line
-                              density="comfortable"
-                              clearable
-                              dense
-                              v-model="newEmail"
-                              :error-messages="newEmailError"
-                            ></v-text-field>
-                          </v-col>
+                      <v-row class="text-center" style="padding: 8px">
+                        <template v-for="item in users" :key="item.id">
+                          <template v-if="!item.isEmailToggleEditing">
+                            <v-col cols="2" class="my-auto pa-0">
+                              <label class="form-label" style="font-size: 18px">
+                                帳號
+                              </label>
+                            </v-col>
+                            <v-col cols="8" class="my-auto">
+                              <p style="font-size: 18px">
+                                {{ item.email }}
+                              </p>
+                            </v-col>
+                          </template>
+                          <template v-else>
+                            <v-col cols="2" class="my-auto pa-0">
+                              <label class="form-label" style="font-size: 18px">
+                                帳號
+                              </label>
+                            </v-col>
+                            <v-col cols="10" class="my-auto">
+                              <v-text-field
+                                class="form-label"
+                                style="font-size: 18px"
+                                variant="outlined"
+                                single-line
+                                density="comfortable"
+                                clearable
+                                dense
+                                v-model="newEmail"
+                                :error-messages="newEmailError"
+                              ></v-text-field>
+                            </v-col>
 
-                          <v-col cols="12" class="my-auto">
-                            <v-btn
-                              variant="flat"
-                              color="#4E9194"
-                              class="mx-1"
-                              @click="cancelEdit(item, 'email')"
-                              >取消</v-btn
-                            >
-                            <v-btn
-                              type="submit"
-                              variant="flat"
-                              color="#4E9194"
-                              class="mx-1"
-                              :loading="isSubmitting"
-                              >保存</v-btn
-                            >
-                          </v-col>
+                            <v-col cols="12" class="my-auto">
+                              <v-btn
+                                variant="flat"
+                                color="#4E9194"
+                                class="mx-1"
+                                @click="cancelEdit(item, 'email')"
+                                >取消</v-btn
+                              >
+                              <v-btn
+                                type="submit"
+                                variant="flat"
+                                color="#4E9194"
+                                class="mx-1"
+                                :loading="isSubmitting"
+                                >保存</v-btn
+                              >
+                            </v-col>
+                          </template>
+                          <template v-if="!item.isEmailToggleEditing">
+                            <v-col cols="2" class="my-auto pa-0">
+                              <v-btn
+                                @click="emailToggleEdit(item)"
+                                variant="flat"
+                                color="#4E9194"
+                                class="pa-0"
+                                >編輯</v-btn
+                              >
+                            </v-col>
+                          </template>
                         </template>
-                        <template v-if="!item.isEmailToggleEditing">
-                          <v-col cols="2" class="my-auto pa-0">
-                            <v-btn
-                              @click="emailToggleEdit(item)"
-                              variant="flat"
-                              color="#4E9194"
-                              class="pa-0"
-                              >編輯</v-btn
-                            >
-                          </v-col>
-                        </template>
-                      </template>
-                    </v-row>
-                    <v-divider class="text-center my-3"></v-divider
-                    ><v-row class="text-center" style="padding: 8px">
-                      <template v-for="item in users" :key="item.id">
-                        <template v-if="!item.passwordisEditing">
-                          <v-col cols="2" class="my-auto pa-0">
-                            <label class="form-label" style="font-size: 18px">
-                              密碼
-                            </label>
-                          </v-col>
-                          <v-col cols="8" class="my-auto">
-                            <p style="font-size: 18px">
-                              {{ item.password }}
-                            </p>
-                          </v-col>
-                        </template>
-                        <template v-else>
-                          <v-col cols="2" class="my-auto pa-0">
-                            <label class="form-label" style="font-size: 18px">
-                              新密碼
-                            </label>
-                          </v-col>
-                          <v-col cols="10" class="my-auto">
-                            <v-text-field
-                              class="form-label"
-                              style="font-size: 18px"
-                              variant="outlined"
-                              single-line
-                              density="comfortable"
-                              clearable
-                              dense
-                              :type="showPassword ? 'text' : 'password'"
-                              minlength="4"
-                              maxlength="20"
-                              v-model="newPassword"
-                              :error-messages="newPasswordError"
-                              :append-inner-icon="
-                                showPassword ? 'mdi-eye' : 'mdi-eye-off'
-                              "
-                              @click:append-inner="togglePasswordVisibility"
-                            ></v-text-field>
-                          </v-col>
+                      </v-row>
+                      <v-divider class="text-center my-3"></v-divider
+                      ><v-row class="text-center" style="padding: 8px">
+                        <template v-for="item in users" :key="item.id">
+                          <template v-if="!item.passwordisEditing">
+                            <v-col cols="2" class="my-auto pa-0">
+                              <label class="form-label" style="font-size: 18px">
+                                密碼
+                              </label>
+                            </v-col>
+                            <v-col cols="8" class="my-auto">
+                              <p style="font-size: 18px">
+                                {{ item.password }}
+                              </p>
+                            </v-col>
+                          </template>
+                          <template v-else>
+                            <v-col cols="2" class="my-auto pa-0">
+                              <label class="form-label" style="font-size: 18px">
+                                新密碼
+                              </label>
+                            </v-col>
+                            <v-col cols="10" class="my-auto">
+                              <v-text-field
+                                class="form-label"
+                                style="font-size: 18px"
+                                variant="outlined"
+                                single-line
+                                density="comfortable"
+                                clearable
+                                dense
+                                :type="showPassword ? 'text' : 'password'"
+                                minlength="4"
+                                maxlength="20"
+                                v-model="newPassword"
+                                :error-messages="newPasswordError"
+                                :append-inner-icon="
+                                  showPassword ? 'mdi-eye' : 'mdi-eye-off'
+                                "
+                                @click:append-inner="togglePasswordVisibility"
+                              ></v-text-field>
+                            </v-col>
 
-                          <v-col cols="2" class="my-auto pa-0">
-                            <label class="form-label" style="font-size: 18px">
-                              確認密碼
-                            </label>
-                          </v-col>
-                          <v-col cols="10" class="my-auto">
-                            <v-text-field
-                              class="form-label"
-                              style="font-size: 18px"
-                              variant="outlined"
-                              single-line
-                              density="comfortable"
-                              clearable
-                              dense
-                              :type="showPasswordConfirm ? 'text' : 'password'"
-                              minlength="4"
-                              maxlength="20"
-                              v-model="passwordConfirm"
-                              :error-messages="passwordConfirmError"
-                              :append-inner-icon="
-                                showPasswordConfirm ? 'mdi-eye' : 'mdi-eye-off'
-                              "
-                              @click:append-inner="
-                                togglePasswordConfirmVisibility
-                              "
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="12" class="my-auto">
-                            <v-btn
-                              variant="flat"
-                              color="#4E9194"
-                              class="mx-1"
-                              @click="cancelEdit(item, 'password')"
-                              >取消</v-btn
-                            >
-                            <v-btn
-                              type="submit"
-                              variant="flat"
-                              color="#4E9194"
-                              class="mx-1"
-                              :loading="isSubmitting"
-                              >保存</v-btn
-                            >
-                          </v-col>
+                            <v-col cols="2" class="my-auto pa-0">
+                              <label class="form-label" style="font-size: 18px">
+                                確認密碼
+                              </label>
+                            </v-col>
+                            <v-col cols="10" class="my-auto">
+                              <v-text-field
+                                class="form-label"
+                                style="font-size: 18px"
+                                variant="outlined"
+                                single-line
+                                density="comfortable"
+                                clearable
+                                dense
+                                :type="
+                                  showPasswordConfirm ? 'text' : 'password'
+                                "
+                                minlength="4"
+                                maxlength="20"
+                                v-model="passwordConfirm"
+                                :error-messages="passwordConfirmError"
+                                :append-inner-icon="
+                                  showPasswordConfirm
+                                    ? 'mdi-eye'
+                                    : 'mdi-eye-off'
+                                "
+                                @click:append-inner="
+                                  togglePasswordConfirmVisibility
+                                "
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" class="my-auto">
+                              <v-btn
+                                variant="flat"
+                                color="#4E9194"
+                                class="mx-1"
+                                @click="cancelEdit(item, 'password')"
+                                >取消</v-btn
+                              >
+                              <v-btn
+                                type="submit"
+                                variant="flat"
+                                color="#4E9194"
+                                class="mx-1"
+                                :loading="isSubmitting"
+                                >保存</v-btn
+                              >
+                            </v-col>
+                          </template>
+                          <template v-if="!item.passwordisEditing">
+                            <v-col cols="2" class="my-auto pa-0">
+                              <v-btn
+                                variant="flat"
+                                color="#4E9194"
+                                @click="passwordToggleEdit(item)"
+                                >編輯</v-btn
+                              >
+                            </v-col>
+                          </template>
                         </template>
-                        <template v-if="!item.passwordisEditing">
-                          <v-col cols="2" class="my-auto pa-0">
-                            <v-btn
-                              variant="flat"
-                              color="#4E9194"
-                              @click="passwordToggleEdit(item)"
-                              >編輯</v-btn
-                            >
-                          </v-col>
-                        </template>
-                      </template>
-                    </v-row>
-                    <v-divider class="text-center my-3"></v-divider>
+                      </v-row>
+                      <v-divider class="text-center my-3"></v-divider>
+                    </div>
+                  </v-card-text>
+                </v-form>
+              </v-card>
+            </v-tabs-window-item>
+
+            <!-- 通知設定 -->
+            <v-tabs-window-item value="option-2" style="height: 320px">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <h3>通知設定</h3>
+              </div>
+              <v-divider></v-divider>
+              <div class="d-flex align-center justify-space-between py-2">
+                <v-card-actions class="d-flex flex-column w-100">
+                  <div class="d-flex align-center justify-space-between w-100">
+                    <p>投票通知</p>
+                    <p>其他使用者投票給你的故事時寄送推播</p>
+                    <v-switch
+                      :model-value="true"
+                      color="primary"
+                      hide-details
+                    ></v-switch>
                   </div>
-                </v-card-text>
-              </v-form>
-            </v-card>
-          </v-tabs-window-item>
+                  <div class="d-flex align-center justify-space-between w-100">
+                    <p>收藏通知</p>
+                    <p>您所收藏的故事有更新時會寄送通知</p>
+                    <v-switch
+                      :model-value="true"
+                      color="primary"
+                      hide-details
+                    ></v-switch>
+                  </div>
+                </v-card-actions>
+              </div>
+            </v-tabs-window-item>
 
-          <!-- 通知設定 -->
-          <v-tabs-window-item value="option-2" style="height: 320px">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>通知設定</h3>
-            </div>
-            <v-divider></v-divider>
-            <div class="d-flex align-center justify-space-between py-2">
-              <v-card-actions class="d-flex flex-column w-100">
-                <div class="d-flex align-center justify-space-between w-100">
-                  <p>投票通知</p>
-                  <p>其他使用者投票給你的故事時寄送推播</p>
-                  <v-switch
-                    :model-value="true"
-                    color="primary"
-                    hide-details
-                  ></v-switch>
-                </div>
-                <div class="d-flex align-center justify-space-between w-100">
-                  <p>收藏通知</p>
-                  <p>您所收藏的故事有更新時會寄送通知</p>
-                  <v-switch
-                    :model-value="true"
-                    color="primary"
-                    hide-details
-                  ></v-switch>
-                </div>
-              </v-card-actions>
-            </div>
-          </v-tabs-window-item>
-
-          <!-- 主題設定 -->
-          <v-tabs-window-item value="option-3" style="height: 450px">
-            <div class="d-flex align-center justify-space-between mb-4">
-              <h3>主題設定</h3>
-            </div>
-            <v-divider></v-divider>
-            <div class="d-flex align-center justify-space-between py-2">
-              <v-card-actions class="d-flex flex-column w-100">
-                <div class="d-flex align-center justify-space-between w-100">
-                  <p>淺色模式</p>
-                  <v-switch
-                    :model-value="true"
-                    color="primary"
-                    hide-details
-                  ></v-switch>
-                </div>
-                <div class="d-flex align-center justify-space-between w-100">
-                  <p>深色模式</p>
-                  <v-switch
-                    :model-value="false"
-                    color="primary"
-                    hide-details
-                  ></v-switch>
-                </div>
-              </v-card-actions>
-            </div>
-          </v-tabs-window-item>
-        </v-tabs-window>
+            <!-- 主題設定 -->
+            <v-tabs-window-item value="option-3" style="height: 450px">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <h3>主題設定</h3>
+              </div>
+              <v-divider></v-divider>
+              <div class="d-flex align-center justify-space-between py-2">
+                <v-card-actions class="d-flex flex-column w-100">
+                  <div class="d-flex align-center justify-space-between w-100">
+                    <p>淺色模式</p>
+                    <v-switch
+                      :model-value="true"
+                      color="primary"
+                      hide-details
+                    ></v-switch>
+                  </div>
+                  <div class="d-flex align-center justify-space-between w-100">
+                    <p>深色模式</p>
+                    <v-switch
+                      :model-value="false"
+                      color="primary"
+                      hide-details
+                    ></v-switch>
+                  </div>
+                </v-card-actions>
+              </div>
+            </v-tabs-window-item>
+          </v-tabs-window>
+        </div>
       </div>
-    </div>
+    </v-container>
   </v-container>
 </template>
 
@@ -561,7 +604,10 @@ const submit = handleSubmit(async () => {
 // window.fileRecords = fileRecords;
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.smallSidebar {
+  display: none;
+}
 .sidebar {
   width: 20%;
   padding: 16px;
@@ -594,5 +640,14 @@ const submit = handleSubmit(async () => {
 }
 ::v-deep .grid-block-wrapper .grid-block {
   min-width: 125px;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
+  .smallSidebar {
+    display: block;
+  }
 }
 </style>
