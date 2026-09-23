@@ -432,101 +432,40 @@ const openDialog = () => {
 
 const hasMerged = ref(false);
 
+// 投票時間到了之後要清空延伸故事、合併進目前章節、還是開新章節，
+// 這些判斷全部交給後端的 finalizeVoting 決定，前端只負責通知「這個故事的投票該結算了」。
 const mergeHighestVotedStory = async (isExpanded) => {
-  console.log("mergeHighestVotedStory 開始執行");
+  if (!extensions.value.length || hasMerged.value) {
+    emit("update");
+    return;
+  }
+  hasMerged.value = true;
 
   try {
-    if (!extensions.value.length) {
-      console.log("沒有延續故事可供合併");
-      emit("update");
-      return; // extensions 為空，直接返回，不執行合併
-    }
-    if (hasMerged.value) {
-      emit("update");
-      return;
-    }
-    hasMerged.value = true;
+    const { data } = await apiAuth.patch(`/story/${storyId}/finalizeVoting`);
 
-    // 檢查所有延續故事的票數
-    const validExtensions = extensions.value.filter(
-      (extension) => extension.voteCount.length > 0
-    );
-
-    if (!validExtensions.length) {
-      console.log("所有延續故事的票數為 0，清空延續故事");
-      // 發送請求來清空延續故事
-      await apiAuth.patch(`/story/${storyId}/clearExtensions`);
-      if (isExpanded) {
+    if (isExpanded) {
+      if (data.action === "cleared") {
         createSnackbar({
           text: "所有延續故事的票數為 0，已清空延續故事",
-          snackbarProps: {
-            color: "red",
-          },
+          snackbarProps: { color: "red" },
         });
-      }
-      emit("update");
-      return; // 不再執行後續合併邏輯
-    }
-
-    const highestVotedExtension = extensions.value.reduce((prev, current) =>
-      current.voteCount.length > prev.voteCount.length ? current : prev
-    );
-
-    if (!highestVotedExtension?._id) {
-      throw new Error("延續故事未找到");
-    }
-
-    // 檢查 currentChapterWordCount 是否達到 wordsPerChapter
-    if (props.currentChapterWordCount === props.wordsPerChapter) {
-      console.log("當前章節已達到字數上限，準備創建新章節");
-
-      await apiAuth.post(`/story/${storyId}/newChapter`, {
-        newContent: highestVotedExtension.content[0]?.latestContent, // 合併最高票數的內容
-        newChapterName: highestVotedExtension.chapterName,
-      });
-      console.log("觸發 newChapter");
-      if (isExpanded) {
+      } else if (data.action === "newChapter") {
         createSnackbar({
           text: "已成功創建新章節並合併最高票數的延續故事",
-          snackbarProps: {
-            color: "green",
-          },
+          snackbarProps: { color: "green" },
         });
-      }
-      emit("update");
-    } else {
-      // 如果字數還未達到上限，執行合併邏輯
-      const response = await apiAuth.patch(`/story/${storyId}/merge`, {
-        extensionsId: highestVotedExtension._id,
-      });
-
-      if (response.data.isCompleted) {
-        // 更新故事状态
-        props.state = true;
-        if (isExpanded) {
-          createSnackbar({
-            text: "故事已完结！",
-            snackbarProps: {
-              color: "success",
-            },
-          });
-        }
-      } else {
-        if (isExpanded) {
-          createSnackbar({
-            text: "延续故事已成功合并到主故事中",
-            snackbarProps: {
-              color: "green",
-            },
-          });
-        }
+      } else if (data.action === "merged") {
+        createSnackbar({
+          text: data.isCompleted ? "故事已完結！" : "延續故事已成功合併到主故事中",
+          snackbarProps: { color: data.isCompleted ? "success" : "green" },
+        });
       }
     }
 
-    console.log("即將觸發 emit update");
-    emit("update");
-    console.log("已觸發 emit update");
-    console.log("合併操作完成");
+    if (data.isCompleted) {
+      props.state = true;
+    }
   } catch (error) {
     console.error(
       "合併故事時發生錯誤",
@@ -541,8 +480,7 @@ const mergeHighestVotedStory = async (isExpanded) => {
       });
     }
   } finally {
-    console.log("重置 hasMerged ");
-    hasMerged.value = false; // 確保無論成功或失敗後都會重置狀態
+    hasMerged.value = false;
     emit("update");
   }
 };
