@@ -13,33 +13,6 @@
             ></v-img>
           </router-link>
         </div>
-        <div class="d-flex flex-column align-center">
-          <v-btn
-            outlined
-            border
-            style="background-color: #ffffff"
-            color="#000000"
-            prepend-icon="mdi-google"
-            class="my-4 elevation-1 w-66"
-            variant="plain"
-            to="/login"
-          >
-            使用 Google 註冊
-          </v-btn>
-          <!-- <v-btn
-            outlined
-            border
-            style="background-color: #ffffff"
-            color="#000000"
-            size="default"
-            prepend-icon="mdi-facebook"
-            class="mb-4 elevation-1 w-66"
-            variant="plain"
-            to="/login"
-          >
-            使用 Facebook 註冊
-          </v-btn> -->
-        </div>
         <v-divider class="mb-4"></v-divider>
         <v-form @submit.prevent="submit" :disabled="isSubmitting">
           <v-text-field

@@ -59,45 +59,11 @@
       >
     </v-card-actions>
   </v-card>
-
-  <!-- <v-dialog v-model="reportDialog" max-width="500px">
-    <v-form @submit.prevent="submit" :disabled="isSubmitting">
-      <v-card>
-        <v-card-title>
-          <span class="headline">檢舉故事</span>
-        </v-card-title>
-        <v-card-text>
-          <v-textarea
-            v-model="report.value.value"
-            :error-messages="report.errorMessage.value"
-            label="請描述檢舉原因"
-            rows="3"
-            auto-grow
-          ></v-textarea>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="reportDialog = false"
-            >取消</v-btn
-          >
-          <v-btn
-            color="blue darken-1"
-            text
-            type="submit"
-            :loading="isSubmitting"
-            >提交</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-form>
-  </v-dialog> -->
 </template>
 
 <script setup>
-import { ref, toRefs, watch, computed } from "vue";
+import { toRefs, computed } from "vue";
 import { defineProps } from "vue";
-// import * as yup from "yup";
-// import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
 import { useUserStore } from "@/stores/user";
 import { useSnackbar } from "vuetify-use-dialog";
@@ -169,57 +135,7 @@ const changeVoteCount = async (voteCountChange) => {
   }
 };
 
-// const schema = yup.object({
-//   report: yup.string().required("請描述檢舉原因").min(50, "檢舉不能低於 50 字"),
-// });
-
-// const { handleSubmit, isSubmitting, resetForm } = useForm({
-//   validationSchema: schema,
-//   initialValues: {
-//     report: "",
-//   },
-// });
-
-// const report = useField("report");
-
-// const reportDialog = ref(false);
-// const handleReport = () => {
-//   reportDialog.value = true;
-// };
-
-// 有檢舉的列表
-// const items = computed(() => {
-//   const baseItems = [{ title: "檢舉", action: handleReport }];
-//   if (userId === props.authorId) {
-//     baseItems.push({ title: "刪除", action: deleteExtensionStory });
-//   }
-//   return baseItems;
-// });
-
 const items = computed(() => [{ title: "刪除", action: deleteExtensionStory }]);
-
-// 未完成的檢舉功能
-// const submit = handleSubmit(async (values) => {
-//   if (!user.isLogin) {
-//     createSnackbar({
-//       text: "請先登入才能檢舉",
-//       snackbarProps: {
-//         color: "red",
-//       },
-//     });
-//     return;
-//   }
-//   try {
-//     // await apiAuth.post(`/story/${storyId.value}/${extensionId.value}`, {
-//     //   report: values.report,
-//     // });
-//     console.log("檢舉已提交");
-
-//     reportDialog.value = false;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
 
 const deleteExtensionStory = async () => {
   try {
@@ -243,12 +159,6 @@ const deleteExtensionStory = async () => {
     });
   }
 };
-
-// watch(reportDialog, (newValue) => {
-//   if (!newValue) {
-//     resetForm();
-//   }
-// });
 </script>
 
 <style scoped>

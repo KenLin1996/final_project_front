@@ -55,23 +55,6 @@
       </div>
     </template>
     <template v-slot:append v-else>
-      <!-- <v-menu open-on-hover transition="slide-y-transition">
-        <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-bell" v-bind="props" class="mr-2"></v-btn>
-        </template>
-        <v-list class="pa-2 text-center" density="compact" :lines="false" nav>
-          <v-list-item
-            class="px-5 py-0 my-0 custom-menu-item"
-            v-for="(notification, i) in notifications"
-            :key="i"
-            :to="notification.to"
-            link
-          >
-            <v-list-item-title>{{ notification.text }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu> -->
-
       <!-- 會員頭像 -->
       <template v-if="user.isLogin">
         <v-layout>
@@ -187,30 +170,7 @@
           </v-btn>
         </template>
 
-        <!-- 通知 -->
         <template v-else>
-          <v-menu open-on-hover transition="slide-y-transition">
-            <!-- <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-bell" v-bind="props" class="mr-2"></v-btn>
-          </template> -->
-            <v-list
-              class="pa-2 text-center"
-              density="compact"
-              :lines="false"
-              nav
-            >
-              <v-list-item
-                class="px-5 py-0 my-0 custom-menu-item"
-                v-for="(notification, i) in notifications"
-                :key="i"
-                :to="notification.to"
-                link
-              >
-                <v-list-item-title>{{ notification.text }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-
           <!-- 會員頭像 -->
           <template v-if="user.isLogin">
             <v-menu open-on-hover transition="slide-y-transition">
@@ -281,11 +241,6 @@ const menus = computed(() => {
     },
   ];
 });
-
-const notifications = computed(() => [
-  { to: "/notification1", text: "通知一", show: user.isLogin },
-  { to: "/notification2", text: "通知二", show: user.isLogin },
-]);
 
 const settings = computed(() => [
   { to: "/management", text: "故事管理", show: user.isLogin },

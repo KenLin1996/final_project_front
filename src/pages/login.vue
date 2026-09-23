@@ -18,32 +18,6 @@
               src="../assets/stor-genLogo.png"
             ></v-img>
           </router-link>
-          <v-btn
-            outlined
-            border
-            style="background-color: #ffffff"
-            color="#000000"
-            prepend-icon="mdi-google"
-            class="my-2 elevation-1 w-66 h-25"
-            variant="plain"
-            to="/externalAuth/google"
-            @click="googleLogin"
-          >
-            使用 Google 登入
-          </v-btn>
-          <!-- <v-btn
-            outlined
-            border
-            style="background-color: #ffffff"
-            color="#000000"
-            size="default"
-            prepend-icon="mdi-facebook"
-            class="my-2 elevation-1 w-66 h-25"
-            variant="plain"
-            to="/login"
-          >
-            使用 Facebook 登入
-          </v-btn> -->
         </v-col>
         <v-divider class="my-2"></v-divider>
         <v-col cols="12">
@@ -162,10 +136,4 @@ const submit = handleSubmit(async (values) => {
     });
   }
 });
-
-// OAuth 流程會重定向到 Google 登入頁面並在驗證後返回，因此無法使用 api.get 處理，而應直接導向至 Google OAuth 的後端路由。
-const googleLogin = async () => {
-  // 前端將按鈕點擊事件設置為指向後端的 Google OAuth 入口點
-  window.location.href = "http://localhost:4000/externalAuth/google";
-};
 </script>
