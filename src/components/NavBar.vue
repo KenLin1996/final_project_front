@@ -235,10 +235,6 @@ const menus = computed(() => {
         { to: "/category", text: "故事分類" },
       ],
     },
-    {
-      title: "創作資源",
-      items: [{ to: "/articleArea", text: "創作指引" }],
-    },
   ];
 });
 

@@ -131,37 +131,6 @@
       </v-row>
     </v-container>
 
-    <v-container style="padding: 32px; max-width: 98%">
-      <v-row class="justify-space-between">
-        <v-col cols="12" class="pb-0">
-          <h2>創作資源區</h2>
-        </v-col>
-        <v-divider class="mb-3"></v-divider>
-        <v-col cols="12" class="d-flex flex-row justify-space-between py-0">
-          <v-list
-            class="d-flex justify-space-between w-100 py-0"
-            style="background-color: transparent"
-          >
-            <v-list-item
-              v-for="(item, i) in resources"
-              :key="i"
-              :to="item.to"
-              link
-            >
-              <template v-slot:prepend>
-                <v-icon size="80" :color="item.color">
-                  {{ item.icon }}
-                </v-icon>
-              </template>
-              <v-list-item-title
-                style="font-size: 20px; font-weight: bold"
-                v-text="item.title"
-              ></v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-col>
-      </v-row>
-    </v-container>
   </v-container>
 </template>
 
@@ -237,15 +206,6 @@ const loadStories = async () => {
     console.error("Failed to load stories:", error);
   }
 };
-
-const resources = [
-  {
-    to: "/articleArea",
-    icon: "mdi-lightbulb-on-outline",
-    title: "創作指引",
-    color: "#F9A825",
-  },
-];
 
 onMounted(() => {
   loadStories();
