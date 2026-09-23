@@ -108,7 +108,6 @@ const userStore = useUserStore();
 const user = useUserStore();
 const createSnackbar = useSnackbar();
 
-const hasVotedInOtherExtension = ref(false);
 const props = defineProps([
   "content",
   "chapterName",
@@ -147,54 +146,26 @@ const changeVoteCount = async (voteCountChange) => {
   }
 
   try {
-    const storyResponse = await apiAuth.patch(
-      `/story/${storyId.value}/${extensionId.value}`,
-      {
-        voteCountChange: voteCountChange,
-      }
-    );
-
-    if (!storyResponse.data.hasVotedInOtherExtension) {
-      hasVotedInOtherExtension.value = true;
-    }
-
-    const checkVoteRec = await apiAuth.get(
-      `/voteRecord/${storyId.value}/${extensionId.value}`
-    );
-
     if (voteCountChange > 0) {
-      // // 投票: 創建投票紀錄
-
-      if (!checkVoteRec.data.exists) {
-        // 只有當紀錄不存在時才創建新紀錄
-        await apiAuth.post(
-          `/voteRecord/postVoteRec/${storyId.value}/${extensionId.value}`,
-          {
-            content: content.value?.[0]?.latestContent,
-            exAuthor: author.value.username,
-          }
-        );
-        // console.log("投票紀錄已創建");
-      } else {
-        console.log("投票紀錄已存在，無需重複創建");
-      }
+      // 投票：後端會在同一個 transaction 裡建立 VoteRecord、更新故事票數、更新作者統計
+      await apiAuth.post(`/voteRecord/${storyId.value}/${extensionId.value}`, {
+        content: content.value?.[0]?.latestContent,
+        exAuthor: author.value.username,
+      });
     } else {
-      // 如果 voteCountChange 是負數，表示要取消投票
-      if (checkVoteRec.data.exists) {
-        // 只有當紀錄存在時才刪除
-        await apiAuth.delete(
-          `/voteRecord/delVoteRec/${storyId.value}/${extensionId.value}`
-        );
-        // console.log("投票紀錄已刪除");
-      } else {
-        console.log("投票紀錄不存在，無需刪除");
-      }
+      // 取消投票：同一個 transaction 一次同步刪除 VoteRecord 並扣回票數
+      await apiAuth.delete(`/voteRecord/${storyId.value}/${extensionId.value}`);
     }
 
     mittt.emit("updateStory");
   } catch (error) {
-    console.log(error);
     console.error("Error updating vote count:", error);
+    createSnackbar({
+      text: error?.response?.data?.message || "操作失敗，請稍後再試",
+      snackbarProps: {
+        color: "red",
+      },
+    });
   }
 };
 
