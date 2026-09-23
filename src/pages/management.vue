@@ -232,7 +232,7 @@
                 :headers="bookmarkHeaders"
                 :items="bookmarkStories"
                 :items-per-page-options="itemsPerPageOptions"
-                item-value="._id"
+                item-value="_id"
                 show-select
               >
                 <template #item.completion="{ item }">
@@ -762,7 +762,9 @@ watch(selectedCategory, () => {
 const removeBookmarkFunc = async () => {
   try {
     // 在這裡添加取消收藏的邏輯
-    await apiAuth.delete(`/user/removeBookmark`, { data: { ids: selected } }); // 傳遞多個 ID
+    await apiAuth.delete(`/user/removeBookmark`, {
+      data: { ids: selected.value },
+    });
 
     createSnackbar({
       text: "取消收藏成功",
