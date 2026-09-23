@@ -19,8 +19,25 @@
         height="160px"
         :src="image"
         cover
-        style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2)"
+        style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); background-color: #f3ede0"
+        @error="imageFailed = true"
       >
+        <template v-slot:placeholder>
+          <div
+            class="d-flex align-center justify-center fill-height"
+            style="background-color: #f3ede0"
+          >
+            <v-icon icon="mdi-image-off-outline" size="40" color="#CCB78E" />
+          </div>
+        </template>
+        <template v-if="!image || imageFailed" v-slot:default>
+          <div
+            class="d-flex align-center justify-center fill-height"
+            style="background-color: #f3ede0"
+          >
+            <v-icon icon="mdi-book-open-page-variant-outline" size="40" color="#CCB78E" />
+          </div>
+        </template>
       </v-img>
 
       <div class="d-flex justify-space-between align-center my-2">
@@ -52,6 +69,8 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
+
 const { _id, image, title, category, mainAuthor, content } = defineProps([
   "_id",
   "image",
@@ -61,6 +80,8 @@ const { _id, image, title, category, mainAuthor, content } = defineProps([
   "content",
   "chapterName",
 ]);
+
+const imageFailed = ref(false);
 </script>
 <style scoped>
 .customMargin:not(:last-child) {

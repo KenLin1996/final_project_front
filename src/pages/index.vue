@@ -115,7 +115,7 @@
         </v-col>
         <v-divider class="mb-3"></v-divider>
         <v-col cols="12" class="d-flex flex-row align-center justify-center">
-          <v-row class="w-100 d-flex align-center justify-space-between">
+          <v-row class="w-100 d-flex align-center justify-center">
             <template v-if="completedStories.length > 0">
               <BookCard
                 v-for="story in completedStories"
@@ -124,7 +124,7 @@
               />
             </template>
             <template v-else>
-              <div class="">尚未有已完結故事</div>
+              <div class="text-medium-emphasis py-4">尚未有已完結故事</div>
             </template>
           </v-row>
         </v-col>
