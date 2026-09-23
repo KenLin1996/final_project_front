@@ -67,8 +67,8 @@
       >
       <v-btn
         style="background-color: #2883d3; color: white"
-        @click="collectionFunc"
-        :text="hasCollection ? `取消收藏` : `收藏故事`"
+        @click="toggleBookmark"
+        :text="isBookmarked ? `取消收藏` : `收藏故事`"
       ></v-btn>
     </div>
 
@@ -116,11 +116,11 @@
 </template>
 <script setup>
 import { definePage } from "vue-router/auto";
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "@/composables/axios";
+import { useBookmark } from "@/composables/useBookmark";
 import { useSnackbar } from "vuetify-use-dialog";
-import { useUserStore } from "@/stores/user";
 import mittt from "@/mitt";
 import StoryItem from "@/components/StoryItem.vue";
 import Message from "@/components/Message.vue";
@@ -133,17 +133,11 @@ definePage({
   },
 });
 
-const props = defineProps({
-  story: Object,
-  hasCollection: Boolean,
-});
 
 const { api, apiAuth } = useApi();
-const user = useUserStore();
 
 const route = useRoute();
 const createSnackbar = useSnackbar();
-const hasCollection = ref(props.hasCollection);
 
 const story = ref({
   _id: "",
@@ -157,6 +151,13 @@ const story = ref({
   collectionNum: 0,
   followNum: 0,
   content: [],
+});
+
+const { isBookmarked, collectionNum, checkBookmark, toggleBookmark } =
+  useBookmark(() => route.params.id);
+// 不論是這頁的按鈕還是 StoryItem 的愛心切換收藏，都同步後端回傳的實際收藏數
+watch(collectionNum, (n) => {
+  if (n !== null) story.value.collectionNum = n;
 });
 
 const load = async () => {
@@ -206,57 +207,6 @@ const load = async () => {
   }
 };
 
-const collectionFunc = async () => {
-  if (!user.isLogin) {
-    createSnackbar({
-      text: "請先登入才能收藏",
-      snackbarProps: {
-        color: "red",
-      },
-    });
-    return; // 未登入則不進行後續操作
-  }
-  try {
-    const response = await apiAuth.post("user/addBookmark", {
-      storyId: story.value._id,
-    });
-    hasCollection.value = response.data.hasCollection;
-
-    // 更新收藏數
-    if (response.data.hasCollection) {
-      story.value.collectionNum++;
-    } else {
-      story.value.collectionNum = Math.max(0, story.value.collectionNum - 1);
-    }
-
-    createSnackbar({
-      text: response.data.hasCollection ? "收藏故事" : "取消收藏",
-      snackbarProps: {
-        color: "green",
-      },
-    });
-  } catch (error) {
-    console.error("收藏操作失败", error);
-    createSnackbar({
-      text: "收藏操作失败",
-      snackbarProps: {
-        color: "red",
-      },
-    });
-  }
-};
-
-// 檢查收藏狀態
-const checkBookmarkStatus = async () => {
-  if (!user.isLogin) return;
-  try {
-    const response = await apiAuth.get("user/checkBookmark/" + route.params.id);
-    hasCollection.value = response.data.hasCollection;
-  } catch (error) {
-    console.error("檢查收藏狀態失敗", error);
-  }
-};
-
 const expandedStoryId = ref(null); // 用來追蹤當前展開的故事 ID
 
 const toggleStory = (storyId) => {
@@ -274,9 +224,7 @@ const openDialog = () => {
 onMounted(async () => {
   await load();
   mittt.on("updateStory", load);
-  if (user.isLogin) {
-    checkBookmarkStatus();
-  }
+  checkBookmark();
 });
 
 onUnmounted(() => {

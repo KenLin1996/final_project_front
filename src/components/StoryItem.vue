@@ -85,8 +85,8 @@
                   :ripple="false"
                   variant="text"
                   class="heart-button pa-0"
-                  @click="collectionFunc"
-                  :class="{ filled: isFilled }"
+                  @click="toggleBookmark"
+                  :class="{ filled: isBookmarked }"
                 >
                   <v-icon>{{ collectionIcon }}</v-icon>
                 </v-btn>
@@ -193,14 +193,14 @@ import { ref, computed, onMounted, onUnmounted, toRefs, watch } from "vue";
 import * as yup from "yup";
 import { useForm, useField } from "vee-validate";
 import { useApi } from "../composables/axios.js";
+import { useBookmark } from "@/composables/useBookmark";
 import { useSnackbar } from "vuetify-use-dialog";
 import VoteItem from "@/components/VoteItem.vue";
 import { useUserStore } from "@/stores/user";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
 const user = useUserStore();
-const route = useRoute();
 
 const router = useRouter();
 
@@ -360,60 +360,9 @@ const remainingWords = computed(() => calculateRemainingWords());
 
 const { extensions, voteEnd } = toRefs(props);
 
-const hasCollection = ref(false);
-const isFilled = ref(false);
-
-// 檢查收藏狀態
-const checkBookmarkStatus = async () => {
-  if (!user.isLogin) return;
-  try {
-    const storyIdToCheck = route.params.id || storyId;
-
-    const response = await apiAuth.get(`user/checkBookmark/${storyIdToCheck}`);
-
-    hasCollection.value = response.data.hasCollection;
-    isFilled.value = response.data.hasCollection;
-    // console.log("到前端 hasCollection 的值：", response.data.hasCollection);
-    // console.log("isFilled 的值：", isFilled.value);
-  } catch (error) {
-    console.error("檢查收藏狀態失敗", error);
-  }
-};
-
-const collectionFunc = async () => {
-  if (!user.isLogin) {
-    createSnackbar({
-      text: "請先登入才能收藏",
-      snackbarProps: {
-        color: "red",
-      },
-    });
-    return; // 未登入則不進行後續操作
-  }
-  try {
-    const response = await apiAuth.post("user/addBookmark", {
-      storyId: storyId,
-    });
-    hasCollection.value = response.data.hasCollection;
-    isFilled.value = response.data.hasCollection; // 更新 isFilled 狀態
-    createSnackbar({
-      text: response.data.hasCollection ? "收藏故事" : "取消收藏",
-      snackbarProps: {
-        color: "green",
-      },
-    });
-  } catch (error) {
-    console.error("收藏操作失败", error);
-    createSnackbar({
-      text: "收藏操作失败",
-      snackbarProps: {
-        color: "red",
-      },
-    });
-  }
-};
+const { isBookmarked, checkBookmark, toggleBookmark } = useBookmark(storyId);
 const collectionIcon = computed(() =>
-  isFilled.value ? "mdi-heart" : "mdi-heart-outline"
+  isBookmarked.value ? "mdi-heart" : "mdi-heart-outline"
 );
 
 const openDialog = () => {
@@ -529,10 +478,7 @@ const startCountdown = () => {
 };
 
 onMounted(() => {
-  // 檢查收藏狀態
-  if (user.isLogin) {
-    checkBookmarkStatus();
-  }
+  checkBookmark();
 
   // 如果投票已結束，啟動倒計時
   if (voteEnd) {
