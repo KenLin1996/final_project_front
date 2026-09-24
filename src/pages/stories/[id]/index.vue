@@ -39,14 +39,6 @@
                 <span class="grey--text">{{ story.totalWordCount }}</span>
               </p>
             </v-col>
-            <v-col cols="12" class="d-flex">
-              <v-chip
-                class="mr-2 text-white"
-                label
-                style="background-color: #ef5350; color: white"
-                >收藏數 {{ story.collectionNum }}</v-chip
-              >
-            </v-col>
           </v-row>
         </v-col>
       </v-row>
@@ -66,10 +58,21 @@
         >章節列表</v-btn
       >
       <v-btn
-        style="background-color: #2883d3; color: white"
+        :style="
+          isBookmarked
+            ? 'background-color: #ef5350; color: white'
+            : 'background-color: #2883d3; color: white'
+        "
         @click="toggleBookmark"
-        :text="isBookmarked ? `取消收藏` : `收藏故事`"
-      ></v-btn>
+      >
+        <v-icon
+          :icon="isBookmarked ? 'mdi-heart' : 'mdi-heart-outline'"
+          start
+        ></v-icon>
+        {{ isBookmarked ? "取消收藏" : "收藏故事" }}（{{
+          story.collectionNum
+        }}）
+      </v-btn>
     </div>
 
     <v-card class="pa-4 rounded-lg" style="margin-top: 32px">
